@@ -1,0 +1,60 @@
+name: Build, Test & Deploy WASM Worker
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      # 3. Set up Rust toolchain with WASM target
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      # 4. Cache Rust dependencies and WASM builds
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@v2
+
+      # 5. Install wasm-pack CLI
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      # 6. Install Node dependencies
+      - name: Install Node dependencies
+        run: npm ci
+
+      # 7. Compile Rust crate to WASM package
+      - name: Build WebAssembly Package
+        run: wasm-pack build --target web --out-dir pkg
+
+      # 8. Run Vitest integration test suite
+      - name: Run Vitest Suite
+        run: npx vitest run
+
+      # 9. Deploy to Cloudflare Workers (Main branch only)
+      - name: Deploy to Cloudflare Workers
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy

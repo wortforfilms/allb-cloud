@@ -1,0 +1,38 @@
+name = "maataa-sovereign-worker"
+main = "src/index.ts"
+compatibility_date = "2026-08-01"
+
+# Explicitly disable unwanted preview routes
+workers_dev = false
+preview_urls = false
+
+# Rate Limiter Binding
+[[unsafe.bindings]]
+name = "RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "1000"
+simple = { limit = 100, period = 60 }
+
+# WASM Module Rule
+[[rules]]
+type = "CompiledWasm"
+globs = ["**/*.wasm"]
+fallthrough = true
+
+[vars]
+ENVIRONMENT = "production"
+
+
+# Route directly to your custom domain on Cloudflare
+routes = [
+  { pattern = "brahmi.allb.xyz", custom_domain = true }
+]
+
+# Local KV Storage Binding for Nonce Tracking
+[[kv_namespaces]]
+binding = "Z0_NONCE_KV"
+id = "0a46de4477b546829654cc0e6e04e815" # Replace with your actual production ID from Step 1
+preview_id = "z0_nonce_kv_local_id"    # Local development ID
+[dev]
+port = 8787
+ip = "127.0.0.1"

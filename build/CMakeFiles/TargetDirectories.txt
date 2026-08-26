@@ -1,0 +1,3 @@
+/Users/vesahe/Downloads/allb.xyz/build/CMakeFiles/maataa_hal.dir
+/Users/vesahe/Downloads/allb.xyz/build/CMakeFiles/edit_cache.dir
+/Users/vesahe/Downloads/allb.xyz/build/CMakeFiles/rebuild_cache.dir

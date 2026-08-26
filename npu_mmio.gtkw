@@ -1,0 +1,82 @@
+[*]
+[*] GTKWave Session Save File for Siddham NPU MMIO Testbench
+[*]
+[dumpfile] "npu_mmio_waves.vcd"
+[dumpfile_mtime] "Wed Aug 26 08:39:20 2026"
+[dumpfile_size] 4096
+[savefile] "npu_mmio.gtkw"
+[timestart] 0
+[size] 1440 900
+[pos] -1 -1
+*-18.000000 10000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb_siddham_npu_mmio.
+[treeopen] tb_siddham_npu_mmio.uut.
+
+@28
+[color] 3
+tb_siddham_npu_mmio.clk
+[color] 2
+tb_siddham_npu_mmio.rst_n
+
+@c00022
+[color] 7
+tb_siddham_npu_mmio.AXI_WRITE_BUS
+@22
+tb_siddham_npu_mmio.awaddr[31:0]
+@28
+tb_siddham_npu_mmio.awvalid
+tb_siddham_npu_mmio.awready
+@22
+tb_siddham_npu_mmio.wdata[31:0]
+@28
+tb_siddham_npu_mmio.wvalid
+tb_siddham_npu_mmio.wready
+tb_siddham_npu_mmio.bvalid
+tb_siddham_npu_mmio.bready
+@100022
+[color] 7
+tb_siddham_npu_mmio.AXI_WRITE_BUS
+
+@c00022
+[color] 7
+tb_siddham_npu_mmio.AXI_READ_BUS
+@22
+tb_siddham_npu_mmio.araddr[31:0]
+@28
+tb_siddham_npu_mmio.arvalid
+tb_siddham_npu_mmio.arready
+@22
+tb_siddham_npu_mmio.rdata[31:0]
+@28
+tb_siddham_npu_mmio.rvalid
+tb_siddham_npu_mmio.rready
+@100022
+[color] 7
+tb_siddham_npu_mmio.AXI_READ_BUS
+
+@c00022
+[color] 6
+tb_siddham_npu_mmio.NPU_REGISTERS
+@22
+tb_siddham_npu_mmio.npu_input_ptr[31:0]
+tb_siddham_npu_mmio.npu_output_ptr[31:0]
+tb_siddham_npu_mmio.npu_vector_len[31:0]
+@100022
+[color] 6
+tb_siddham_npu_mmio.NPU_REGISTERS
+
+@c00022
+[color] 5
+tb_siddham_npu_mmio.NPU_HARDWARE_CORE
+@28
+tb_siddham_npu_mmio.npu_start
+tb_siddham_npu_mmio.npu_busy
+tb_siddham_npu_mmio.npu_done
+tb_siddham_npu_mmio.npu_irq
+@24
+tb_siddham_npu_mmio.npu_cycles[31:0]
+@100022
+[color] 5
+tb_siddham_npu_mmio.NPU_HARDWARE_CORE
+[pattern_trace] 1
+[pattern_trace] 0

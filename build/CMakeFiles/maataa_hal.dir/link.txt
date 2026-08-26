@@ -1,0 +1,1 @@
+/Library/Developer/CommandLineTools/usr/bin/c++  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk -dynamiclib -Wl,-headerpad_max_install_names -o libmaataa_hal.dylib -install_name @rpath/libmaataa_hal.dylib CMakeFiles/maataa_hal.dir/c_src/maataa_hal.cpp.o 
