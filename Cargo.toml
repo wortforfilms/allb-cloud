@@ -25,6 +25,8 @@ once_cell = "1.19"
 hex = "0.4"
 futures = "0.3.30"
 tracing = "0.1.40"
+js-sys = "0.3"
+serde-wasm-bindgen = "0.6"
 
 # Cryptography & Hash Functions for Z0-VESP Protocol
 sha2 = "0.10.8"
