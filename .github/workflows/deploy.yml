@@ -17,11 +17,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Set up Node.js environment
+      # 2. Set up Node.js 24 environment
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: "npm"
 
       # 3. Set up Rust toolchain with WASM target
@@ -38,9 +38,9 @@ jobs:
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
-      # 6. Install Node dependencies
+      # 6. Install Node dependencies (using legacy peer deps to avoid version mismatches)
       - name: Install Node dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       # 7. Compile Rust crate to WASM package
       - name: Build WebAssembly Package
@@ -50,7 +50,7 @@ jobs:
       - name: Run Vitest Suite
         run: npx vitest run
 
-      # 9. Deploy to Cloudflare Workers (Main branch only)
+      # 9. Deploy to Cloudflare Workers using locally installed Wrangler
       - name: Deploy to Cloudflare Workers
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: cloudflare/wrangler-action@v3
@@ -58,3 +58,5 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
+          # Uses the wrangler binary installed in node_modules instead of pulling outdated 3.90.0
+          packageManager: npm
