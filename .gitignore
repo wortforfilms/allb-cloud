@@ -43,3 +43,23 @@ Thumbs.db
 .env.local
 .env.*.local
 *.pem
+
+# CMake & C++ HAL Compilation Artifacts
+/build/
+*.dylib
+*.so
+*.a
+*.dll
+
+# Verilog / Icarus Verilog Simulation Outputs
+*.vvp
+*.vcd
+*.gtkw
+/npu_mmio_sim
+/siddham_npu_driver
+
+# Vivado / FPGA Toolchain Outputs
+/hardware/
+*.log
+*.jou
+*.str
