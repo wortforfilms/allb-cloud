@@ -22,7 +22,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 2. Tokenize & Execute NPU Vector
     let tokens = tokenizer.tokenize("𑀮𑀺𑀧𑀺");
     let input_vector = tokenizer.tokens_to_embedding(&tokens);
-    let (output_vector, metrics) = accelerator.process_vector(&input_vector)?;
+    let (output_vector, _metrics) = accelerator.process_vector(&input_vector)?;
 
     // 3. Panini Sutra Check
     let current_time = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();

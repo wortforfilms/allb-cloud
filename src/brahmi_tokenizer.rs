@@ -60,4 +60,12 @@ impl BrahmiScriptTokenizer {
         }
         embedding
     }
+
+    pub fn is_ancient_sovereign_script(c: char) -> bool {
+    matches!(c,
+        '\u{11000}'..='\u{1107F}' | // Brahmi (11000–1107F)
+        '\u{10A00}'..='\u{10A5F}' | // Kharosthi (10A00–10A5F)
+        '\u{11580}'..='\u{115FF}'   // Siddham (11580–115FF)
+    )
+}
 }

@@ -5,11 +5,18 @@ use std::io::Read;
 use flate2::read::GzDecoder;
 use once_cell::sync::Lazy;
 
-
+// Module Declarations
 pub mod brahmi_tokenizer;
 pub mod maataa_hal;
+pub mod maataa_runtime_pipeline;
 pub mod panini_engine;
 pub mod z0_vesp_protocol;
+
+// Internal imports from panini_engine re-exports
+use crate::panini_engine::execute_sandhi_gate;
+
+// Public re-exports for crate root
+pub use panini_engine::{PaniniEngineConfig, PaniniEvaluator};
 
 // ============================================================================
 // 1. HARDWARE ACCELERATION / FFI STUBS
@@ -48,7 +55,6 @@ impl BrahmiToken {
 }
 
 /// Tokenizes a UTF-8 Brahmi string into an array of individual Brahmi characters.
-/// Returns a native JavaScript Array<string> automatically.
 #[wasm_bindgen]
 pub fn tokenize_brahmi_script(input_text: &str) -> Vec<String> {
     let mut tokens = Vec::new();
@@ -84,7 +90,6 @@ pub fn tokenize_brahmi_metadata(input_text: &str) -> js_sys::Array {
 }
 
 /// Zero-Copy Brahmi Tokenizer: Writes codepoints directly to a continuous Rust buffer.
-/// Returns a typed array view (Uint32Array) directly mapped to WASM memory without FFI copy overhead.
 #[wasm_bindgen]
 pub fn tokenize_brahmi_zerocopy(input_text: &str) -> Vec<u32> {
     input_text
@@ -161,7 +166,7 @@ impl PaniniRuleEvaluator {
 }
 
 // ============================================================================
-// 5. WASM BINDGEN EXPORT INTERFACE
+// 5. WASM BINDGEN EXPORT INTERFACE & PHF STATIC MAP
 // ============================================================================
 
 #[wasm_bindgen]
@@ -215,22 +220,20 @@ impl PaniniSutraEngine {
     }
 }
 
-
-// Include the generated PHF map from OUT_DIR
+// Single Compile-Time PHF Inclusion from build.rs
 include!(concat!(env!("OUT_DIR"), "/phf_sutras.rs"));
-
-#[wasm_bindgen]
-pub fn lookup_sutra(sutra_id: &str) -> Option<String> {
-    ASHTADHYAYI_SUTRAS.get(sutra_id).map(|(sutra_text, name)| {
-        format!("{}: {}", name, sutra_text)
-    })
-}
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SutraRecord {
     pub id: String,
-    pub text: String,
-    pub r#type: String,
+    pub sutra: String,
+    pub category: String,
+    pub hardware_gate: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct SutraDatabasePayload {
+    sutras: Vec<SutraRecord>,
 }
 
 // Embedded compressed binary generated at build time
@@ -242,10 +245,10 @@ static SUTRA_DATABASE: Lazy<HashMap<String, SutraRecord>> = Lazy::new(|| {
     let mut json_str = String::new();
     decoder.read_to_string(&mut json_str).expect("Failed to decompress Sutra dataset");
 
-    let records: Vec<SutraRecord> = serde_json::from_str(&json_str).expect("Failed to parse JSON");
+    let payload: SutraDatabasePayload = serde_json::from_str(&json_str).expect("Failed to parse compressed JSON payload");
     
-    let mut map = HashMap::with_capacity(records.len());
-    for record in records {
+    let mut map = HashMap::with_capacity(payload.sutras.len());
+    for record in payload.sutras {
         map.insert(record.id.clone(), record);
     }
     map
@@ -260,28 +263,36 @@ pub fn get_sutra_by_id(id: &str) -> Result<JsValue, JsValue> {
     }
 }
 
-// Include the generated PHF map static binding from OUT_DIR
-include!(concat!(env!("OUT_DIR"), "/phf_ashtadhyayi.rs"));
-
 #[derive(Serialize)]
 pub struct SutraInfo {
     pub id: String,
-    pub text: String,
-    pub transliteration: String,
-    pub sutra_type: String,
+    pub sutra: String,
+    pub category: String,
+    pub hardware_gate: String,
 }
 
 #[wasm_bindgen]
 pub fn lookup_ashtadhyayi_sutra(sutra_id: &str) -> Result<JsValue, JsValue> {
-    if let Some(&(text, transliteration, sutra_type)) = ASHTADHYAYI_MAP.get(sutra_id) {
+    if let Some(&(sutra, category, hardware_gate)) = ASHTADHYAYI_MAP.get(sutra_id) {
         let info = SutraInfo {
             id: sutra_id.to_string(),
-            text: text.to_string(),
-            transliteration: transliteration.to_string(),
-            sutra_type: sutra_type.to_string(),
+            sutra: sutra.to_string(),
+            category: category.to_string(),
+            hardware_gate: hardware_gate.to_string(),
         };
         serde_wasm_bindgen::to_value(&info).map_err(|e| JsValue::from_str(&e.to_string()))
     } else {
-        Err(JsValue::from_str("Sutra ID not found in Ashtadhyayi database"))
+        Err(JsValue::from_str("Sutra ID not found in Ashtadhyayi static hash map"))
     }
+}
+
+/// O(1) Static Sutra Lookup (Rust Internal API)
+pub fn lookup_sutra(id: &str) -> Option<(&'static str, &'static str, &'static str)> {
+    ASHTADHYAYI_MAP.get(id).copied()
+}
+
+#[wasm_bindgen]
+pub fn execute_sandhi_transform(left_term: &str, right_term: &str) -> Result<JsValue, JsValue> {
+    let result = execute_sandhi_gate(left_term, right_term);
+    serde_wasm_bindgen::to_value(&result).map_err(|e| JsValue::from_str(&e.to_string()))
 }

@@ -20,7 +20,7 @@ let isWasmInitialized = false;
  */
 async function ensureWasmInitialized(): Promise<PaniniSutraEngine> {
   if (!isWasmInitialized) {
-    await init({ module_or_path: wasmModule });
+    await init;
     engineInstance = new PaniniSutraEngine();
     isWasmInitialized = true;
   }

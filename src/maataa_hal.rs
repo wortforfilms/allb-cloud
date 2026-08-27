@@ -1,7 +1,7 @@
-use std::ffi::c_void;
-use std::sync::Mutex;
-use std::fmt;
 use std::error::Error;
+use std::ffi::c_void;
+use std::fmt;
+use std::sync::Mutex;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -34,6 +34,7 @@ pub struct ExecutionMetrics {
 }
 
 pub struct SovereignHardwareAccelerator {
+    #[allow(dead_code)]
     raw_handle: Mutex<*mut c_void>,
 }
 
@@ -42,59 +43,102 @@ unsafe impl Sync for SovereignHardwareAccelerator {}
 
 impl SovereignHardwareAccelerator {
     pub fn new() -> Result<Self, HalStatus> {
-        let handle = unsafe { crate::maataa_hal::maataa_hal_create_device() };
-        if handle.is_null() {
-            Err(HalStatus::MmapFailed)
-        } else {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let handle = unsafe { maataa_hal_create_device() };
+            if handle.is_null() {
+                Err(HalStatus::MmapFailed)
+            } else {
+                Ok(Self {
+                    raw_handle: Mutex::new(handle),
+                })
+            }
+        }
+
+        #[cfg(target_arch = "wasm32")]
+        {
+            // WASM Emulation Handle (Non-null Sentinel Pointer)
+            let dummy_handle = 0x1 as *mut c_void;
             Ok(Self {
-                raw_handle: Mutex::new(handle),
+                raw_handle: Mutex::new(dummy_handle),
             })
         }
     }
 
     pub fn process_vector(&self, input: &[f32]) -> Result<(Vec<f32>, ExecutionMetrics), HalStatus> {
+        if input.is_empty() {
+            return Err(HalStatus::InvalidBuffer);
+        }
+
         let mut output = vec![0.0f32; input.len()];
-        let mut cycles: u32 = 0;
-        let mut latency: f32 = 0.0;
 
-        let handle_guard = self.raw_handle.lock().unwrap();
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let mut cycles: u32 = 0;
+            let mut latency: f32 = 0.0;
 
-        let raw_status = unsafe {
-            crate::maataa_hal::maataa_hal_execute(
-                *handle_guard,
-                input.as_ptr(),
-                output.as_mut_ptr(),
-                input.len() as u32,
-                &mut cycles,
-                &mut latency,
-            )
-        };
+            let handle_guard = self.raw_handle.lock().unwrap();
 
-        match raw_status {
-            0 => Ok((
+            let raw_status = unsafe {
+                maataa_hal_execute(
+                    *handle_guard,
+                    input.as_ptr(),
+                    output.as_mut_ptr(),
+                    input.len() as u32,
+                    &mut cycles,
+                    &mut latency,
+                )
+            };
+
+            match raw_status {
+                0 => Ok((
+                    output,
+                    ExecutionMetrics {
+                        execution_cycles: cycles,
+                        latency_ms: latency,
+                    },
+                )),
+                1 => Err(HalStatus::MmapFailed),
+                2 => Err(HalStatus::HardwareTimeout),
+                3 => Err(HalStatus::InvalidBuffer),
+                _ => Err(HalStatus::DeviceBusy),
+            }
+        }
+
+        #[cfg(target_arch = "wasm32")]
+        {
+            // Software Fallback Vector Processing for WASM Environment
+            let start = js_sys::Date::now();
+            for (i, val) in input.iter().enumerate() {
+                output[i] = val * 1.0; // Passthrough transformation
+            }
+            let elapsed_ms = (js_sys::Date::now() - start) as f32;
+
+            Ok((
                 output,
                 ExecutionMetrics {
-                    execution_cycles: cycles,
-                    latency_ms: latency,
+                    execution_cycles: (input.len() * 4) as u32,
+                    latency_ms: elapsed_ms,
                 },
-            )),
-            1 => Err(HalStatus::MmapFailed),
-            2 => Err(HalStatus::HardwareTimeout),
-            3 => Err(HalStatus::InvalidBuffer),
-            _ => Err(HalStatus::DeviceBusy),
+            ))
         }
     }
 }
 
 impl Drop for SovereignHardwareAccelerator {
     fn drop(&mut self) {
-        let handle_guard = self.raw_handle.lock().unwrap();
-        if !handle_guard.is_null() {
-            unsafe { crate::maataa_hal::maataa_hal_destroy_device(*handle_guard) };
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let handle_guard = self.raw_handle.lock().unwrap_or_else(|e| e.into_inner());
+            if !handle_guard.is_null() {
+                unsafe { maataa_hal_destroy_device(*handle_guard) };
+            }
         }
     }
 }
 
+// Native Linux/macOS C FFI Bindings (Compiled out on WASM targets)
+#[cfg(not(target_arch = "wasm32"))]
 extern "C" {
     pub fn maataa_hal_create_device() -> *mut c_void;
     pub fn maataa_hal_destroy_device(handle: *mut c_void);
