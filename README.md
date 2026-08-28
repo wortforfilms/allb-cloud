@@ -70,3 +70,6 @@ repository does not automatically deploy production.
 A successful Wrangler dry-run proves bundle construction only. A successful
 staging deployment plus live endpoint checks proves staging availability only;
 neither is evidence of production readiness.
+
+The 2026-08-28 isolated staging snapshot and its exact evidence are recorded in
+[`docs/STAGING_CERTIFICATION.md`](docs/STAGING_CERTIFICATION.md).
