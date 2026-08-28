@@ -1,7 +1,12 @@
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import init, { PaniniSutraEngine } from "../pkg/maataa_runtime.js";
+import init, {
+  PaniniSutraEngine,
+  execute_sandhi_transform,
+  lookup_ashtadhyayi_sutra,
+  tokenize_brahmi_script,
+} from "../pkg/maataa_runtime.js";
 
 const WASM_PATH = path.resolve(__dirname, "../pkg/maataa_runtime_bg.wasm");
 
@@ -182,8 +187,10 @@ describe("Z0-VESP + Rust WASM Panini Engine E2E Suite", () => {
   let engine: PaniniSutraEngine;
 
   beforeAll(async () => {
-    const wasmBytes = fs.readFileSync(WASM_PATH);
-    await init({ module_or_path: wasmBytes });
+    await init({ module_or_path: fs.readFileSync(WASM_PATH) });
+  });
+
+  beforeEach(() => {
     engine = new PaniniSutraEngine();
   });
 
@@ -194,5 +201,35 @@ describe("Z0-VESP + Rust WASM Panini Engine E2E Suite", () => {
     expect(result.final_form).toBe("naraindra");
     expect(result.derivation_history.length).toBeGreaterThan(0);
     expect(result.execution_microseconds).toBeGreaterThanOrEqual(0);
+  });
+
+  it("7. Should perform O(1) PHF Ashtadhyayi Sutra Lookup for Sutra 1.1.1", () => {
+    const sutra: any = lookup_ashtadhyayi_sutra("1.1.1");
+    expect(sutra).toBeDefined();
+    expect(sutra.sutra).toBe("वृद्धिरादैच्");
+    expect(sutra.category).toBe("संज्ञा (Saṁjñā)");
+    expect(sutra.hardware_gate).toBe("SAMJNA_BINDING_GATE");
+  });
+
+  it("8. Should return deterministic Sandhi results for supported transliteration inputs", () => {
+    const yan: any = execute_sandhi_transform("rāmi", "ati");
+    expect(yan.combined_form).toBe("rāmyati");
+    expect(yan.sutra_id).toBe("6.1.77");
+
+    const guna: any = execute_sandhi_transform("nara", "indra");
+    expect(guna.combined_form).toBe("narendra");
+    expect(guna.sutra_id).toBe("6.1.87");
+
+    const dirgha: any = execute_sandhi_transform("rāma", "avatāra");
+    expect(dirgha.combined_form).toBe("rāmāvatāra");
+    expect(dirgha.sutra_id).toBe("6.1.101");
+
+    expect(yan.deterministic_pass).toBe(true);
+    expect(yan.execution_cycles).toBeGreaterThan(0);
+  });
+
+  it("9. Should tokenize ancient Brahmi UTF-8 script without boundary corruption", () => {
+    const tokens = tokenize_brahmi_script("𑀅𑀆𑀇𑀈");
+    expect(tokens).toEqual(["𑀅", "𑀆", "𑀇", "𑀈"]);
   });
 });

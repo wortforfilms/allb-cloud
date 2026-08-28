@@ -22,7 +22,10 @@ pub struct SandhiResult {
 
 #[inline]
 fn is_slp1_vowel_byte(b: u8) -> bool {
-    matches!(b, b'a' | b'A' | b'i' | b'I' | b'u' | b'U' | b'f' | b'F' | b'e' | b'E' | b'o' | b'O')
+    matches!(
+        b,
+        b'a' | b'A' | b'i' | b'I' | b'u' | b'U' | b'f' | b'F' | b'e' | b'E' | b'o' | b'O'
+    )
 }
 
 #[inline]
@@ -70,9 +73,26 @@ fn is_scutva_trigger(b: u8) -> bool {
 fn is_soft_consonant_or_a_byte(b: u8) -> bool {
     matches!(
         b,
-        b'a' | b'g' | b'G' | b'N' | b'j' | b'J' | b'Y' | b'q' | b'Q' | b'R'
-            | b'd' | b'D' | b'n' | b'b' | b'B' | b'm' | b'y' | b'r' | b'l'
-            | b'v' | b'h'
+        b'a' | b'g'
+            | b'G'
+            | b'N'
+            | b'j'
+            | b'J'
+            | b'Y'
+            | b'q'
+            | b'Q'
+            | b'R'
+            | b'd'
+            | b'D'
+            | b'n'
+            | b'b'
+            | b'B'
+            | b'm'
+            | b'y'
+            | b'r'
+            | b'l'
+            | b'v'
+            | b'h'
     )
 }
 

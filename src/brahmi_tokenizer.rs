@@ -19,7 +19,10 @@ impl BrahmiScriptTokenizer {
         }
         vocab.insert("[UNK]".to_string(), idx);
 
-        Self { vocab, embedding_dim }
+        Self {
+            vocab,
+            embedding_dim,
+        }
     }
 
     pub fn tokenize(&self, text: &str) -> Vec<String> {
@@ -52,9 +55,10 @@ impl BrahmiScriptTokenizer {
     pub fn tokens_to_embedding(&self, tokens: &[String]) -> Vec<f32> {
         let mut embedding = vec![0.0f32; self.embedding_dim];
         for (i, token) in tokens.iter().enumerate() {
-            let token_id = *self.vocab.get(token).unwrap_or(
-                self.vocab.get("[UNK]").unwrap_or(&0)
-            );
+            let token_id = *self
+                .vocab
+                .get(token)
+                .unwrap_or(self.vocab.get("[UNK]").unwrap_or(&0));
             let slot = i % self.embedding_dim;
             embedding[slot] += (token_id as f32) / 256.0f32;
         }
@@ -62,10 +66,10 @@ impl BrahmiScriptTokenizer {
     }
 
     pub fn is_ancient_sovereign_script(c: char) -> bool {
-    matches!(c,
-        '\u{11000}'..='\u{1107F}' | // Brahmi (11000–1107F)
-        '\u{10A00}'..='\u{10A5F}' | // Kharosthi (10A00–10A5F)
-        '\u{11580}'..='\u{115FF}'   // Siddham (11580–115FF)
-    )
-}
+        matches!(c,
+            '\u{11000}'..='\u{1107F}' | // Brahmi (11000–1107F)
+            '\u{10A00}'..='\u{10A5F}' | // Kharosthi (10A00–10A5F)
+            '\u{11580}'..='\u{115FF}'   // Siddham (11580–115FF)
+        )
+    }
 }

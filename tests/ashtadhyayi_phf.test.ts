@@ -19,9 +19,9 @@ describe("Ashtadhyayi PHF Static Map WASM Lookups", () => {
 
     expect(sutra).toBeDefined();
     expect(sutra.id).toBe("1.1.1");
-    expect(sutra.text).toBe("वृद्धिरादैच्");
-    expect(sutra.transliteration).toBe("vṛddhirādaic");
-    expect(sutra.sutra_type).toBe("samjna");
+    expect(sutra.sutra).toBe("वृद्धिरादैच्");
+    expect(sutra.category).toBe("संज्ञा (Saṁjñā)");
+    expect(sutra.hardware_gate).toBe("SAMJNA_BINDING_GATE");
   });
 
   it("2. Should resolve Sutra 1.1.2 (अदेङ्गुणः) correctly", () => {
@@ -29,13 +29,13 @@ describe("Ashtadhyayi PHF Static Map WASM Lookups", () => {
 
     expect(sutra).toBeDefined();
     expect(sutra.id).toBe("1.1.2");
-    expect(sutra.text).toBe("अदेङ्गुणः");
-    expect(sutra.transliteration).toBe("adeṅguṇaḥ");
+    expect(sutra.sutra).toBe("अदेङ्गुणः");
+    expect(sutra.category).toBe("संज्ञा (Saṁjñā)");
   });
 
   it("3. Should reject invalid/non-existent Sutra IDs with appropriate error", () => {
     expect(() => lookup_ashtadhyayi_sutra("9.9.999")).toThrow(
-      "Sutra ID not found in Ashtadhyayi database"
+      "Sutra ID not found in Ashtadhyayi static hash map"
     );
   });
 });

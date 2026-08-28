@@ -1,7 +1,7 @@
 //! Z0-VESP Ingress Protocol Layer
 //! Implements RFC 8785 JCS Canonicalization and Ed25519 Signing.
 
-use ed25519_dalek::{SigningKey, Signer};
+use ed25519_dalek::{Signer, SigningKey};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -64,7 +64,10 @@ impl Z0VespProtocolEngine {
     }
 
     /// Constructs and signs the complete VESP packet envelope
-    pub fn create_envelope(&self, payload: VespPayload) -> Result<VespEnvelope, Box<dyn std::error::Error>> {
+    pub fn create_envelope(
+        &self,
+        payload: VespPayload,
+    ) -> Result<VespEnvelope, Box<dyn std::error::Error>> {
         let canonical_json = self.canonicalize(&payload)?;
 
         // SHA-256 Digest of canonical payload

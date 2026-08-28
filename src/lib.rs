@@ -1,9 +1,9 @@
-use serde::{Deserialize, Serialize};
-use wasm_bindgen::prelude::*;
-use std::collections::HashMap;
-use std::io::Read;
 use flate2::read::GzDecoder;
 use once_cell::sync::Lazy;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::io::Read;
+use wasm_bindgen::prelude::*;
 
 // Module Declarations
 pub mod brahmi_tokenizer;
@@ -237,16 +237,20 @@ struct SutraDatabasePayload {
 }
 
 // Embedded compressed binary generated at build time
-static COMPRESSED_SUTRAS: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/ashtadhyayi_compressed.bin"));
+static COMPRESSED_SUTRAS: &[u8] =
+    include_bytes!(concat!(env!("OUT_DIR"), "/ashtadhyayi_compressed.bin"));
 
 // Lazy global lookup map initialized once on first WASM execution call
 static SUTRA_DATABASE: Lazy<HashMap<String, SutraRecord>> = Lazy::new(|| {
     let mut decoder = GzDecoder::new(COMPRESSED_SUTRAS);
     let mut json_str = String::new();
-    decoder.read_to_string(&mut json_str).expect("Failed to decompress Sutra dataset");
+    decoder
+        .read_to_string(&mut json_str)
+        .expect("Failed to decompress Sutra dataset");
 
-    let payload: SutraDatabasePayload = serde_json::from_str(&json_str).expect("Failed to parse compressed JSON payload");
-    
+    let payload: SutraDatabasePayload =
+        serde_json::from_str(&json_str).expect("Failed to parse compressed JSON payload");
+
     let mut map = HashMap::with_capacity(payload.sutras.len());
     for record in payload.sutras {
         map.insert(record.id.clone(), record);
@@ -282,7 +286,9 @@ pub fn lookup_ashtadhyayi_sutra(sutra_id: &str) -> Result<JsValue, JsValue> {
         };
         serde_wasm_bindgen::to_value(&info).map_err(|e| JsValue::from_str(&e.to_string()))
     } else {
-        Err(JsValue::from_str("Sutra ID not found in Ashtadhyayi static hash map"))
+        Err(JsValue::from_str(
+            "Sutra ID not found in Ashtadhyayi static hash map",
+        ))
     }
 }
 

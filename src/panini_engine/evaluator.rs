@@ -63,7 +63,10 @@ impl PaniniEvaluator {
         self.sutra_weights
     }
 
-    pub fn apply_deterministic_guardrail(&self, hw_output: &[i32; 256]) -> Result<Vec<u8>, &'static str> {
+    pub fn apply_deterministic_guardrail(
+        &self,
+        hw_output: &[i32; 256],
+    ) -> Result<Vec<u8>, &'static str> {
         let mut verified_phonemes = Vec::with_capacity(16);
 
         for &acc in hw_output.iter().take(16) {
@@ -86,7 +89,7 @@ impl Default for PaniniEvaluator {
 
 pub fn execute_sandhi_gate(left_term: &str, right_term: &str) -> SandhiGateResult {
     let (combined, sutra, sutra_id) = apply_sandhi_rules(left_term, right_term);
-    
+
     SandhiGateResult {
         left_term: left_term.to_string(),
         right_term: right_term.to_string(),
@@ -105,28 +108,56 @@ fn apply_sandhi_rules(left: &str, right: &str) -> (String, &'static str, &'stati
     match (left_last, right_first) {
         ('i' | 'ī', 'a' | 'ā' | 'u' | 'ū' | 'e' | 'o') => {
             let stem = &left[..left.len() - left_last.len_utf8()];
-            (format!("{}y{}", stem, right), "Ikah Yan Achi (इको यणचि)", "6.1.77")
+            (
+                format!("{}y{}", stem, right),
+                "Ikah Yan Achi (इको यणचि)",
+                "6.1.77",
+            )
         }
         ('u' | 'ū', 'a' | 'ā' | 'i' | 'ī' | 'e' | 'o') => {
             let stem = &left[..left.len() - left_last.len_utf8()];
-            (format!("{}v{}", stem, right), "Ikah Yan Achi (इको यणचि)", "6.1.77")
+            (
+                format!("{}v{}", stem, right),
+                "Ikah Yan Achi (इको यणचि)",
+                "6.1.77",
+            )
         }
         ('a' | 'ā', 'a' | 'ā') => {
             let stem = &left[..left.len() - left_last.len_utf8()];
-            (format!("{}ā{}", stem, &right[right_first.len_utf8()..]), "Akah Savarne Dirghah (अकः सवर्णे दीर्घः)", "6.1.101")
+            (
+                format!("{}ā{}", stem, &right[right_first.len_utf8()..]),
+                "Akah Savarne Dirghah (अकः सवर्णे दीर्घः)",
+                "6.1.101",
+            )
         }
         ('i' | 'ī', 'i' | 'ī') => {
             let stem = &left[..left.len() - left_last.len_utf8()];
-            (format!("{}ī{}", stem, &right[right_first.len_utf8()..]), "Akah Savarne Dirghah (अकः सवर्णे दीर्घः)", "6.1.101")
+            (
+                format!("{}ī{}", stem, &right[right_first.len_utf8()..]),
+                "Akah Savarne Dirghah (अकः सवर्णे दीर्घः)",
+                "6.1.101",
+            )
         }
         ('a' | 'ā', 'i' | 'ī') => {
             let stem = &left[..left.len() - left_last.len_utf8()];
-            (format!("{}e{}", stem, &right[right_first.len_utf8()..]), "Ad Gunah (आद्गुणः)", "6.1.87")
+            (
+                format!("{}e{}", stem, &right[right_first.len_utf8()..]),
+                "Ad Gunah (आद्गुणः)",
+                "6.1.87",
+            )
         }
         ('a' | 'ā', 'u' | 'ū') => {
             let stem = &left[..left.len() - left_last.len_utf8()];
-            (format!("{}o{}", stem, &right[right_first.len_utf8()..]), "Ad Gunah (आद्गुणः)", "6.1.87")
+            (
+                format!("{}o{}", stem, &right[right_first.len_utf8()..]),
+                "Ad Gunah (आद्गुणः)",
+                "6.1.87",
+            )
         }
-        _ => (format!("{}{}", left, right), "Pratipadika Samasa (प्रातिपदिक समास)", "1.2.45"),
+        _ => (
+            format!("{}{}", left, right),
+            "Pratipadika Samasa (प्रातिपदिक समास)",
+            "1.2.45",
+        ),
     }
 }
