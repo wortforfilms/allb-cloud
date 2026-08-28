@@ -49,8 +49,8 @@ impl PaniniEvaluator {
 
     pub fn with_config(config: PaniniEngineConfig) -> Self {
         let mut sutra_weights = [0i8; 256];
-        for i in 0..256 {
-            sutra_weights[i] = ((i * 7 + 13) % 127) as i8;
+        for (i, weight) in sutra_weights.iter_mut().enumerate() {
+            *weight = ((i * 7 + 13) % 127) as i8;
         }
 
         Self {

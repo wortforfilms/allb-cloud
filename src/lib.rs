@@ -10,6 +10,7 @@ pub mod brahmi_tokenizer;
 pub mod maataa_hal;
 pub mod maataa_runtime_pipeline;
 pub mod panini_engine;
+pub mod runtime_contract;
 pub mod z0_vesp_protocol;
 
 // Internal imports from panini_engine re-exports
@@ -17,6 +18,7 @@ use crate::panini_engine::execute_sandhi_gate;
 
 // Public re-exports for crate root
 pub use panini_engine::{PaniniEngineConfig, PaniniEvaluator};
+pub use runtime_contract::{execute_contract_operation, runtime_capabilities};
 
 // ============================================================================
 // 1. HARDWARE ACCELERATION / FFI STUBS
@@ -172,6 +174,12 @@ impl PaniniRuleEvaluator {
 #[wasm_bindgen]
 pub struct PaniniSutraEngine {
     default_rules: Vec<SutraRule>,
+}
+
+impl Default for PaniniSutraEngine {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[wasm_bindgen]

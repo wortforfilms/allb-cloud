@@ -1,5 +1,6 @@
 import { initSync, execute_sandhi_transform, lookup_ashtadhyayi_sutra, tokenize_brahmi_script } from "../../../pkg/maataa_runtime.js";
 import wasmModule from "../../../pkg/maataa_runtime_bg.wasm";
+import { SCHEMA_VERSION } from "./generated/contracts";
 
 function ensureWasmLoaded() {
   initSync({ module: wasmModule });
@@ -35,7 +36,7 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === "/health") {
-      return json({ status: "OK", service: "maataa-sovereign-worker", environment: env.ENVIRONMENT });
+      return json({ status: "OK", service: "maataa-sovereign-worker", environment: env.ENVIRONMENT, contractVersion: SCHEMA_VERSION });
     }
 
     if (request.method === "POST") {

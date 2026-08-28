@@ -36,10 +36,10 @@ impl Z0VespProtocolEngine {
     /// RFC 8785 JCS Canonicalization (Deterministic JSON Encoding)
     pub fn canonicalize(&self, payload: &VespPayload) -> Result<String, serde_json::Error> {
         let json_value = serde_json::to_value(payload)?;
-        self.sort_json_value(&json_value)
+        Self::sort_json_value(&json_value)
     }
 
-    fn sort_json_value(&self, value: &Value) -> Result<String, serde_json::Error> {
+    fn sort_json_value(value: &Value) -> Result<String, serde_json::Error> {
         match value {
             Value::Object(map) => {
                 let mut sorted_keys: Vec<_> = map.keys().collect();
@@ -47,7 +47,7 @@ impl Z0VespProtocolEngine {
 
                 let mut entries = Vec::new();
                 for key in sorted_keys {
-                    let val_str = self.sort_json_value(&map[key])?;
+                    let val_str = Self::sort_json_value(&map[key])?;
                     entries.push(format!("\"{}\":{}", key, val_str));
                 }
                 Ok(format!("{{{}}}", entries.join(",")))
@@ -55,7 +55,7 @@ impl Z0VespProtocolEngine {
             Value::Array(arr) => {
                 let mut items = Vec::new();
                 for item in arr {
-                    items.push(self.sort_json_value(item)?);
+                    items.push(Self::sort_json_value(item)?);
                 }
                 Ok(format!("[{}]", items.join(",")))
             }

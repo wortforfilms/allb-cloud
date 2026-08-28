@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0.0",
+  "assuranceLevels": ["AAL2", "AAL3", "mTLS", "Scoped capability"],
+  "effects": ["Permit", "Deny", "RequireApproval", "RequireStepUpAuthentication"],
+  "protectedActions": ["workspace:view", "runtime:execute", "dataset:read", "dataset:export", "model:promote", "agent:delegate", "policy:edit", "hardware:program", "release:approve", "evidence:export"],
+  "runtimeOperations": ["tokenizeBrahmi", "evaluateSandhi", "lookupSutra"],
+  "executionModes": ["SoftwareNative", "SoftwareWasm", "SiddhamNpu"],
+  "executionStatuses": ["Succeeded", "Failed", "NotExecuted"]
+}

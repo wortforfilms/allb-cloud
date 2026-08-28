@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Siddham OperationRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "requestId",
+    "principal",
+    "action",
+    "resource",
+    "workspace",
+    "assurance"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "principal": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action": {
+      "enum": [
+        "workspace:view",
+        "runtime:execute",
+        "dataset:read",
+        "dataset:export",
+        "model:promote",
+        "agent:delegate",
+        "policy:edit",
+        "hardware:program",
+        "release:approve",
+        "evidence:export"
+      ]
+    },
+    "resource": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workspace": {
+      "type": "string",
+      "minLength": 1
+    },
+    "assurance": {
+      "enum": [
+        "AAL2",
+        "AAL3",
+        "mTLS",
+        "Scoped capability"
+      ]
+    },
+    "operation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "text"
+          ],
+          "properties": {
+            "kind": {
+              "const": "tokenizeBrahmi"
+            },
+            "text": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "left",
+            "right"
+          ],
+          "properties": {
+            "kind": {
+              "const": "evaluateSandhi"
+            },
+            "left": {
+              "type": "string",
+              "minLength": 1
+            },
+            "right": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "sutraId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "lookupSutra"
+            },
+            "sutraId": {
+              "type": "string",
+              "pattern": "^\\\\d+\\\\.\\\\d+\\\\.\\\\d+$"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "requestId": "REQ-contract-001",
+  "principal": "Release Authority",
+  "action": "runtime:execute",
+  "resource": "MAATAA Brahmi Tokenizer",
+  "workspace": "Siddham Core R&D",
+  "assurance": "AAL3",
+  "operation": { "kind": "tokenizeBrahmi", "text": "𑀅𑀆" }
+}
