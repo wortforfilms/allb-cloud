@@ -1,0 +1,20 @@
+{
+  "application": "Siddham Edge",
+  "status": "controlled-reference-scaffold",
+  "pages": [
+    {"id":"command-centre","title":"Command Centre","status":"concept","components":["MetricCard","TelemetryChart","ResourceBars","InferenceTable","SystemFeed"]},
+    {"id":"edge-device","title":"Edge Device","status":"reference","components":["DeviceHero","TabBar","ResourceBars","HealthPanel","StoragePanel","NetworkPanel"]},
+    {"id":"live-inference","title":"Live Inference","status":"concept","components":["VisionViewport","ModelSelector","DecisionCard","DetectionTable","PerformanceBars"]},
+    {"id":"panini-rule-engine","title":"Panini Rule Engine","status":"reference","components":["CodePanel","RuleTrace","VariableTable","OutcomeCard"]},
+    {"id":"evidence-gate","title":"Evidence Gate","status":"reference","components":["MetricCard","EvidenceLedger","MerkleRoot","TamperState"]},
+    {"id":"models-workloads","title":"Models & Workloads","status":"planned","components":["ModelTable","DeploymentTarget","ResourceBars"]},
+    {"id":"sensors-io","title":"Sensors & I/O","status":"reference","components":["SensorTable","IOPorts","SignalQuality","CalibrationTabs"]},
+    {"id":"fleet-manager","title":"Fleet Manager","status":"concept","components":["FleetMap","DeviceSummary","AlertList","GroupList"]},
+    {"id":"device-security","title":"Device Security","status":"reference","components":["SecureBootChain","DeviceIdentity","SecurityStatus","Attestation"]},
+    {"id":"ota-updates","title":"OTA Updates","status":"planned","components":["RolloutSummary","RolloutStages","UpdatePackage"]},
+    {"id":"developer-sdk","title":"Developer SDK","status":"scaffolded","components":["QuickStartCode","SDKTools","SDKInfo"]},
+    {"id":"release-authority","title":"Release Authority","status":"reference","components":["ReleasePipeline","ApprovalRequest","ApproverTable","ApprovalPolicy"]}
+  ],
+  "sharedComponents": ["AppShell","Sidebar","Topbar","StatusChip","Panel","MetricCard","DataTable","ProgressBar","Sparkline","TabBar","Timeline","CodeBlock","EmptyState","Toast"],
+  "dataFrames": ["fleet","devices","telemetry","inferences","models","sensors","rules","evidence","updates","approvals","alerts","security"]
+}

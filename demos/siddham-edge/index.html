@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#020b14">
+  <title>Siddham Edge — Local-First Deterministic Edge AI</title>
+  <meta name="description" content="Siddham Edge reference UI scaffold extracted from the approved all-pages board.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <a class="brand" href="#command-centre" aria-label="Siddham Edge home">
+        <span class="brand-mark" aria-hidden="true">▦</span>
+        <span><strong>SIDDHAM</strong><small>SEMICONDUCTOR</small></span>
+      </a>
+      <div class="product-lockup"><b>SIDDHAM EDGE</b><span>LOCAL-FIRST · DETERMINISTIC</span></div>
+      <nav id="primary-nav"></nav>
+      <div class="side-state"><i></i><span><b>Local authority ready</b><small>Demo fixtures · offline</small></span></div>
+    </aside>
+    <main class="workspace">
+      <header class="topbar">
+        <div><button class="menu" id="menu" aria-label="Toggle navigation">☰</button><span class="crumb">SIDDHAM EDGE / <b id="crumb">COMMAND CENTRE</b></span></div>
+        <div class="legend"><span class="state concept">● CONCEPT</span><span class="state planned">■ PLANNED</span><span class="state reference">◆ REFERENCE</span><span class="state scaffolded">● SCAFFOLDED</span></div>
+        <div class="clock"><span id="clock">--:--:-- IST</span><b>EDGE-0007</b></div>
+      </header>
+      <section id="page" class="page" aria-live="polite"></section>
+      <footer><span>LOCAL-FIRST ARCHITECTURE</span><span>DETERMINISTIC BY DESIGN</span><span>TRUSTED EVIDENCE &amp; CONTROL</span></footer>
+    </main>
+  </div>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

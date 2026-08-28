@@ -1,0 +1,42 @@
+{
+  "source": "ChatGPT Image Aug 2, 2026, 01_21_55 AM.png",
+  "product": "Siddham Edge",
+  "extractionType": "visual-reference-to-functional-html-reconstruction",
+  "truthStatus": "controlled-demo-fixtures",
+  "counts": {"pages":12,"sharedComponents":16,"dataFrames":12,"visualAssets":3,"statusTypes":4},
+  "pages": ["Command Centre","Edge Device","Live Inference","Panini Rule Engine","Evidence Gate","Models & Workloads","Sensors & I/O","Fleet Manager","Device Security","OTA Updates","Developer SDK","Release Authority"],
+  "elements": [
+    "brand-lockup","product-lockup","primary-navigation","topbar","breadcrumb","status-legend","device-clock","page-heading","page-actions","footer-principles",
+    "metric-card","panel","panel-title","status-chip","tab-bar","data-table","progress-bar","resource-bars","telemetry-chart","system-feed","key-value","toast","demo-disclosure"
+  ],
+  "specialisedComponents": [
+    "device-hero","device-product-render","vision-viewport","detection-overlay","decision-card","rule-code-panel","rule-trace","outcome-card","evidence-ledger",
+    "merkle-root","fleet-map","fleet-node","secure-boot-chain","security-status-grid","rollout-timeline","quick-start-code","sdk-tool-grid","release-pipeline","approver-table"
+  ],
+  "assets": [
+    {"path":"assets/reference-board.png","role":"user-supplied visual reference"},
+    {"path":"assets/siddham-edge-mark.svg","role":"reconstructed geometric product mark"},
+    {"path":"assets/icons.svg","role":"code-native interface symbol sprite"}
+  ],
+  "dataFrames": {
+    "fleet":["total","online","warning","offline","groups","nodes"],
+    "devices":["identity","model","version","status","location","zone","uptime","resources","health","storage","network"],
+    "telemetry":["time","npu","cpu","memory","temperature"],
+    "inferences":["id","model","decision","confidence","time","detections"],
+    "rules":["id","name","status","source","trace","variables","outcome"],
+    "evidence":["id","source","type","hash","time","status","merkleRoot","tamperState"],
+    "models":["name","version","type","size","status","deploymentTarget","resourceFit"],
+    "sensors":["name","type","status","value","health","ports","signalQuality"],
+    "security":["secureBoot","deviceIdentity","certificate","attestation","securityStatus"],
+    "updates":["version","rolloutId","target","progress","devices","stages","package","signature","publisher"],
+    "sdk":["quickStart","tools","version","language","platform","license"],
+    "release":["version","submitter","changes","evidenceBundle","pipeline","approvers","policy"]
+  },
+  "statuses": {
+    "productMaturity":["concept","planned","reference","scaffolded"],
+    "operational":["active","online","offline","pending","completed","in-progress","failed"],
+    "decision":["allow","flag","clean","review","abstain"],
+    "evidence":["verified","pending","failed","revoked","expired"]
+  },
+  "deliverables": ["index.html","siddham-edge-full.html","styles.css","app.js","data.js","data-frames.json","page-schema.json","design-tokens.json","extraction-manifest.json","README.md"]
+}

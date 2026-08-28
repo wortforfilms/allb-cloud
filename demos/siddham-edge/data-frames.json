@@ -1,0 +1,668 @@
+{
+  "meta": {
+    "product": "Siddham Edge",
+    "device": "EDGE-0007",
+    "version": "v0.1.2",
+    "location": "Mumbai Cluster 7",
+    "zone": "A1",
+    "demo": true
+  },
+  "pages": [
+    [
+      "command-centre",
+      "Command Centre",
+      "concept",
+      "grid-2x2"
+    ],
+    [
+      "edge-device",
+      "Edge Device",
+      "reference",
+      "device"
+    ],
+    [
+      "live-inference",
+      "Live Inference",
+      "concept",
+      "eye"
+    ],
+    [
+      "panini-rule-engine",
+      "Panini Rule Engine",
+      "reference",
+      "rules"
+    ],
+    [
+      "evidence-gate",
+      "Evidence Gate",
+      "reference",
+      "shield"
+    ],
+    [
+      "models-workloads",
+      "Models & Workloads",
+      "planned",
+      "layers"
+    ],
+    [
+      "sensors-io",
+      "Sensors & I/O",
+      "reference",
+      "activity"
+    ],
+    [
+      "fleet-manager",
+      "Fleet Manager",
+      "concept",
+      "map"
+    ],
+    [
+      "device-security",
+      "Device Security",
+      "reference",
+      "lock"
+    ],
+    [
+      "ota-updates",
+      "OTA Updates",
+      "planned",
+      "download"
+    ],
+    [
+      "developer-sdk",
+      "Developer SDK",
+      "scaffolded",
+      "code"
+    ],
+    [
+      "release-authority",
+      "Release Authority",
+      "reference",
+      "check"
+    ]
+  ],
+  "metrics": {
+    "fleetHealth": 92,
+    "devicesOnline": 128,
+    "devicesTotal": 138,
+    "alerts": 3,
+    "determinism": 100,
+    "evidenceVerified": 1821,
+    "evidenceTotal": 1842,
+    "evidencePending": 11,
+    "evidenceFailed": 10
+  },
+  "telemetry": [
+    {
+      "time": "10:28",
+      "npu": 34,
+      "cpu": 42,
+      "memory": 37,
+      "temp": 49
+    },
+    {
+      "time": "10:29",
+      "npu": 52,
+      "cpu": 38,
+      "memory": 39,
+      "temp": 50
+    },
+    {
+      "time": "10:30",
+      "npu": 46,
+      "cpu": 45,
+      "memory": 40,
+      "temp": 51
+    },
+    {
+      "time": "10:31",
+      "npu": 67,
+      "cpu": 51,
+      "memory": 41,
+      "temp": 52
+    },
+    {
+      "time": "10:32",
+      "npu": 58,
+      "cpu": 44,
+      "memory": 43,
+      "temp": 52
+    },
+    {
+      "time": "10:33",
+      "npu": 62,
+      "cpu": 48,
+      "memory": 44,
+      "temp": 53
+    }
+  ],
+  "resources": [
+    {
+      "name": "NPU",
+      "value": 62
+    },
+    {
+      "name": "CPU",
+      "value": 48
+    },
+    {
+      "name": "Memory",
+      "value": 44
+    },
+    {
+      "name": "Storage",
+      "value": 36
+    }
+  ],
+  "inferences": [
+    {
+      "id": "INF-8044",
+      "model": "vehicle-detector-v2",
+      "decision": "ALLOW",
+      "confidence": 0.94,
+      "time": "10:34:31"
+    },
+    {
+      "id": "INF-8043",
+      "model": "plate-recognizer-v1",
+      "decision": "FLAG",
+      "confidence": 0.87,
+      "time": "10:34:28"
+    },
+    {
+      "id": "INF-8042",
+      "model": "anomaly-detector-v1",
+      "decision": "CLEAN",
+      "confidence": 0.91,
+      "time": "10:34:25"
+    },
+    {
+      "id": "INF-8041",
+      "model": "object-count-v1",
+      "decision": "COUNT:7",
+      "confidence": 0.96,
+      "time": "10:34:22"
+    }
+  ],
+  "feed": [
+    {
+      "level": "critical",
+      "text": "Device EDGE-0137 offline",
+      "time": "10:34"
+    },
+    {
+      "level": "warning",
+      "text": "High temperature on EDGE-009",
+      "time": "10:32"
+    },
+    {
+      "level": "info",
+      "text": "Rule update published",
+      "time": "10:31"
+    },
+    {
+      "level": "ok",
+      "text": "OTA rollout started",
+      "time": "10:29"
+    }
+  ],
+  "device": {
+    "id": "EDGE-0007",
+    "model": "Siddham SE1000",
+    "version": "v0.1.2",
+    "status": "ONLINE",
+    "uptime": "7d 14h 23m",
+    "localTime": "10:34:31 IST",
+    "lastSync": "10:34:30 IST",
+    "temperature": "52°C",
+    "power": "12.4 W",
+    "voltage": "12.1 V",
+    "fan": "2300 RPM",
+    "storageUsed": 48,
+    "storageTotal": 128,
+    "network": "eth0 · 1 Gbps",
+    "signal": "-41 dBm"
+  },
+  "detections": [
+    {
+      "class": "car",
+      "confidence": 0.94,
+      "box": "[20, 18, 320, 210]",
+      "decision": "ALLOW"
+    },
+    {
+      "class": "truck",
+      "confidence": 0.91,
+      "box": "[360, 24, 570, 260]",
+      "decision": "ALLOW"
+    },
+    {
+      "class": "bus",
+      "confidence": 0.89,
+      "box": "[590, 30, 760, 250]",
+      "decision": "ALLOW"
+    },
+    {
+      "class": "pedestrian",
+      "confidence": 0.86,
+      "box": "[410, 160, 460, 310]",
+      "decision": "REVIEW"
+    }
+  ],
+  "activeRule": {
+    "id": "H-PLATE-001",
+    "name": "High Confidence Plate Read",
+    "status": "ACTIVE",
+    "source": [
+      "WHEN confidence >= 0.86",
+      "AND time_between(22:00, 06:00)",
+      "THEN verify = FLAG",
+      "authority = HUMAN_REVIEW"
+    ]
+  },
+  "ruleTrace": [
+    "Input Received",
+    "Model Output",
+    "Confidence Check",
+    "Time Window Check",
+    "Decision Computed",
+    "Action Enqueued"
+  ],
+  "variables": [
+    {
+      "name": "model",
+      "type": "String",
+      "value": "plate-recognizer-v1"
+    },
+    {
+      "name": "confidence",
+      "type": "Float",
+      "value": "0.91"
+    },
+    {
+      "name": "camera",
+      "type": "Enum",
+      "value": "gate-2"
+    },
+    {
+      "name": "time",
+      "type": "Time",
+      "value": "23:14:28"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-003442",
+      "source": "EDGE-0007",
+      "type": "image",
+      "hash": "a7f3…9c28",
+      "time": "10:34:31",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "EV-003441",
+      "source": "EDGE-0007",
+      "type": "inference",
+      "hash": "3b4e…1a77",
+      "time": "10:34:28",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "EV-003440",
+      "source": "EDGE-0009",
+      "type": "logs",
+      "hash": "9c4f…4f12",
+      "time": "10:34:21",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "EV-003439",
+      "source": "EDGE-0007",
+      "type": "image",
+      "hash": "f0e1…bc49",
+      "time": "10:34:18",
+      "status": "PENDING"
+    },
+    {
+      "id": "EV-003438",
+      "source": "EDGE-0009",
+      "type": "inference",
+      "hash": "b18c…4c29",
+      "time": "10:34:15",
+      "status": "VERIFIED"
+    }
+  ],
+  "models": [
+    {
+      "name": "vehicle-detector-v2",
+      "version": "2.1.0",
+      "type": "detection",
+      "size": "21.4 MB",
+      "status": "DEPLOYED"
+    },
+    {
+      "name": "plate-recognizer-v1",
+      "version": "1.4.2",
+      "type": "recognition",
+      "size": "18.7 MB",
+      "status": "DEPLOYED"
+    },
+    {
+      "name": "anomaly-detector-v1",
+      "version": "1.0.5",
+      "type": "anomaly",
+      "size": "12.1 MB",
+      "status": "STAGED"
+    },
+    {
+      "name": "object-count-v1",
+      "version": "1.2.0",
+      "type": "counting",
+      "size": "9.3 MB",
+      "status": "DEPLOYED"
+    },
+    {
+      "name": "face-detect-v1",
+      "version": "1.3.1",
+      "type": "detection",
+      "size": "15.6 MB",
+      "status": "PLANNED"
+    }
+  ],
+  "sensors": [
+    {
+      "name": "Camera 1",
+      "type": "Video",
+      "status": "ACTIVE",
+      "value": "25.0 FPS",
+      "health": "GOOD"
+    },
+    {
+      "name": "Camera 2",
+      "type": "Video",
+      "status": "ACTIVE",
+      "value": "25.1 FPS",
+      "health": "GOOD"
+    },
+    {
+      "name": "LIDAR 1",
+      "type": "LiDAR",
+      "status": "ACTIVE",
+      "value": "120k pts/s",
+      "health": "GOOD"
+    },
+    {
+      "name": "Temperature",
+      "type": "Thermistor",
+      "status": "ACTIVE",
+      "value": "52.1°C",
+      "health": "GOOD"
+    },
+    {
+      "name": "IMU",
+      "type": "IMU",
+      "status": "ACTIVE",
+      "value": "OK",
+      "health": "GOOD"
+    },
+    {
+      "name": "Microphone",
+      "type": "Audio",
+      "status": "INACTIVE",
+      "value": "N/A",
+      "health": "GOOD"
+    }
+  ],
+  "ports": [
+    {
+      "name": "DI-1",
+      "device": "Door Sensor",
+      "state": "HIGH"
+    },
+    {
+      "name": "DI-2",
+      "device": "Motion Sensor",
+      "state": "LOW"
+    },
+    {
+      "name": "DO-1",
+      "device": "Strobe Light",
+      "state": "OFF"
+    },
+    {
+      "name": "DO-2",
+      "device": "Relay Output",
+      "state": "ON"
+    }
+  ],
+  "signal": [
+    {
+      "name": "Camera 1",
+      "value": 82,
+      "label": "-42 dBm"
+    },
+    {
+      "name": "Camera 2",
+      "value": 78,
+      "label": "-44 dBm"
+    },
+    {
+      "name": "Cellular",
+      "value": 64,
+      "label": "-65 dBm"
+    }
+  ],
+  "fleet": {
+    "total": 138,
+    "online": 128,
+    "warning": 7,
+    "offline": 3,
+    "groups": [
+      {
+        "name": "Mumbai North",
+        "count": 42
+      },
+      {
+        "name": "Mumbai South",
+        "count": 38
+      },
+      {
+        "name": "Pune Cluster",
+        "count": 28
+      },
+      {
+        "name": "Bengaluru",
+        "count": 30
+      }
+    ]
+  },
+  "fleetNodes": [
+    {
+      "x": 22,
+      "y": 26,
+      "state": "ok",
+      "n": 11
+    },
+    {
+      "x": 62,
+      "y": 20,
+      "state": "ok",
+      "n": 9
+    },
+    {
+      "x": 78,
+      "y": 46,
+      "state": "critical",
+      "n": 1
+    },
+    {
+      "x": 42,
+      "y": 43,
+      "state": "warning",
+      "n": 4
+    },
+    {
+      "x": 31,
+      "y": 68,
+      "state": "info",
+      "n": 12
+    },
+    {
+      "x": 68,
+      "y": 72,
+      "state": "critical",
+      "n": 2
+    },
+    {
+      "x": 53,
+      "y": 58,
+      "state": "ok",
+      "n": 7
+    }
+  ],
+  "secureBoot": [
+    {
+      "name": "Boot ROM",
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Bootloader",
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Kernel",
+      "status": "VERIFIED"
+    },
+    {
+      "name": "RootFS",
+      "status": "VERIFIED"
+    },
+    {
+      "name": "App",
+      "status": "VERIFIED"
+    }
+  ],
+  "identity": {
+    "deviceId": "EDGE-0007",
+    "certificate": "VALID",
+    "issuer": "Siddham Root CA",
+    "validUntil": "2027-05-18",
+    "attestation": "PASSED"
+  },
+  "securityStatus": [
+    {
+      "name": "TPM",
+      "status": "ENABLED"
+    },
+    {
+      "name": "Disk Encryption",
+      "status": "ENABLED"
+    },
+    {
+      "name": "Secure Storage",
+      "status": "ENABLED"
+    }
+  ],
+  "update": {
+    "version": "v2.3.1",
+    "rolloutId": "ROL-2025-08-10-01",
+    "target": "Mumbai North",
+    "progress": 62,
+    "devices": "86 / 42",
+    "started": "10:30:15 IST",
+    "eta": "10:40:15 IST",
+    "size": "154.3 MB",
+    "signature": "VALID",
+    "publisher": "Siddham Release Authority"
+  },
+  "rollout": [
+    {
+      "name": "Download",
+      "status": "COMPLETED"
+    },
+    {
+      "name": "Verify",
+      "status": "COMPLETED"
+    },
+    {
+      "name": "Pre-checks",
+      "status": "COMPLETED"
+    },
+    {
+      "name": "Install",
+      "status": "IN PROGRESS"
+    },
+    {
+      "name": "Post-checks",
+      "status": "PENDING"
+    },
+    {
+      "name": "Reboot",
+      "status": "PENDING"
+    }
+  ],
+  "sdkCode": [
+    "from siddham_edge import EdgeSDK",
+    "sdk = EdgeSDK(device='local')",
+    "model = sdk.load_model('vehicle-detector-v2')",
+    "result = model.run(frame)",
+    "print(result.decision)"
+  ],
+  "sdkTools": [
+    "Model Converter",
+    "Rule Linter",
+    "Determinism Checker",
+    "Performance Profiler",
+    "Log Analyzer"
+  ],
+  "release": {
+    "version": "v2.3.1",
+    "submittedBy": "build-bot@siddham.com",
+    "submittedAt": "2026-08-02 00:45 IST",
+    "changes": "OS 2.3.1, Models, Rules",
+    "evidenceBundle": "EVB-2026-08-10-01"
+  },
+  "pipeline": [
+    {
+      "name": "Build",
+      "status": "done"
+    },
+    {
+      "name": "Tests",
+      "status": "done"
+    },
+    {
+      "name": "Security",
+      "status": "done"
+    },
+    {
+      "name": "Evidence",
+      "status": "done"
+    },
+    {
+      "name": "Approval",
+      "status": "active"
+    },
+    {
+      "name": "Publish",
+      "status": "pending"
+    }
+  ],
+  "approvers": [
+    {
+      "role": "Security Lead",
+      "name": "sec.lead@siddham.com",
+      "status": "PENDING"
+    },
+    {
+      "role": "QA Lead",
+      "name": "qa.lead@siddham.com",
+      "status": "APPROVED"
+    },
+    {
+      "role": "Operations Lead",
+      "name": "ops.lead@siddham.com",
+      "status": "PENDING"
+    }
+  ]
+}

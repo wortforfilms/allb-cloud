@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">Siddham Edge geometric processor mark</title>
+  <rect width="128" height="128" rx="18" fill="#020b14"/>
+  <g fill="none" stroke="#d9a441" stroke-width="5">
+    <rect x="27" y="27" width="74" height="74" rx="6"/><rect x="39" y="39" width="50" height="50"/><path d="M51 51h26v8H59v10h18v8H51z"/>
+    <path d="M15 38h12M15 52h12M15 66h12M15 80h12M101 38h12M101 52h12M101 66h12M101 80h12M38 15v12M52 15v12M66 15v12M80 15v12M38 101v12M52 101v12M66 101v12M80 101v12"/>
+  </g>
+</svg>

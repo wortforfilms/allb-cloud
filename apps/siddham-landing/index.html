@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Five evidence-grounded technical lenses across the MAATAA and Siddham semiconductor ecosystem.">
+  <title>Siddham Technical Lenses</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Siddham technical lenses home">
+      <span class="brand-mark">सि</span>
+      <span><strong>SIDDHAM</strong><small>MAATAA SOVEREIGN ECOSYSTEM</small></span>
+    </a>
+    <nav aria-label="Technical lenses">
+      <a href="#lenses">Lenses</a><a href="#flow">System flow</a><a href="#matrix">Readiness</a>
+    </nav>
+    <span class="boundary">CONTROLLED TECHNICAL SURFACE</span>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="kicker">ONE ECOSYSTEM · FIVE TECHNICAL LENSES</p>
+        <h1>See the system<br><em>as it actually exists.</em></h1>
+        <p class="lede">Siddham is the semiconductor product family. MAATAA is the sovereign execution platform beneath it. These lenses separate implemented capability, verified behavior, planned integration, and production boundaries.</p>
+        <div class="hero-actions"><a class="primary" href="#lenses">Explore the lenses</a><a href="#matrix">Local completion</a><a href="../../docs/ROADMAP_STATUS_MATRIX.md">Roadmap status</a><a href="../../docs/PRODUCT_ROADMAP.md">Product roadmap</a><a href="../../docs/COMMERCIAL_CATALOGUE.md">Proposed catalogue</a></div>
+      </div>
+      <div class="system-orbit" aria-label="Siddham and MAATAA system relationship">
+        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+        <div class="core"><b>MAATAA</b><span>Rust · WASM</span></div>
+        <span class="satellite s1">NPU</span><span class="satellite s2">AUTH</span><span class="satellite s3">EDGE</span><span class="satellite s4">EVIDENCE</span>
+      </div>
+    </section>
+
+    <section class="truth-strip" aria-label="Product truth boundary">
+      <strong>Truth boundary</strong><span>Local implementation and test evidence are distinguished from staging, physical-silicon, certification, customer-deployment, and production claims.</span>
+    </section>
+
+    <section class="lens-section" id="lenses">
+      <header class="section-heading"><p class="kicker">TECHNICAL FIELD OF VIEW</p><h2>Five lenses. One traceable stack.</h2><p>Select a lens to inspect its authority, evidence, interfaces, and next integration gate.</p></header>
+      <div class="lens-tabs" role="tablist" aria-label="Technical lenses"></div>
+      <article class="lens-detail" aria-live="polite"></article>
+    </section>
+
+    <section class="flow-section" id="flow">
+      <header class="section-heading"><p class="kicker">TARGET EXECUTION PATH</p><h2>Governed operation flow</h2></header>
+      <div class="flow">
+        <article><span>01</span><b>Siddham interface</b><small>Constructs a typed operation request</small></article>
+        <i>→</i><article><span>02</span><b>Rust authority</b><small>Evaluates and records the decision</small></article>
+        <i>→</i><article><span>03</span><b>MAATAA runtime</b><small>Executes through native or WASM mode</small></article>
+        <i>→</i><article><span>04</span><b>Siddham NPU</b><small>Accelerates only when capability is present</small></article>
+        <i>→</i><article><span>05</span><b>Evidence + Edge</b><small>Records locally and synchronizes explicitly</small></article>
+      </div>
+      <p class="flow-note">Local vertical slice: Authority Desktop now authorizes, executes, and links evidence for the MAATAA Brahmi, Sandhi, and Sutra operations. Remote execution, physical NPU execution, and every unimplemented protected action remain fail-closed.</p>
+    </section>
+
+    <section class="matrix-section" id="matrix">
+      <header class="section-heading"><p class="kicker">EVIDENCE-GATED READINESS</p><h2>Completion status matrix</h2><p>The requested local integration slice is complete. States below distinguish implemented local behavior, fail-closed future handlers, and production gates.</p></header>
+      <div class="matrix" role="table" aria-label="Technical readiness matrix">
+        <div class="matrix-row matrix-head" role="row"><span>Capability</span><span>Owner</span><span>State</span><span>Boundary</span></div>
+        <div class="matrix-row" role="row"><b>Phase 0 baseline</b><code>ADR · inventory · scans · tag</code><span class="verified">COMPLETE LOCAL</span><small>Clean engineering baseline; clean-clone CI remains Phase 1</small></div>
+        <div class="matrix-row" role="row"><b>Shared contract package</b><code>crates/siddham-contracts/</code><span class="verified">COMPLETE</span><small>Canonical Rust types · schema 1.0.0</small></div>
+        <div class="matrix-row" role="row"><b>Generated bindings</b><code>generated/ · services/ · apps/</code><span class="verified">COMPLETE</span><small>TypeScript, Worker, desktop, Python and JSON Schema</small></div>
+        <div class="matrix-row" role="row"><b>Fixtures + drift detection</b><code>contracts/ · CI</code><span class="verified">COMPLETE</span><small>Valid/invalid fixtures and deterministic generator check</small></div>
+        <div class="matrix-row" role="row"><b>Runtime capabilities + results</b><code>src/runtime_contract.rs</code><span class="verified">COMPLETE</span><small>Typed mode, status, digests and truthful NPU availability</small></div>
+        <div class="matrix-row" role="row"><b>Native runtime</b><code>src/</code><span class="verified">VERIFIED LOCAL</span><small>Not a production deployment claim</small></div>
+        <div class="matrix-row" role="row"><b>WASM consumer path</b><code>pkg/ · services/</code><span class="verified">VERIFIED LOCAL</span><small>WASM rebuilt before 16 consumer tests; generated package cleaned</small></div>
+        <div class="matrix-row" role="row"><b>Siddham NPU RTL</b><code>hardware/</code><span class="present">IMPLEMENTED RTL</span><small>Physical silicon not certified</small></div>
+        <div class="matrix-row" role="row"><b>Authority foundation</b><code>apps/siddham-authority-desktop/</code><span class="verified">10 RUST TESTS PASS</span><small>Identity and approvals remain incomplete</small></div>
+        <div class="matrix-row" role="row"><b>Desktop → MAATAA operation</b><code>commands.rs · runtime_contract.rs</code><span class="verified">COMPLETE LOCAL</span><small>Brahmi, Sandhi and Sutra operations</small></div>
+        <div class="matrix-row" role="row"><b>Authority before execution</b><code>policy.rs · commands.rs</code><span class="verified">ENFORCED LOCAL</span><small>Only an explicit permit reaches a runtime handler</small></div>
+        <div class="matrix-row" role="row"><b>Linked execution evidence</b><code>evidence.rs · migration 004</code><span class="verified">COMPLETE LOCAL</span><small>Authorization, request and execution identities linked and verified</small></div>
+        <div class="matrix-row" role="row"><b>Remaining protected actions</b><code>Authority catalog</code><span class="present">PATTERN COMPLETE</span><small>Typed, evaluated and recorded; unavailable handlers fail closed</small></div>
+        <div class="matrix-row" role="row"><b>CI layout + drift gates</b><code>.github/workflows/ci.yml</code><span class="verified">ALIGNED</span><small>Root build order plus three-platform desktop matrix</small></div>
+        <div class="matrix-row" role="row"><b>Generated dump cleanup</b><code>workspace</code><span class="verified">COMPLETE</span><small>No target, node_modules, pkg, Wrangler or Python cache retained</small></div>
+        <div class="matrix-row" role="row"><b>Production certification</b><code>release authority</code><span class="blocked">NO-GO</span><small>No production claim is made</small></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><span>SIDDHAM × MAATAA</span><p>Evidence-grounded technical landing surface · repository state as of 2026-08-28</p></footer>
+  <script src="app.js"></script>
+</body>
+</html>

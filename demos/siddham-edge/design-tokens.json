@@ -1,0 +1,13 @@
+{
+  "name": "Siddham Edge Midnight Gold",
+  "colors": {
+    "background": "#020b14", "surface": "#061827", "surfaceRaised": "#092238", "border": "#17364d",
+    "gold": "#d9a441", "goldBright": "#f0c46a", "blue": "#087be8", "cyan": "#47b8ed",
+    "green": "#65d76e", "yellow": "#f0c23f", "red": "#ff5f5f", "text": "#e8f1f5", "muted": "#7e95a4"
+  },
+  "typography": { "ui": "Inter, Arial, sans-serif", "display": "Georgia, serif", "mono": "SFMono-Regular, Consolas, monospace" },
+  "spacing": [4, 6, 8, 12, 16, 20, 24, 32],
+  "radius": { "small": 4, "medium": 8 },
+  "border": { "default": "1px solid #17364d", "brand": "1px solid rgba(217,164,65,.65)" },
+  "motion": { "durationMs": 180, "goldGlare": "hover-focus-active-only" }
+}
