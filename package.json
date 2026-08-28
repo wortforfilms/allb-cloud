@@ -10,8 +10,9 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-  "build:wasm": "wasm-pack build --target web --out-dir pkg",
-  "edge:build": "npm run build:wasm && wrangler deploy"
+    "build:wasm": "./scripts/build-edge.sh",
+    "edge:dry-run": "wrangler deploy --dry-run --env staging",
+    "edge:deploy:staging": "wrangler deploy --env staging"
   },
   "dependencies": {
     "canonicalize": "^4.0.0",
@@ -19,7 +20,6 @@
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260826.1",
     "@types/node": "^26.3.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",

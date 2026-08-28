@@ -1,0 +1,89 @@
+name: Maataa Sovereign Runtime CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      deploy_staging:
+        description: Deploy the verified build to the isolated staging Worker
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  verify-stack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install System Toolchain & iverilog
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog binaryen
+
+      - name: Setup Rust & WASM Target
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Step 1 - Execute Verilog Hardware Simulation
+        run: make sim sim-top rtl-check
+
+      - name: Step 2 - Native Rust Tests
+        run: cargo test --release
+
+      - name: Step 3 - Build Production WASM Module
+        run: |
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+          ./scripts/build-edge.sh
+
+      - name: Step 4 - Node Dependencies & Vitest E2E Suite
+        run: |
+          npm ci
+          npx vitest run
+
+      - name: Step 5 - Type-check Worker and SDK examples
+        run: npx tsc --noEmit
+
+      - name: Step 6 - Validate isolated staging bundle
+        run: npx wrangler deploy --dry-run --env staging
+
+  deploy-staging:
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy_staging
+    needs: verify-stack
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y binaryen
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+          npm ci
+      - name: Deploy staging Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --env staging
+          packageManager: npm

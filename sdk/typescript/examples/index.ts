@@ -2,8 +2,8 @@ import init, {
   PaniniSutraEngine,
   tokenize_brahmi_zerocopy,
   lookup_ashtadhyayi_sutra,
-} from "../pkg/maataa_runtime.js";
-import wasmModule from "../pkg/maataa_runtime_bg.wasm";
+} from "../../../pkg/maataa_runtime.js";
+import wasmModule from "../../../pkg/maataa_runtime_bg.wasm";
 
 export interface Env {
   RATE_LIMITER: {
@@ -20,7 +20,7 @@ let isWasmInitialized = false;
  */
 async function ensureWasmInitialized(): Promise<PaniniSutraEngine> {
   if (!isWasmInitialized) {
-    await init;
+    await init({ module_or_path: wasmModule });
     engineInstance = new PaniniSutraEngine();
     isWasmInitialized = true;
   }
