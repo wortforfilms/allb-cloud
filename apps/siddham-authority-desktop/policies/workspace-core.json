@@ -1,0 +1,9 @@
+{
+  "id": "workspace-core",
+  "version": "24.08",
+  "status": "reference",
+  "defaultEffect": "Deny",
+  "effects": ["Permit", "Deny", "RequireApproval", "RequireStepUpAuthentication", "Abstain"],
+  "highRiskActions": ["release:approve", "dataset:export", "policy:edit", "identity:revoke"],
+  "productionNote": "Replace the embedded evaluator with a signed, schema-validated Cedar bundle after independent review."
+}

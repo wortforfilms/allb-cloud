@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Siddham Authorization Request",
+  "type": "object",
+  "required": ["principal", "action", "resource", "workspace", "assurance"],
+  "properties": {
+    "principal": {"type":"string","minLength":1}, "action": {"type":"string","minLength":1},
+    "resource": {"type":"string","minLength":1}, "workspace": {"type":"string","minLength":1},
+    "assurance": {"enum":["AAL3","AAL2","mTLS","Scoped capability"]}
+  },
+  "additionalProperties": false
+}
