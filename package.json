@@ -1,7 +1,15 @@
 {
   "name": "allb.xyz",
   "version": "1.0.0",
-  "description": "",
+  "description": "MAATAA sovereign runtime and Siddham semiconductor ecosystem",
+  "license": "MIT OR Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thelinep/allb.git"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  },
   "main": "index.js",
   "type": "module",
   "directories": {
@@ -12,7 +20,18 @@
     "test:watch": "vitest",
     "build:wasm": "./scripts/build-edge.sh",
     "edge:dry-run": "wrangler deploy --dry-run --env staging",
-    "edge:deploy:staging": "wrangler deploy --env staging"
+    "edge:deploy:staging": "wrangler deploy --env staging",
+    "desktop:install": "npm ci --prefix apps/siddham-authority-desktop",
+    "desktop:check": "npm run check --prefix apps/siddham-authority-desktop",
+    "desktop:test": "npm run rust:test --prefix apps/siddham-authority-desktop",
+    "desktop:verify": "npm run verify --prefix apps/siddham-authority-desktop",
+    "contracts:generate": "node scripts/generate-contracts.mjs",
+    "contracts:check": "node scripts/generate-contracts.mjs --check",
+    "contracts:python-check": "python3 -m unittest contracts/test_python_contracts.py",
+    "preflight:disk": "node scripts/check-disk-space.mjs 6",
+    "hygiene:check": "node scripts/repository-hygiene.mjs",
+    "licenses:check": "node scripts/dependency-license-scan.mjs",
+    "ecosystem:verify": "npm run contracts:check && npm test && npx tsc --noEmit && npm run contracts:python-check && npm run desktop:verify"
   },
   "dependencies": {
     "canonicalize": "^4.0.0",
