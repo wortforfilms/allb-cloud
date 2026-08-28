@@ -54,12 +54,27 @@ Thumbs.db
 # Verilog / Icarus Verilog Simulation Outputs
 *.vvp
 *.vcd
-*.gtkw
+*.out
 /npu_mmio_sim
 /siddham_npu_driver
 
 # Vivado / FPGA Toolchain Outputs
-/hardware/
+hardware/**/*.runs/
+hardware/**/*.cache/
+hardware/**/*.hw/
+hardware/**/*.ip_user_files/
+hardware/**/*.gen/
 *.log
 *.jou
 *.str
+
+# Synthesis & Simulation Artifacts
+/npu_*
+/sim_*
+*.svf
+*.config
+*.asc
+synth.log
+
+# CAD Tool Archives
+*.tgz

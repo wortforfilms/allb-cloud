@@ -5,7 +5,9 @@ echo "================================================="
 echo "  MAATAA HARDWARE RTL SIMULATION (macOS)         "
 echo "================================================="
 
-iverilog -g2012 -o npu_mmio_sim.vvp siddham_npu_mmio.v tb_siddham_npu_mmio.v
+repo_root=${0:A:h:h:h}
+cd "$repo_root/hardware"
+iverilog -g2012 -o npu_mmio_sim.vvp rtl/siddham_npu_mmio.v tb/tb_siddham_npu_mmio.v
 vvp npu_mmio_sim.vvp
 
 if command -v gtkwave &> /dev/null; then

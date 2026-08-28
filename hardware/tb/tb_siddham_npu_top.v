@@ -15,7 +15,7 @@ module tb_siddham_npu_top;
 
     // Simulation Parameters
     localparam ARRAY_N    = 16;
-    localparam DATA_WIDTH = 64;
+    localparam DATA_WIDTH = 128;
     localparam CLK_PERIOD = 10; // 100 MHz
 
     // ------------------------------------------------------------------------
@@ -30,15 +30,15 @@ module tb_siddham_npu_top;
     wire        dma_done;
 
     // AXI4-Stream Slave Interface (Inbound)
-    reg  [63:0] s_axis_tdata;
-    reg  [7:0]  s_axis_tstrb;
+    reg  [127:0] s_axis_tdata;
+    reg  [15:0]  s_axis_tstrb;
     reg         s_axis_tlast;
     reg         s_axis_tvalid;
     wire        s_axis_tready;
 
     // AXI4-Stream Master Interface (Outbound)
-    wire [63:0] m_axis_tdata;
-    wire [7:0]  m_axis_tstrb;
+    wire [127:0] m_axis_tdata;
+    wire [15:0]  m_axis_tstrb;
     wire        m_axis_tlast;
     wire        m_axis_tvalid;
     reg         m_axis_tready;
@@ -53,15 +53,15 @@ module tb_siddham_npu_top;
     // Interconnect Buffers (DMA <-> Core)
     wire        w_buf_wr_en;
     wire [3:0]  w_buf_addr;
-    wire [63:0] w_buf_wdata;
+    wire [127:0] w_buf_wdata;
 
     wire        a_buf_wr_en;
     wire [3:0]  a_buf_addr;
-    wire [63:0] a_buf_wdata;
+    wire [127:0] a_buf_wdata;
 
     wire        out_buf_rd_en;
     wire [3:0]  out_buf_addr;
-    wire [63:0] out_buf_rdata;
+    wire [127:0] out_buf_rdata;
 
     // ------------------------------------------------------------------------
     // Device Under Test (DUT) Instantiations
@@ -158,8 +158,8 @@ module tb_siddham_npu_top;
             // 3. Drive Stream Payload
             for (k = 0; k < len; k = k + 1) begin
                 s_axis_tvalid = 1'b1;
-                s_axis_tdata  = 64'h0102030405060708 + k;
-                s_axis_tstrb  = 8'hFF;
+                s_axis_tdata  = 128'h01020304050607080102030405060708 + k;
+                s_axis_tstrb  = 16'hFFFF;
                 s_axis_tlast  = (k == len - 1);
                 
                 @(posedge clk);
@@ -182,14 +182,23 @@ module tb_siddham_npu_top;
             $display("[DMA OUT] Starting AXI-Stream TX Readback (Len: %0d)...", len);
             dma_xfer_len = len;
             dma_start_tx = 1'b1;
-            m_axis_tready = 1'b1;
+            m_axis_tready = 1'b0;
             @(posedge clk);
             dma_start_tx = 1'b0;
 
             for (k = 0; k < len; k = k + 1) begin
                 while (!m_axis_tvalid) @(posedge clk);
                 $display("         • Received M_AXIS Word [%0d]: 0x%h (TLAST=%b)", k, m_axis_tdata, m_axis_tlast);
-                @(posedge clk);
+                if (^m_axis_tdata === 1'bx) begin
+                    $fatal(1, "M_AXIS word %0d contains unknown bits", k);
+                end
+                if (m_axis_tlast !== (k == len - 1)) begin
+                    $fatal(1, "M_AXIS TLAST mismatch on word %0d", k);
+                end
+                @(negedge clk);
+                m_axis_tready = 1'b1;
+                @(negedge clk);
+                m_axis_tready = 1'b0;
             end
 
             while (!dma_done) @(posedge clk);
@@ -212,8 +221,8 @@ module tb_siddham_npu_top;
         dma_base_addr  = 32'h0;
         dma_xfer_len   = 16'h0;
         dma_target_buf = 2'b00;
-        s_axis_tdata   = 64'h0;
-        s_axis_tstrb   = 8'h0;
+        s_axis_tdata   = 128'h0;
+        s_axis_tstrb   = 16'h0;
         s_axis_tlast   = 1'b0;
         s_axis_tvalid  = 1'b0;
         m_axis_tready  = 1'b0;
@@ -238,8 +247,9 @@ module tb_siddham_npu_top;
 
         // STEP 3: Trigger Core Compute Cycle
         $display("[COMPUTE] Launching Systolic Compute Core (N=16, ReLU)...");
+        @(negedge clk);
         core_start = 1'b1;
-        @(posedge clk);
+        @(negedge clk);
         core_start = 1'b0;
 
         // Wait for Core Done interrupt
@@ -253,6 +263,11 @@ module tb_siddham_npu_top;
         $display("  SIMULATION COMPLETE: ALL DMA & CORE TESTS PASSED");
         $display("=================================================");
         $finish;
+    end
+
+    initial begin
+        #(CLK_PERIOD * 2000);
+        $fatal(1, "Top-level NPU simulation exceeded its 2000-cycle watchdog");
     end
 
 endmodule

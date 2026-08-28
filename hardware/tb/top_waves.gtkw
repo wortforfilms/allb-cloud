@@ -1,0 +1,55 @@
+[*]
+[*] Siddham NPU AXI4-Stream GTKWave Layout Configuration
+[*]
+[dumpfile] "../top_waves.vcd"
+[savefile] "tb/top_waves.gtkw"
+[timestart] 0
+[size] 1400 850
+[pos] -1 -1
+*-18.000000 500000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb_siddham_npu_top.
+[sst_width] 280
+[wave_width] 1100
+[wave_left] 0
+[wave_top] 0
+@28
+[color] 7
+tb_siddham_npu_top.clk
+[color] 7
+tb_siddham_npu_top.rst_n
+@200
+-
+- AXI4-Stream Ingest (RX)
+@22
+[color] 3
+tb_siddham_npu_top.s_axis_tdata[127:0]
+@28
+[color] 2
+tb_siddham_npu_top.s_axis_tvalid
+[color] 2
+tb_siddham_npu_top.s_axis_tready
+[color] 2
+tb_siddham_npu_top.s_axis_tlast
+@200
+-
+- NPU Systolic Core Engine
+@28
+[color] 5
+tb_siddham_npu_top.core_start
+[color] 5
+tb_siddham_npu_top.core_done
+@200
+-
+- AXI4-Stream Readback (TX)
+@22
+[color] 3
+tb_siddham_npu_top.m_axis_tdata[127:0]
+@28
+[color] 2
+tb_siddham_npu_top.m_axis_tvalid
+[color] 2
+tb_siddham_npu_top.m_axis_tready
+[color] 2
+tb_siddham_npu_top.m_axis_tlast
+[pattern_trace] 1
+[pattern_trace] 0

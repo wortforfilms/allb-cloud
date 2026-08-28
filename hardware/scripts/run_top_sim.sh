@@ -6,12 +6,12 @@ echo "  SIDDHAM NPU TOP-LEVEL SYSTEM SIMULATION        "
 echo "================================================="
 
 # Compile all Verilog modules using SystemVerilog 2012 mode
-iverilog -g2012 -o top_sim.vvp \
-    npu_mmio_regbank.v \
-    npu_dma_engine.v \
-    npu_compute_core.v \
-    siddham_npu_top.v \
-    tb_siddham_npu_top.v
+repo_root=${0:A:h:h:h}
+cd "$repo_root/hardware"
+iverilog -g2012 -s tb_siddham_npu_top -o top_sim.vvp \
+    rtl/npu_dma_engine.v \
+    rtl/npu_compute_core.v \
+    tb/tb_siddham_npu_top.v
 
 # Run simulation binary
 vvp top_sim.vvp

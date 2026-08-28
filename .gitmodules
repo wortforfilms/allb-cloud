@@ -1,0 +1,3 @@
+[submodule "vendor/nextpnr"]
+	path = vendor/nextpnr
+	url = https://github.com/YosysHQ/nextpnr.git
