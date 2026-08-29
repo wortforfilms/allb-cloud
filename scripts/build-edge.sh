@@ -13,6 +13,7 @@ if command -v wasm-opt >/dev/null 2>&1; then
   echo "==> Running Binaryen wasm-opt (-Oz)..."
   wasm-opt -Oz \
     --enable-bulk-memory \
+    --enable-sign-ext \
     --enable-mutable-globals \
     pkg/maataa_runtime_bg.wasm \
     -o pkg/maataa_runtime_bg.wasm

@@ -62,7 +62,7 @@ serde-wasm-bindgen = "0.6"
 js-sys = "0.3"
 
 [package.metadata.wasm-pack.profile.release]
-wasm-opt = ["-O4", "--enable-bulk-memory"]
+wasm-opt = ["-O4", "--enable-bulk-memory", "--enable-sign-ext", "--enable-mutable-globals"]
 
 [build-dependencies]
 # C++ HAL Driver Compilation Hook (Native targets)
