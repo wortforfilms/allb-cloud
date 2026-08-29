@@ -64,7 +64,8 @@ for (const [relative, content] of outputs) {
   const path = resolve(root, relative);
   if (check) {
     const current = await readFile(path, "utf8").catch(() => "");
-    if (current !== content) { console.error(`contract drift: ${relative}`); drift = true; }
+    const normalizedCurrent = current.replaceAll("\r\n", "\n");
+    if (normalizedCurrent !== content) { console.error(`contract drift: ${relative}`); drift = true; }
   } else {
     await mkdir(dirname(path), { recursive: true });
     await writeFile(path, content);
