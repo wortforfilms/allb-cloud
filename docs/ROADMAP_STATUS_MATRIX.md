@@ -6,6 +6,7 @@ Evidence date: 2026-08-29
 
 | State | Meaning |
 | --- | --- |
+| Complete hosted | Implemented and reproduced by the explicitly linked hosted CI evidence |
 | Complete local | Implemented and verified for the explicitly named local scope |
 | Partial | Some real implementation exists, but the phase exit gate is open |
 | Present, unqualified | Source or design exists without required operational/certification evidence |
@@ -29,9 +30,9 @@ imply precision not supported by the repository evidence.
 | 1 | Root build commands | Complete local | Canonical install/clean/build/test/verify/package scripts and Make aliases | Preserve compatibility as modules are added | Closed locally |
 | 1 | Deterministic generation | Complete local | Contract generator and drift check | Expand to all Phase 2 domains | P1 |
 | 1 | Native/WASM/TypeScript/Python tests | Complete local | Canonical sequence rebuilds WASM before 20 TypeScript/Worker tests plus Rust and Python suites | Preserve clean-checkout evidence | Closed locally |
-| 1 | Desktop matrix definition | Complete definition | Pinned Linux/macOS/Windows CI job builds and tests Tauri | Passing hosted-run evidence required for cross-platform claim | Hosted gate |
-| 1 | RTL verification gates | Complete local | DMA and integrated top simulations plus compile gate pass | Hosted Linux reproduction | Hosted gate |
-| 1 | Supply-chain output | Complete local | Lockfile audits, licence scan, CycloneDX SBOM, verified checksums and release manifest | Hosted artifact retention | Hosted gate |
+| 1 | Desktop matrix | Complete hosted | Linux/macOS/Windows Tauri checks passed in hosted run `33237684396` | Preserve the matrix as desktop dependencies evolve | Closed |
+| 1 | RTL verification gates | Complete hosted | DMA and integrated top simulations plus compile gate passed on hosted Linux | Preserve regressions and expand hardware qualification in Phase 11 | Closed for Phase 1 |
+| 1 | Supply-chain output | Complete hosted | Hosted lockfile audits, licence scan, CycloneDX SBOM, verified checksums, release manifest and retained artifact | Define longer-term retention/signing in later release phases | Closed for Phase 1 |
 | 1 | Resource preflight | Complete local | 6 GiB preflight plus positive and forced-low-disk tests | Tune threshold only with measured evidence | Closed locally |
 | 2 | Operation/runtime contract | Complete local | Canonical Rust types and schema 1.0.0 | Compatibility/deprecation policy | P1 |
 | 2 | Generated language projections | Complete local | TypeScript, Worker, desktop, Python and JSON Schema | Runtime validators beyond static models | P1 |
@@ -105,7 +106,7 @@ imply precision not supported by the repository evidence.
 | Milestone | Target state | Current state | Gate status |
 | --- | --- | --- | --- |
 | M0 — authoritative baseline | Local engineering baseline | Achieved locally | `baseline-2026-08-29`; hosted clean-clone evidence moves to M1 |
-| M1 — reproducible CI | Controlled development | Complete local, hosted pending | Local gates and supply-chain artifacts implemented; cross-platform claim waits for passing hosted matrix |
+| M1 — reproducible CI | Controlled development | Achieved | Hosted run `33237684396` passed the Linux stack and Ubuntu/macOS/Windows desktop matrix and retained release evidence |
 | M2 — shared contracts | Integration foundation | Partial | Operation/runtime slice exists; full domain platform remains open |
 | M3 — identity and Authority | Security prototype | Not achieved | Verified identity, tenancy, policy lifecycle and approvals absent |
 | M4 — governed execution | Controlled product alpha | Partial precursor | Three local operations work; generalized safe execution absent |
@@ -122,7 +123,7 @@ imply precision not supported by the repository evidence.
 | Gate | Status | Evidence required to close |
 | --- | --- | --- |
 | Clean committed revision | Closed locally | Coherent baseline commits and clean worktree |
-| Clean-checkout CI | Open | Passing supported matrix from empty clone |
+| Clean-checkout CI | Closed | Hosted run `33237684396` passed the supported clean-checkout matrix |
 | Real identity assurance | Open | Backend-derived identity/device/session assurance |
 | Protected-action completeness | Partial | Each action implemented or explicitly unavailable with integration tests |
 | Approval lifecycle | Open | Durable request-bound approval with expiry/revocation/separation of duties |

@@ -52,9 +52,14 @@ Vitest proves both the normal and forced-low-disk paths. `npm run clean`
 removes only enumerated reproducible outputs, including Rust targets, WASM,
 desktop dependencies/builds, simulations, caches and packaged artifacts.
 
-## Remaining truth boundary
+## Hosted completion evidence
 
-Local clean-checkout evidence proves the macOS runner path. A passing hosted CI
-run is required before claiming that Linux, macOS and Windows have all passed;
-the workflow definition alone is not that evidence. Staging deployment remains
-manual, environment-gated and explicitly outside Phase 1 certification.
+GitHub Actions run
+[`33237684396`](https://github.com/thelinep/allb/actions/runs/33237684396)
+passed the full Linux verification stack and the Ubuntu, macOS and Windows
+Tauri desktop matrix from commit `cc72a64a79cf0581f169bebbe47af6cd011cabaf`.
+The run also produced the checksummed Phase 1 artifact bundle.
+
+Staging deployment remains manual, environment-gated and explicitly outside
+Phase 1 certification. Release manifests continue to state
+`productionCertified: false`.
