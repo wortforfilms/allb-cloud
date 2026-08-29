@@ -80,6 +80,10 @@ jobs:
         run: npm run desktop:check
       - name: Validate staging Worker bundle
         run: npm run edge:dry-run
+      - name: Normalize generated Tauri schemas
+        run: |
+          git restore --worktree apps/siddham-authority-desktop/src-tauri/gen/schemas
+          git status --short
       - name: Package checksummed release artifacts
         run: npm run artifacts:package
       - uses: actions/upload-artifact@v4
