@@ -1,10 +1,13 @@
 #include "maataa_hal.hpp"
+#ifndef _WIN32
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#endif
 #include <chrono>
 #include <cstring>
 #include <iostream>
+#include <thread>
 
 namespace maataa::hal {
 
@@ -12,15 +15,24 @@ SiddhamNpuDevice::SiddhamNpuDevice(uintptr_t base_addr)
     : base_address_(base_addr), mem_fd_(-1), reg_map_(nullptr), initialized_(false) {}
 
 SiddhamNpuDevice::~SiddhamNpuDevice() {
+#ifndef _WIN32
     if (reg_map_ && reg_map_ != MAP_FAILED) {
         munmap(const_cast<uint32_t*>(reg_map_), NPU_REG_MAP_SIZE);
     }
     if (mem_fd_ >= 0) {
         close(mem_fd_);
     }
+#endif
 }
 
 HalError SiddhamNpuDevice::initialize() {
+#ifdef _WIN32
+    // Windows hosts cannot expose the Linux /dev/mem interface. Keep the
+    // software fallback available so desktop builds and tests remain portable.
+    std::cerr << "[MAATAA HAL] /dev/mem is unavailable on Windows. Operating in HW Simulation Mode.\n";
+    initialized_ = true;
+    return HalError::Success;
+#else
     mem_fd_ = open("/dev/mem", O_RDWR | O_SYNC);
     if (mem_fd_ < 0) {
         // Fallback simulation mode if hardware dev/mem is inaccessible
@@ -48,6 +60,7 @@ HalError SiddhamNpuDevice::initialize() {
     initialized_ = true;
 
     return reset();
+#endif
 }
 
 HalError SiddhamNpuDevice::reset() {
@@ -55,7 +68,7 @@ HalError SiddhamNpuDevice::reset() {
     
     if (reg_map_) {
         write_reg(REG_CONTROL, CTRL_RESET_MASK);
-        usleep(1000); // 1ms reset pulse
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         write_reg(REG_CONTROL, 0x00);
     }
     return HalError::Success;
@@ -90,7 +103,7 @@ HalError SiddhamNpuDevice::wait_for_completion(uint32_t timeout_ms) {
         if (elapsed > timeout_ms) {
             return HalError::HardwareTimeout;
         }
-        usleep(50); // 50us poll delay
+        std::this_thread::sleep_for(std::chrono::microseconds(50));
     }
 }
 
