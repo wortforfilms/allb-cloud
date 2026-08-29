@@ -1,11 +1,12 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 set -e
 
 echo "================================================="
 echo "  MAATAA HARDWARE RTL SIMULATION (macOS)         "
 echo "================================================="
 
-repo_root=${0:A:h:h:h}
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(cd "$script_dir/../.." && pwd)
 cd "$repo_root/hardware"
 iverilog -g2012 -o npu_mmio_sim.vvp rtl/siddham_npu_mmio.v tb/tb_siddham_npu_mmio.v
 vvp npu_mmio_sim.vvp
