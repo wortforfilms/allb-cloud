@@ -26,13 +26,13 @@ imply precision not supported by the repository evidence.
 | 0 | Toolchain record | Complete local | Rust/Node pins and observed Python/WASM/FPGA tools recorded | Pin auxiliary tools during Phase 1 | Closed |
 | 0 | Repository assurance | Complete local | Hygiene, secret-pattern, licence metadata, vulnerability and large-file scans recorded | Automate deeper supply-chain reports in Phase 1 | Closed |
 | 0 | Operational baseline | Complete local | ADR, validation report, risk register and staging record preserved; absent external path documented | Review risks at every milestone | Closed |
-| 1 | Root build commands | Partial | Root contract, WASM, test and desktop scripts exist | Canonical clean/build/test/package interface | P0 |
+| 1 | Root build commands | Complete local | Canonical install/clean/build/test/verify/package scripts and Make aliases | Preserve compatibility as modules are added | Closed locally |
 | 1 | Deterministic generation | Complete local | Contract generator and drift check | Expand to all Phase 2 domains | P1 |
-| 1 | Native/WASM/TypeScript/Python tests | Complete local | Relevant local checks passed after WASM rebuild | Reprove from empty clone and preserve report | P0 |
-| 1 | Desktop matrix definition | Partial | Linux/macOS/Windows CI job defined | Obtain passing hosted-run evidence | P0 |
-| 1 | RTL verification gates | Partial | RTL and simulation sources present | Clean-run lint, simulation and integrated compile evidence | P1 |
-| 1 | Supply-chain output | Planned | Lockfiles present | Audits, SBOM, checksums, provenance and release manifest | P0 |
-| 1 | Resource preflight | Planned | Disk exhaustion observed and cleanup performed | Preflight disk guard and low-disk failure test | P0 |
+| 1 | Native/WASM/TypeScript/Python tests | Complete local | Canonical sequence rebuilds WASM before 20 TypeScript/Worker tests plus Rust and Python suites | Preserve clean-checkout evidence | Closed locally |
+| 1 | Desktop matrix definition | Complete definition | Pinned Linux/macOS/Windows CI job builds and tests Tauri | Passing hosted-run evidence required for cross-platform claim | Hosted gate |
+| 1 | RTL verification gates | Complete local | DMA and integrated top simulations plus compile gate pass | Hosted Linux reproduction | Hosted gate |
+| 1 | Supply-chain output | Complete local | Lockfile audits, licence scan, CycloneDX SBOM, verified checksums and release manifest | Hosted artifact retention | Hosted gate |
+| 1 | Resource preflight | Complete local | 6 GiB preflight plus positive and forced-low-disk tests | Tune threshold only with measured evidence | Closed locally |
 | 2 | Operation/runtime contract | Complete local | Canonical Rust types and schema 1.0.0 | Compatibility/deprecation policy | P1 |
 | 2 | Generated language projections | Complete local | TypeScript, Worker, desktop, Python and JSON Schema | Runtime validators beyond static models | P1 |
 | 2 | Contract fixtures | Partial | Valid request and unknown-action invalid fixture | Invalid fixture for every rule and golden/property tests | P1 |
@@ -105,7 +105,7 @@ imply precision not supported by the repository evidence.
 | Milestone | Target state | Current state | Gate status |
 | --- | --- | --- | --- |
 | M0 — authoritative baseline | Local engineering baseline | Achieved locally | `baseline-2026-08-29`; hosted clean-clone evidence moves to M1 |
-| M1 — reproducible CI | Controlled development | Partial | Open: clean clone, hosted matrix, supply-chain artifacts and disk guard |
+| M1 — reproducible CI | Controlled development | Complete local, hosted pending | Local gates and supply-chain artifacts implemented; cross-platform claim waits for passing hosted matrix |
 | M2 — shared contracts | Integration foundation | Partial | Operation/runtime slice exists; full domain platform remains open |
 | M3 — identity and Authority | Security prototype | Not achieved | Verified identity, tenancy, policy lifecycle and approvals absent |
 | M4 — governed execution | Controlled product alpha | Partial precursor | Three local operations work; generalized safe execution absent |

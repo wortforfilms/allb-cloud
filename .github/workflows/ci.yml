@@ -1,10 +1,10 @@
-name: Maataa Sovereign Runtime CI
+name: MAATAA Siddham reproducible CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main, "codex/**"]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
     inputs:
       deploy_staging:
@@ -16,63 +16,82 @@ on:
 permissions:
   contents: read
 
+env:
+  CARGO_TERM_COLOR: always
+  WASM_PACK_VERSION: 0.13.1
+  CARGO_AUDIT_VERSION: 0.22.2
+
 jobs:
   verify-stack:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
         with:
-          node-version: 24
+          submodules: recursive
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
           cache: npm
-
-      - name: Install System Toolchain & iverilog
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.91.0
+          components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
+      - name: Install system tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y iverilog binaryen
-
-      - name: Setup Rust & WASM Target
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
-
-      - name: Phase 0 disk-capacity preflight
-        run: node scripts/check-disk-space.mjs 6
-
-      - name: Phase 0 repository hygiene
-        run: node scripts/repository-hygiene.mjs
-
-      - name: Step 0 - Verify generated cross-runtime contracts
+          sudo apt-get install -y binaryen iverilog yosys
+      - name: Install pinned Rust helpers
         run: |
-          npm ci
+          cargo install wasm-pack --version "$WASM_PACK_VERSION" --locked
+          cargo install cargo-audit --version "$CARGO_AUDIT_VERSION" --locked
+      - name: Validate clean checkout
+        run: |
+          npm run preflight:disk
+          npm run hygiene:check
+      - name: Install locked dependencies
+        run: npm run install:all
+      - name: Validate structured files and contracts
+        run: |
+          npm run validate:structured
           npm run contracts:check
           npm run contracts:python-check
-
-      - name: Step 1 - Execute Verilog Hardware Simulation
-        run: make sim sim-top rtl-check
-
-      - name: Step 2 - Native Rust Tests
-        run: cargo test --release
-
-      - name: Step 3 - Build Production WASM Module
+      - name: Validate licenses and dependency security
         run: |
-          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-          ./scripts/build-edge.sh
-
-      - name: Step 4 - Node Dependencies & Vitest E2E Suite
-        run: npx vitest run
-
-      - name: Step 5 - Type-check Worker and SDK examples
-        run: npx tsc --noEmit
-
-      - name: Step 6 - Validate isolated staging bundle
-        run: npx wrangler deploy --dry-run --env staging
+          npm run licenses:check
+          npm run security:npm
+          npm run security:cargo
+      - name: Lint and test Rust workspace
+        run: |
+          cargo fmt --all -- --check
+          cargo clippy --workspace --all-targets --locked -- -D warnings
+          cargo test --workspace --locked
+      - name: Build WASM before consumer tests
+        run: npm run build:wasm
+      - name: Test TypeScript, Worker, Python, and RTL consumers
+        run: |
+          npm test
+          npx tsc --noEmit
+          npm run test:rtl
+      - name: Build desktop frontend
+        run: npm run desktop:check
+      - name: Validate staging Worker bundle
+        run: npm run edge:dry-run
+      - name: Package checksummed release artifacts
+        run: npm run artifacts:package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: maataa-siddham-${{ github.sha }}
+          path: artifacts/
+          if-no-files-found: error
 
   verify-desktop:
     name: Siddham desktop (${{ matrix.os }})
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
@@ -81,17 +100,17 @@ jobs:
         working-directory: apps/siddham-authority-desktop
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: apps/siddham-authority-desktop/package-lock.json
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: 1.91.0
           components: rustfmt, clippy
-      - name: Phase 0 disk-capacity preflight
-        working-directory: .
-        run: node scripts/check-disk-space.mjs 6
       - name: Install Linux desktop prerequisites
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
@@ -102,35 +121,37 @@ jobs:
         run: npm run contracts:check
       - name: Type-check and build desktop UI
         run: npm run check
-      - name: Check Rust formatting
-        run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
-      - name: Lint Rust authority
-        run: cargo clippy --locked --manifest-path src-tauri/Cargo.toml -- -D warnings
-      - name: Test Rust authority
-        run: cargo test --locked --manifest-path src-tauri/Cargo.toml
+      - name: Check, lint, and test Rust authority
+        run: |
+          cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+          cargo clippy --locked --all-targets --manifest-path src-tauri/Cargo.toml -- -D warnings
+          cargo test --locked --manifest-path src-tauri/Cargo.toml
       - name: Build desktop application without bundle
         run: npm run desktop:build -- --no-bundle
 
   deploy-staging:
     if: github.event_name == 'workflow_dispatch' && inputs.deploy_staging
-    needs: verify-stack
+    needs: [verify-stack, verify-desktop]
     runs-on: ubuntu-latest
     environment: staging
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: npm
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: 1.91.0
           targets: wasm32-unknown-unknown
-      - name: Install build dependencies
+      - name: Install pinned build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y binaryen
-          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+          cargo install wasm-pack --version "$WASM_PACK_VERSION" --locked
           npm ci
+      - name: Build governed Worker input
+        run: npm run build:wasm
       - name: Deploy staging Worker
         uses: cloudflare/wrangler-action@v3
         with:

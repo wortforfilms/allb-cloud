@@ -16,6 +16,10 @@
     "doc": "docs"
   },
   "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "install:all": "npm ci && npm ci --prefix apps/siddham-authority-desktop",
+    "validate:structured": "node scripts/validate-structured-files.mjs",
+    "build": "npm run contracts:check && cargo build --workspace --locked && npm run build:wasm && npm run desktop:check",
     "test": "vitest run",
     "test:watch": "vitest",
     "build:wasm": "./scripts/build-edge.sh",
@@ -31,7 +35,14 @@
     "preflight:disk": "node scripts/check-disk-space.mjs 6",
     "hygiene:check": "node scripts/repository-hygiene.mjs",
     "licenses:check": "node scripts/dependency-license-scan.mjs",
-    "ecosystem:verify": "npm run contracts:check && npm test && npx tsc --noEmit && npm run contracts:python-check && npm run desktop:verify"
+    "security:npm": "npm audit --package-lock-only --audit-level=high && npm --prefix apps/siddham-authority-desktop audit --package-lock-only --audit-level=high",
+    "security:cargo": "cargo audit",
+    "test:rtl": "make sim sim-top rtl-check",
+    "test:all": "cargo test --workspace --locked && npm test && npx tsc --noEmit && npm run contracts:python-check && npm run desktop:check && npm run test:rtl",
+    "sbom:generate": "node scripts/generate-sbom.mjs",
+    "artifacts:package": "node scripts/package-release.mjs",
+    "verify": "npm run preflight:disk && npm run hygiene:check && npm run validate:structured && npm run contracts:check && npm run licenses:check && npm run security:npm && npm run security:cargo && cargo fmt --all -- --check && cargo clippy --workspace --all-targets --locked -- -D warnings && npm run build:wasm && npm run test:all",
+    "ecosystem:verify": "npm run verify"
   },
   "dependencies": {
     "canonicalize": "^4.0.0",
@@ -42,9 +53,11 @@
     "@types/node": "^26.3.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
+    "ajv": "^8.17.1",
     "typescript": "^7.0.2",
     "vitest": "^4.1.11",
-    "wrangler": "^4.126.0"
+    "wrangler": "^4.126.0",
+    "yaml": "^2.8.1"
   },
   "allowScripts": {
     "esbuild@0.28.1": true,

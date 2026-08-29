@@ -2,7 +2,12 @@
 set -euo pipefail
 
 echo "==> Compiling WebAssembly module for Edge Worker (Bundler Target)..."
-wasm-pack build --target web --out-dir pkg --release
+if command -v rustup >/dev/null 2>&1; then
+  RUST_TOOLCHAIN_BIN="$(dirname "$(rustup which rustc --toolchain 1.91.0)")"
+  PATH="${RUST_TOOLCHAIN_BIN}:${PATH}" wasm-pack build --target web --out-dir pkg --release
+else
+  wasm-pack build --target web --out-dir pkg --release
+fi
 
 if command -v wasm-opt >/dev/null 2>&1; then
   echo "==> Running Binaryen wasm-opt (-Oz)..."

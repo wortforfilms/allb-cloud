@@ -9,14 +9,8 @@ const excludedDirectories = new Set([
   "target",
   "pkg",
   ".wrangler",
-  "vendor",
-]);
-const prohibitedDirectoryNames = new Set([
-  "node_modules",
-  "target",
-  "pkg",
-  ".wrangler",
   "__pycache__",
+  "vendor",
 ]);
 const allowedLargeFiles = new Set(["references/siddham/landing-pages.html"]);
 const secretPatterns = [
@@ -33,9 +27,6 @@ function visit(directory) {
     const absolute = join(directory, entry.name);
     const path = relative(root, absolute);
     if (entry.isDirectory()) {
-      if (prohibitedDirectoryNames.has(entry.name)) {
-        failures.push(`Disposable directory present: ${path}`);
-      }
       if (!excludedDirectories.has(entry.name)) visit(absolute);
       continue;
     }

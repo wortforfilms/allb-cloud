@@ -1,7 +1,7 @@
-.PHONY: all sim sim-top rtl-check test build-wasm deploy-staging clean
+.PHONY: all sim sim-top rtl-check test build-wasm verify package deploy-staging clean
 
 # 1. सम्पूर्ण सिस्टम बिल्ड और टेस्ट
-all: sim sim-top rtl-check test build-wasm
+all: build-wasm test
 
 # 2. L0: Verilog HDL Simulation (Icarus Verilog + vvp)
 sim:
@@ -19,7 +19,7 @@ rtl-check:
 	iverilog -g2012 -s siddham_npu_top -o /tmp/siddham-npu-top-check.vvp hardware/rtl/siddham_npu_top.v hardware/rtl/npu_compute_core.v hardware/rtl/npu_dma_engine.v
 
 # 3. L1/L2: Native Rust Kernel & Vitest E2E Suite
-test:
+test: build-wasm
 	@echo "==> Executing Rust Native Tests..."
 	cargo test --release
 	@echo "==> Executing Vitest E2E Integration Suite..."
@@ -35,6 +35,12 @@ deploy-staging: build-wasm
 	@echo "==> Deploying the isolated staging Worker..."
 	npx wrangler deploy --env staging
 
+verify:
+	npm run verify
+
+package: verify build-wasm
+	npm run desktop:check
+	npm run artifacts:package
+
 clean:
-	rm -f npu_top_sim.out npu_dma_sim.out *.vcd
-	rm -rf pkg target
+	node scripts/clean.mjs

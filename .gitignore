@@ -21,6 +21,8 @@ pnpm-debug.log*
 # Testing & Coverage Outputs
 /coverage/
 /.vitest/
+**/__pycache__/
+*.pyc
 
 # OS & Editor Files
 .DS_Store
@@ -46,6 +48,7 @@ Thumbs.db
 
 # CMake & C++ HAL Compilation Artifacts
 /build/
+/artifacts/
 *.dylib
 *.so
 *.a
