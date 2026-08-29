@@ -43,7 +43,7 @@ jobs:
       - name: Install system tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y binaryen iverilog yosys
+          sudo apt-get install -y binaryen iverilog yosys libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
       - name: Install pinned Rust helpers
         run: |
           cargo install wasm-pack --version "$WASM_PACK_VERSION" --locked
