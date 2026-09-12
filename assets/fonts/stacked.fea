@@ -1,0 +1,44 @@
+languagesystem DFLT dflt;
+languagesystem brah dflt;
+
+# ccmp (not blwf/half) because HarfBuzz's generic shaper only
+# auto-applies the always-on feature set (ccmp, liga, rlig, calt,
+# locl, mark, mkmk, ...) for scripts outside its Indic/USE complex-
+# shaper list. blwf/half/pref are Indic-shaper-only features and
+# never fire here -- confirmed empirically: they were silently
+# ignored. Noto's own jna ligature is tagged ccmp for the same reason.
+feature ccmp {
+    sub u11046 u11013 by u11013.blwf;
+    sub u11046 u11014 by u11014.blwf;
+    sub u11046 u11015 by u11015.blwf;
+    sub u11046 u11016 by u11016.blwf;
+    sub u11046 u11017 by u11017.blwf;
+    sub u11046 u11018 by u11018.blwf;
+    sub u11046 u11019 by u11019.blwf;
+    sub u11046 u1101A by u1101A.blwf;
+    sub u11046 u1101B by u1101B.blwf;
+    sub u11046 u1101C by u1101C.blwf;
+    sub u11046 u1101D by u1101D.blwf;
+    sub u11046 u1101E by u1101E.blwf;
+    sub u11046 u1101F by u1101F.blwf;
+    sub u11046 u11020 by u11020.blwf;
+    sub u11046 u11021 by u11021.blwf;
+    sub u11046 u11022 by u11022.blwf;
+    sub u11046 u11023 by u11023.blwf;
+    sub u11046 u11024 by u11024.blwf;
+    sub u11046 u11025 by u11025.blwf;
+    sub u11046 u11026 by u11026.blwf;
+    sub u11046 u11027 by u11027.blwf;
+    sub u11046 u11028 by u11028.blwf;
+    sub u11046 u11029 by u11029.blwf;
+    sub u11046 u1102A by u1102A.blwf;
+    sub u11046 u1102B by u1102B.blwf;
+    sub u11046 u1102C by u1102C.blwf;
+    sub u11046 u1102D by u1102D.blwf;
+    sub u11046 u1102E by u1102E.blwf;
+    sub u11046 u1102F by u1102F.blwf;
+    sub u11046 u11030 by u11030.blwf;
+    sub u11046 u11031 by u11031.blwf;
+    sub u11046 u11032 by u11032.blwf;
+    sub u11046 u11033 by u11033.blwf;
+} ccmp;
