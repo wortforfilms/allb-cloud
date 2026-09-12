@@ -24,6 +24,7 @@ from fontTools.ttLib import TTFont
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.ttGlyphPen import TTGlyphPen
 from fontTools.pens.transformPen import TransformPen
+from fontTools.pens.boundsPen import BoundsPen
 from fontTools.feaLib.builder import addOpenTypeFeatures
 
 SRC = "/mnt/user-data/uploads/Documents/Repos/allb.xyz/assets/fonts/NotoSansBrahmi-Regular.ttf"
@@ -79,15 +80,25 @@ CONS_LO, CONS_HI = 0x11013, 0x11033
 consonants = [cp for cp in range(CONS_LO, CONS_HI + 1)]
 
 S = 0.55         # scale for the below-base (subjoined) form
-DX = -500        # shift left, roughly re-centering under the preceding base
 DY_TOP = -40     # where the scaled glyph's top (cap height) lands, just under baseline
-matrix = (S, 0, 0, S, DX, DY_TOP - S * 714)
 
+# Each blwf glyph is built SELF-CENTERED at local x=0 (its own scaled bbox
+# is symmetric about the origin), so positioning it under any base consonant
+# is a single horizontal shift that depends only on that base's own advance
+# width (see the GPOS 'kern' block below) -- not on a fixed guess, and not
+# on a per-(C1,C2) combinatorial table.
 blwf_names = []
 for cp in consonants:
     base = gname(cp)
     bname = base + ".blwf"
     sname = cmap[cp]
+    bounds_pen = BoundsPen(src_glyphs)
+    src_glyphs[sname].draw(bounds_pen)
+    xmin, ymin, xmax, ymax = bounds_pen.bounds
+    x_center = (xmin + xmax) / 2
+    dx = -S * x_center          # center the scaled shape on local x=0
+    dy = DY_TOP - S * 714        # same vertical placement for every consonant
+    matrix = (S, 0, 0, S, dx, dy)
     outlines[bname] = transformed_outline(sname, matrix, placeholder_glyphset)
     advances[bname] = (0, 0)   # zero-width: it rides under the previous glyph, doesn't advance the pen
     glyph_order.append(bname)
@@ -131,7 +142,28 @@ with open(FEA, "w") as f:
     f.write("\n".join(lines) + "\n")
 print(f"wrote {FEA} ({len(blwf_names)} rules)")
 
+# ---- GPOS: shift the stacked glyph to sit exactly centered under its base ----
+# The blwf glyph is self-centered at local x=0 and has zero advance width,
+# so after C1 it lands with its center exactly at C1's right edge. To put
+# that center at C1's own horizontal midpoint instead, shift it left by
+# half of C1's real advance width -- a single number per base consonant,
+# not per (C1, C2) pair, because the blwf shape is already centered on
+# itself. Uses 'kern' (not 'dist'/'blwm') for the same reason 'ccmp' was
+# needed above: it's on HarfBuzz's generic always-on feature list.
+blwf_class = " ".join(bname for _, bname in blwf_names)
+gpos_lines = ["", "@BlwfForms = [" + blwf_class + "];", "", "feature kern {"]
+for cp in consonants:
+    base = gname(cp)
+    base_width = advances[base][0]
+    shift = -round(base_width / 2)
+    gpos_lines.append(f"    pos {base} @BlwfForms' <{shift} 0 0 0>;")
+gpos_lines.append("} kern;")
+
+with open(FEA, "a") as f:
+    f.write("\n".join(gpos_lines) + "\n")
+print(f"appended GPOS centering rules for {len(consonants)} bases")
+
 final = TTFont(OUT)
 addOpenTypeFeatures(final, FEA)
 final.save(OUT)
-print("GSUB 'blwf' feature compiled and saved.")
+print("GSUB 'ccmp' + GPOS 'kern' compiled and saved.")
