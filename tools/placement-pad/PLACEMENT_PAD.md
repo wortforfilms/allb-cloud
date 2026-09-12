@@ -68,3 +68,31 @@ All values are font units at 1000 UPM, matching `build_stacked.py`'s
 space exactly (`S` = scale, `DY_TOP` = vertical placement of the scaled
 glyph's top) — an exported config's numbers drop straight into that
 script's per-base `advances`/`shift` computation without unit conversion.
+
+## Calibration notes (checked against the Devanagari reference)
+
+Checked the three real conjunct pairs the dhaatu preview actually uses,
+against their Devanagari reference render, at the global default
+(baseScale 0.85, scale 0.5, dyOffset 60):
+
+- **KA + RA** (क्र) — combined ratio 1.32×. RA's Brahmi letterform is a
+  plain vertical stroke (no curve), so scaled down it just hangs as a
+  short bar centered under KA's cross-shape. Reads cleanly, no overlap —
+  KA has no stroke near the baseline for it to collide with.
+- **SA + THA** (स्थ) — 1.26×. SA's own lower loop comes close to the
+  baseline, so the stacked THA's top edge just touches it. Reads as a
+  join, not a collision.
+- **JA + NYA** (ज्ञ) — 1.32×. Same effect as SA+THA: JA's lower curve
+  touches NYA's top. Also reads fine.
+
+Conclusion: the global default generalizes across a straight-stroke base
+(KA), a looped base (SA), and a curved base (JA) without a per-pair
+override — all three land in the 1.26-1.32× "a little bigger than one
+letter" band. The baseline-touching on looped bases is a side effect of
+`dyOffset` (stacked form starts slightly above the baseline) meeting a
+base whose own outline already reaches close to y=0 — expected, and it
+reads as a natural join rather than a defect. Revisit with a per-pair
+override only if a specific base's touch looks like a genuine collision
+once more pairs are checked (SA/JA-like rounded-bottom consonants are the
+ones to watch: DA, DHA, NA, GA, PHA, VA, HA all have curves that reach
+near the baseline the same way).
