@@ -73,7 +73,7 @@ hr.sep{border:none; border-top:1px solid var(--border); margin:2px 0;}
 .legend{display:flex; gap:18px; font-size:0.8rem; color:var(--ink-dim); flex-wrap:wrap;}
 .legend span{display:inline-flex; align-items:center; gap:6px;}
 .swatch{width:10px; height:10px; border-radius:2px; display:inline-block;}
-.readout{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+.readout{display:grid; grid-template-columns:repeat(auto-fit,minmax(108px,1fr)); gap:10px;}
 .readout div{background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:8px 10px;}
 .readout div span.k{display:block; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-dim);}
 .readout div span.v{font-size:1rem;}
@@ -119,12 +119,22 @@ footer a{color:var(--accent);}
       <hr class="sep">
 
       <div class="field">
-        <label>Scale</label>
+        <label>Base size</label>
         <div class="slider-row">
-          <input type="range" id="r-scale" min="20" max="95" step="1">
-          <span class="val mono" id="v-scale">55%</span>
+          <input type="range" id="r-base-scale" min="50" max="100" step="1">
+          <span class="val mono" id="v-base-scale">85%</span>
         </div>
       </div>
+      <div class="field">
+        <label>Stacked size</label>
+        <div class="slider-row">
+          <input type="range" id="r-scale" min="20" max="95" step="1">
+          <span class="val mono" id="v-scale">50%</span>
+        </div>
+      </div>
+      <p style="margin:-4px 0 0; font-size:0.76rem; color:var(--ink-dim); font-style:italic; line-height:1.4;">
+        Both letters a little smaller than full size; the pair together a little taller than one letter alone — watch "Combined" below.
+      </p>
       <div class="field">
         <label>Rotation</label>
         <div class="slider-row">
@@ -180,10 +190,12 @@ footer a{color:var(--accent);}
           </div>
         </div>
         <div class="readout" style="margin-top:12px;">
-          <div><span class="k">Scale</span><span class="v mono" id="ro-scale">55%</span></div>
+          <div><span class="k">Base size</span><span class="v mono" id="ro-base-scale">85%</span></div>
+          <div><span class="k">Stacked size</span><span class="v mono" id="ro-scale">50%</span></div>
           <div><span class="k">Rotation</span><span class="v mono" id="ro-rot">0°</span></div>
           <div><span class="k">X offset</span><span class="v mono" id="ro-dx">0</span></div>
           <div><span class="k">Y offset</span><span class="v mono" id="ro-dy">0</span></div>
+          <div><span class="k">Combined vs 1 letter</span><span class="v mono" id="ro-combined">1.00×</span></div>
         </div>
       </div>
 
@@ -205,7 +217,13 @@ const GLYPHS = __GLYPHS_JSON__;
 const CONS_ORDER = __CONS_ORDER_JSON__;
 const VIRAMA = "__VIRAMA__";
 const DY_TOP_DEFAULT = -40;
-const DEFAULTS = { scale: 0.55, rotation: 0, dxOffset: 0, dyOffset: 0 };
+// Starting point for "both letters a little smaller than full size, but the
+// stacked pair together only a little taller than one letter alone": the
+// base itself now also shrinks (baseScale) instead of staying at 100%, and
+// dyOffset is nudged up so the stacked form tucks in closer to the
+// baseline rather than hanging far below it. Tune per pair with the pad;
+// the "Combined vs 1 letter" readout is the number this rule is about.
+const DEFAULTS = { baseScale: 0.85, scale: 0.5, rotation: 0, dxOffset: 0, dyOffset: 60 };
 const STAGE_X = 560, BASELINE_Y = 820;
 
 function shortName(hex){
@@ -255,6 +273,7 @@ function localCenter(hex){
 
 let dragMode = null; // 'move' | 'rotate' | 'resize'
 let dragStart = null;
+let combinedRatio = 1;
 
 function buildStage(){
   svg.innerHTML = "";
@@ -266,7 +285,14 @@ function buildStage(){
 
   const baseG = GLYPHS[state.baseCp];
   const baseW = baseG.width;
-  world.appendChild(svgEl("path", { d: baseG.path, fill: "var(--base-color)" }));
+
+  // ---- base glyph, scaled in place (shrinks toward its own baseline
+  // center, so it stays sitting on the baseline and centered in its own
+  // advance width -- doesn't shift surrounding spacing) ----
+  const baseCx = (baseG.bounds[0] + baseG.bounds[2]) / 2;
+  const baseGrp = svgEl("g", { transform: `translate(${baseCx},0) scale(${state.baseScale}) translate(${-baseCx},0)` });
+  baseGrp.appendChild(svgEl("path", { d: baseG.path, fill: "var(--base-color)" }));
+  world.appendChild(baseGrp);
 
   // ---- stacked glyph, self-centered then scaled/rotated/translated ----
   const c = localCenter(state.stackCp);
@@ -312,6 +338,15 @@ function buildStage(){
   const rotateHandle = svgEl("circle", { cx:handlePos[0], cy:handlePos[1], r:16, fill:"var(--stack-color)", stroke:"var(--panel)", "stroke-width":3, class:"handle" });
   rotateHandle.addEventListener("pointerdown", e => startDrag(e, "rotate"));
   world.appendChild(rotateHandle);
+
+  // ---- combined-height check: "both a little smaller, together a little
+  // taller than one letter" -- compare the full vertical span (top of the
+  // scaled base to the bottom of the scaled/rotated stacked form) against
+  // this base letter's own normal (unscaled) height ----
+  const singleHeight = baseG.bounds[3] - baseG.bounds[1];
+  const scaledBaseTop = state.baseScale * baseG.bounds[3];
+  const stackBottom = Math.min(...corners.map(p => p[1]));
+  combinedRatio = (scaledBaseTop - stackBottom) / singleHeight;
 
   updateReadouts();
 }
@@ -365,28 +400,36 @@ function endDrag(){
 }
 
 // ---------- sliders <-> state ----------
+const rBaseScale = document.getElementById("r-base-scale"), vBaseScale = document.getElementById("v-base-scale");
 const rScale = document.getElementById("r-scale"), vScale = document.getElementById("v-scale");
 const rRot = document.getElementById("r-rot"), vRot = document.getElementById("v-rot");
 const rDx = document.getElementById("r-dx"), vDx = document.getElementById("v-dx");
 const rDy = document.getElementById("r-dy"), vDy = document.getElementById("v-dy");
 
 function syncControlsFromState(){
+  rBaseScale.value = Math.round(state.baseScale*100);
   rScale.value = Math.round(state.scale*100);
   rRot.value = Math.round(state.rotation);
   rDx.value = Math.round(state.dxOffset);
   rDy.value = Math.round(state.dyOffset);
+  vBaseScale.textContent = Math.round(state.baseScale*100) + "%";
   vScale.textContent = Math.round(state.scale*100) + "%";
   vRot.textContent = Math.round(state.rotation) + "°";
   vDx.textContent = Math.round(state.dxOffset);
   vDy.textContent = Math.round(state.dyOffset);
 }
 function updateReadouts(){
+  document.getElementById("ro-base-scale").textContent = Math.round(state.baseScale*100) + "%";
   document.getElementById("ro-scale").textContent = Math.round(state.scale*100) + "%";
   document.getElementById("ro-rot").textContent = Math.round(state.rotation) + "°";
   document.getElementById("ro-dx").textContent = Math.round(state.dxOffset);
   document.getElementById("ro-dy").textContent = Math.round(state.dyOffset);
+  const roCombined = document.getElementById("ro-combined");
+  roCombined.textContent = combinedRatio.toFixed(2) + "×";
+  // a little taller than one letter: roughly 1.05-1.35x reads as "a little"; outside that, flag it
+  roCombined.style.color = (combinedRatio >= 1.02 && combinedRatio <= 1.4) ? "var(--ink)" : "var(--accent)";
 }
-[[rScale,"scale",0.01],[rRot,"rotation",1],[rDx,"dxOffset",1],[rDy,"dyOffset",1]].forEach(([el,key,mult])=>{
+[[rBaseScale,"baseScale",0.01],[rScale,"scale",0.01],[rRot,"rotation",1],[rDx,"dxOffset",1],[rDy,"dyOffset",1]].forEach(([el,key,mult])=>{
   el.addEventListener("input", ()=>{
     state[key] = parseFloat(el.value)*mult;
     syncControlsFromState();
@@ -439,14 +482,14 @@ document.getElementById("btn-save-pair").addEventListener("click", async ()=>{
   const key = currentKey();
   await dbApi.collection("pairs").doc(key).set({
     baseCp: state.baseCp, stackCp: state.stackCp,
-    scale: state.scale, rotation: state.rotation, dxOffset: state.dxOffset, dyOffset: state.dyOffset,
+    baseScale: state.baseScale, scale: state.scale, rotation: state.rotation, dxOffset: state.dxOffset, dyOffset: state.dyOffset,
     updatedAt: new Date().toISOString(),
   });
 });
 document.getElementById("btn-save-global").addEventListener("click", async ()=>{
   if (!dbApi) return;
   await dbApi.doc("config/global").set({
-    scale: state.scale, rotation: state.rotation, dxOffset: state.dxOffset, dyOffset: state.dyOffset,
+    baseScale: state.baseScale, scale: state.scale, rotation: state.rotation, dxOffset: state.dxOffset, dyOffset: state.dyOffset,
     updatedAt: new Date().toISOString(),
   });
 });
@@ -513,19 +556,35 @@ function renderWords(){
     const cps = w.cps;
     for (let i=0;i<cps.length;i++){
       const cp = cps[i];
-      if (cp === VIRAMA && i+1 < cps.length && CONS_ORDER.includes(cps[i+1])){
-        const baseCp = cps[i-1], stackCp = cps[i+1];
-        const params = { ...DEFAULTS, ...paramsFor(baseCp, stackCp) };
+      const gl = GLYPHS[cp];
+      const stackCp = cps[i+2];
+      const isConjunctBase = CONS_ORDER.includes(cp) && cps[i+1] === VIRAMA && stackCp && CONS_ORDER.includes(stackCp);
+      if (isConjunctBase){
+        const baseX = cursor;
+        const params = { ...DEFAULTS, ...paramsFor(cp, stackCp) };
+
+        // base, scaled in place (same shrink-toward-baseline-center as the stage)
+        const bcx = (gl.bounds[0] + gl.bounds[2]) / 2;
+        const baseGrp = svgEl("g", { transform: `translate(${baseX},0)` });
+        const scaledGrp = svgEl("g", { transform: `translate(${bcx},0) scale(${params.baseScale}) translate(${-bcx},0)` });
+        scaledGrp.appendChild(svgEl("path", { d: gl.path, fill: "var(--base-color)" }));
+        baseGrp.appendChild(scaledGrp);
+        g.appendChild(baseGrp);
+
+        // stacked, centered under the base's own (unscaled) advance width --
+        // baseX + half its width, not baseX + full width (which was this
+        // preview's own bug: it had been centering on the base's right edge)
         const c = localCenter(stackCp);
-        const cx = cursor + params.dxOffset;
+        const cx = baseX + gl.width/2 + params.dxOffset;
         const cy = (DY_TOP_DEFAULT + params.dyOffset) - params.scale*(c.ymax-c.cy);
         const pg = svgEl("g", { transform: `translate(${cx},${cy}) rotate(${-params.rotation}) scale(${params.scale}) translate(${-c.cx},${-c.cy})` });
         pg.appendChild(svgEl("path", { d: GLYPHS[stackCp].path, fill: "var(--stack-color)" }));
         g.appendChild(pg);
-        i++; // consumed the stacked consonant too
+
+        cursor += gl.width;
+        i += 2; // consumed the virama and the stacked consonant too
         continue;
       }
-      const gl = GLYPHS[cp];
       g.appendChild(svgEl("path", { d: gl.path, fill: "var(--base-color)", transform: `translate(${cursor},0)` }));
       cursor += gl.width;
     }
