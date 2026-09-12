@@ -29,6 +29,7 @@ html = r"""<title>Conjunct Placement Pad</title>
   --base-color:#7C8FE0; --stack-color:#E2694A; --guide:#454B60;
 }
 *{box-sizing:border-box;}
+[hidden]{display:none !important;}
 body{
   background:var(--bg); color:var(--ink); margin:0; padding-block:28px;
   padding-inline:20px; font-family:"IBM Plex Sans",system-ui,sans-serif;
@@ -62,6 +63,10 @@ select{width:100%;}
 .btn-primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:600;}
 .btn-row{display:flex; gap:8px; flex-wrap:wrap;}
 .btn-row .btn{flex:1; min-width:0;}
+.mode-row{display:flex; flex-direction:column; gap:6px;}
+.mode-btn{width:100%; text-align:left; font-size:0.85rem;}
+.mode-btn.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:600;}
+.sheet-hint{margin:-4px 0 0; font-size:0.76rem; color:var(--ink-dim); font-style:italic; line-height:1.4;}
 hr.sep{border:none; border-top:1px solid var(--border); margin:2px 0;}
 .stage-wrap{display:flex; flex-direction:column; gap:16px;}
 .stage-row{display:flex; gap:16px; align-items:stretch; flex-wrap:wrap;}
@@ -96,6 +101,13 @@ hr.sep{border:none; border-top:1px solid var(--border); margin:2px 0;}
 .override-row .del{color:var(--ink-dim); background:none; border:none; cursor:pointer; padding:2px 6px; font-size:0.9rem;}
 .override-row .del:hover{color:var(--accent);}
 .empty-note{color:var(--ink-dim); font-size:0.82rem; font-style:italic;}
+.sheet-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px;}
+.sheet-cell{background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:8px; text-align:center;}
+.sheet-cell.flag{border-color:var(--accent);}
+.sheet-cell svg{width:100%; height:90px;}
+.sheet-cell .dev{font-family:"Noto Sans Devanagari",system-ui,sans-serif; font-size:1.1rem; color:var(--ink-dim);}
+.sheet-cell .lbl{font-size:0.68rem; color:var(--ink-dim); margin-top:2px;}
+.sheet-cell .ratio{font-size:0.68rem; font-family:"IBM Plex Mono",ui-monospace,monospace; margin-top:1px;}
 .words-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px;}
 .word-card{background:var(--panel-2); border:1px solid var(--border); border-radius:9px; padding:10px; text-align:center;}
 .word-card svg{width:100%; height:70px;}
@@ -118,13 +130,26 @@ footer a{color:var(--accent);}
   <div class="layout">
     <div class="panel sidebar">
       <div class="field">
-        <label for="sel-base">Base consonant (fixed)</label>
+        <label>Mode</label>
+        <div class="mode-row">
+          <button class="btn mode-btn active" id="mode-single" data-mode="single">Single pair</button>
+          <button class="btn mode-btn" id="mode-by-stack" data-mode="byStack">Sheet: fix stacked</button>
+          <button class="btn mode-btn" id="mode-by-base" data-mode="byBase">Sheet: fix base</button>
+        </div>
+      </div>
+
+      <div class="field" id="field-sel-base">
+        <label for="sel-base" id="label-sel-base">Base consonant (fixed)</label>
         <select id="sel-base"></select>
       </div>
-      <div class="field">
-        <label for="sel-stack">Stacked consonant (movable)</label>
+      <div class="field" id="field-sel-stack">
+        <label for="sel-stack" id="label-sel-stack">Stacked consonant (movable)</label>
         <select id="sel-stack"></select>
       </div>
+      <p class="sheet-hint" id="sheet-hint" hidden>
+        Every consonant in the sheet grid on the right shares these controls —
+        move a slider and all 33 update together, live.
+      </p>
 
       <hr class="sep">
 
@@ -171,14 +196,24 @@ footer a{color:var(--accent);}
         <button class="btn" id="btn-reset-formula">Reset to formula</button>
         <button class="btn" id="btn-reset-global">Reset to global</button>
       </div>
-      <div class="btn-row">
+      <div class="btn-row" id="row-save-pair">
         <button class="btn btn-primary" id="btn-save-pair">Save this pair</button>
+      </div>
+      <div class="btn-row" id="row-save-sheet" hidden>
+        <button class="btn btn-primary" id="btn-save-sheet">Save for all 33</button>
       </div>
       <div class="btn-row">
         <button class="btn" id="btn-save-global">Save as global default</button>
       </div>
 
       <hr class="sep">
+
+      <div class="field">
+        <label>Saved stacked-letter / base-letter defaults</label>
+        <div class="overrides-list" id="sheet-overrides-list">
+          <div class="empty-note">None yet.</div>
+        </div>
+      </div>
 
       <div class="field">
         <label>Saved pair overrides</label>
@@ -191,7 +226,7 @@ footer a{color:var(--accent);}
     </div>
 
     <div class="stage-wrap">
-      <div class="panel">
+      <div class="panel" id="single-panel">
         <div class="stage-row">
           <svg id="stage-svg" viewBox="-50 -80 1550 1650" xmlns="http://www.w3.org/2000/svg"></svg>
           <div class="dev-ref">
@@ -214,6 +249,14 @@ footer a{color:var(--accent);}
           <div><span class="k">Y offset</span><span class="v mono" id="ro-dy">0</span></div>
           <div><span class="k">Combined vs 1 letter</span><span class="v mono" id="ro-combined">1.00×</span></div>
         </div>
+      </div>
+
+      <div class="panel" id="sheet-panel" hidden>
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <h3 style="font-size:1.05rem;" id="sheet-title">All 33 bases with this stacked letter</h3>
+          <div class="legend"><span class="v mono" id="sheet-combined-summary"></span></div>
+        </div>
+        <div class="sheet-grid" id="sheet-grid"></div>
       </div>
 
       <div class="panel">
@@ -270,16 +313,41 @@ function ch(hex){ return String.fromCodePoint(parseInt(hex,16)); }
 
 // ---------- state ----------
 let globalDefault = { ...DEFAULTS };
-let pairOverrides = {};   // key -> {scale,rotation,dxOffset,dyOffset}
+let pairOverrides = {};    // "base-stack" -> {baseScale,scale,rotation,dxOffset,dyOffset}
+let stackDefaults = {};    // stackHex -> same shape -- applies to every base with this stacked letter
+let baseDefaults = {};     // baseHex -> same shape -- applies to every stacked letter on this base
 let state = { baseCp: "11032", stackCp: "11023", ...DEFAULTS }; // SA + THA (sthA) as the opening example
+
+// precedence: an exact pair override wins; then a rule for "always this
+// stacked letter" or "always this base letter" (whichever was saved);
+// then the plain global default.
+function paramsFor(baseCp, stackCp){
+  const key = pairKey(baseCp, stackCp);
+  if (pairOverrides[key]) return pairOverrides[key];
+  if (stackDefaults[stackCp]) return stackDefaults[stackCp];
+  if (baseDefaults[baseCp]) return baseDefaults[baseCp];
+  return globalDefault;
+}
 
 function pairKey(b, s){ return b + "-" + s; }
 function currentKey(){ return pairKey(state.baseCp, state.stackCp); }
 
 function loadPairIntoState(baseCp, stackCp){
-  const key = pairKey(baseCp, stackCp);
-  const src = pairOverrides[key] || globalDefault;
-  state = { baseCp, stackCp, ...DEFAULTS, ...src };
+  state = { baseCp, stackCp, ...DEFAULTS, ...paramsFor(baseCp, stackCp) };
+}
+
+// ---------- sheet mode ----------
+let mode = "single";        // "single" | "byStack" | "byBase"
+let sheetHex = "11023";     // the fixed consonant (THA, matching the opening single-pair example)
+let sheetParams = { ...DEFAULTS };
+
+function activeParams(){ return mode === "single" ? state : sheetParams; }
+function rebuild(){ if (mode === "single") buildStage(); else buildSheet(); }
+
+function loadSheetIntoParams(){
+  const src = mode === "byStack" ? (stackDefaults[sheetHex] || globalDefault)
+                                  : (baseDefaults[sheetHex] || globalDefault);
+  sheetParams = { ...DEFAULTS, ...src };
 }
 
 // ---------- populate selects ----------
@@ -311,6 +379,30 @@ let dragMode = null; // 'move' | 'rotate' | 'resize'
 let dragStart = null;
 let combinedRatio = 1;
 
+// Shared geometry math for one base+stacked pair under a given params
+// object -- used by the single-pair stage AND every cell of the sheet
+// grid, so the two can never silently drift onto different formulas.
+function computeStackGeometry(baseCp, stackCp, params){
+  const baseG = GLYPHS[baseCp];
+  const c = localCenter(stackCp);
+  const targetCx = baseG.width/2 + params.dxOffset;
+  const targetCy = (DY_TOP_DEFAULT + params.dyOffset) - params.scale * (c.ymax - c.cy);
+  const b = GLYPHS[stackCp].bounds;
+  const corners = [[b[0],b[1]],[b[2],b[1]],[b[2],b[3]],[b[0],b[3]]].map(([x,y])=>{
+    const lx = x - c.cx, ly = y - c.cy;
+    const rad = -params.rotation * Math.PI/180;
+    const rx = lx*Math.cos(rad) - ly*Math.sin(rad);
+    const ry = lx*Math.sin(rad) + ly*Math.cos(rad);
+    return [targetCx + rx*params.scale, targetCy + ry*params.scale];
+  });
+  const singleHeight = baseG.bounds[3] - baseG.bounds[1];
+  const scaledBaseTop = params.baseScale * baseG.bounds[3];
+  const stackBottom = Math.min(...corners.map(p => p[1]));
+  const ratio = (scaledBaseTop - stackBottom) / singleHeight;
+  return { c, targetCx, targetCy, corners, ratio };
+}
+function ratioIsOk(r){ return r >= 1.02 && r <= 1.4; }
+
 function buildStage(){
   svg.innerHTML = "";
   const world = svgEl("g", { transform: `translate(${STAGE_X},${BASELINE_Y}) scale(1,-1)` });
@@ -320,7 +412,6 @@ function buildStage(){
   world.appendChild(svgEl("line", { x1:-500, x2:900, y1:0, y2:0, stroke:"var(--guide)", "stroke-width":2, "vector-effect":"non-scaling-stroke" }));
 
   const baseG = GLYPHS[state.baseCp];
-  const baseW = baseG.width;
 
   // ---- base glyph, scaled in place (shrinks toward its own baseline
   // center, so it stays sitting on the baseline and centered in its own
@@ -331,24 +422,14 @@ function buildStage(){
   world.appendChild(baseGrp);
 
   // ---- stacked glyph, self-centered then scaled/rotated/translated ----
-  const c = localCenter(state.stackCp);
-  const targetCx = baseW/2 + state.dxOffset;
-  const targetCy = (DY_TOP_DEFAULT + state.dyOffset) - state.scale * (c.ymax - c.cy);
+  const geo = computeStackGeometry(state.baseCp, state.stackCp, state);
+  const { c, targetCx, targetCy, corners } = geo;
 
   const posG = svgEl("g", { transform: `translate(${targetCx},${targetCy}) rotate(${-state.rotation}) scale(${state.scale}) translate(${-c.cx},${-c.cy})`, id:"stacked-glyph" });
   posG.appendChild(svgEl("path", { d: GLYPHS[state.stackCp].path, fill: "var(--stack-color)" }));
   world.appendChild(posG);
 
   // ---- handles (drawn in world space at the glyph's screen-space bbox) ----
-  const b = GLYPHS[state.stackCp].bounds;
-  const corners = [[b[0],b[1]],[b[2],b[1]],[b[2],b[3]],[b[0],b[3]]].map(([x,y])=>{
-    // apply same local transform chain manually to get world-space corner
-    const lx = x - c.cx, ly = y - c.cy;
-    const rad = -state.rotation * Math.PI/180;
-    const rx = lx*Math.cos(rad) - ly*Math.sin(rad);
-    const ry = lx*Math.sin(rad) + ly*Math.cos(rad);
-    return [targetCx + rx*state.scale, targetCy + ry*state.scale];
-  });
   const centerWorld = [targetCx, targetCy];
 
   // bounding outline (visual affordance)
@@ -379,12 +460,70 @@ function buildStage(){
   // taller than one letter" -- compare the full vertical span (top of the
   // scaled base to the bottom of the scaled/rotated stacked form) against
   // this base letter's own normal (unscaled) height ----
-  const singleHeight = baseG.bounds[3] - baseG.bounds[1];
-  const scaledBaseTop = state.baseScale * baseG.bounds[3];
-  const stackBottom = Math.min(...corners.map(p => p[1]));
-  combinedRatio = (scaledBaseTop - stackBottom) / singleHeight;
+  combinedRatio = geo.ratio;
 
   document.getElementById("dev-ref-text").textContent = devanagariWord([state.baseCp, VIRAMA, state.stackCp]);
+
+  updateReadouts();
+}
+
+// ---------- sheet stage: this consonant against all 33 of the other kind ----------
+function buildSheet(){
+  const grid = document.getElementById("sheet-grid");
+  grid.innerHTML = "";
+  document.getElementById("sheet-title").textContent = mode === "byStack"
+    ? `All 33 bases with ${ch(sheetHex)} ${shortName(sheetHex)} stacked below`
+    : `All 33 stacked letters under ${ch(sheetHex)} ${shortName(sheetHex)}`;
+
+  const params = sheetParams;
+  const ratios = [];
+
+  CONS_ORDER.forEach(varHex => {
+    const baseCp = mode === "byStack" ? varHex : sheetHex;
+    const stackCp = mode === "byStack" ? sheetHex : varHex;
+    const baseG = GLYPHS[baseCp];
+    const geo = computeStackGeometry(baseCp, stackCp, params);
+    ratios.push(geo.ratio);
+
+    const cell = document.createElement("div");
+    cell.className = "sheet-cell" + (ratioIsOk(geo.ratio) ? "" : " flag");
+
+    const svgC = document.createElementNS(NS, "svg");
+    svgC.setAttribute("viewBox", "-40 -60 900 1000");
+    const g = svgEl("g", { transform: `translate(60,760) scale(1,-1)` });
+    svgC.appendChild(g);
+    g.appendChild(svgEl("line", { x1:-40, x2:800, y1:0, y2:0, stroke:"var(--guide)", "stroke-width":2, "vector-effect":"non-scaling-stroke" }));
+
+    const bcx = (baseG.bounds[0] + baseG.bounds[2]) / 2;
+    const baseGrp = svgEl("g", { transform: `translate(${bcx},0) scale(${params.baseScale}) translate(${-bcx},0)` });
+    baseGrp.appendChild(svgEl("path", { d: baseG.path, fill: "var(--base-color)" }));
+    g.appendChild(baseGrp);
+
+    const pg = svgEl("g", { transform: `translate(${geo.targetCx},${geo.targetCy}) rotate(${-params.rotation}) scale(${params.scale}) translate(${-geo.c.cx},${-geo.c.cy})` });
+    pg.appendChild(svgEl("path", { d: GLYPHS[stackCp].path, fill: "var(--stack-color)" }));
+    g.appendChild(pg);
+
+    cell.appendChild(svgC);
+    const devLine = document.createElement("div");
+    devLine.className = "dev";
+    devLine.textContent = devanagariWord([baseCp, VIRAMA, stackCp]);
+    cell.appendChild(devLine);
+    const lbl = document.createElement("div");
+    lbl.className = "lbl";
+    lbl.textContent = shortName(varHex);
+    cell.appendChild(lbl);
+    const ratioEl = document.createElement("div");
+    ratioEl.className = "ratio";
+    ratioEl.textContent = geo.ratio.toFixed(2) + "×";
+    cell.appendChild(ratioEl);
+    grid.appendChild(cell);
+  });
+
+  const min = Math.min(...ratios), max = Math.max(...ratios);
+  const avg = ratios.reduce((a,b)=>a+b, 0) / ratios.length;
+  const outCount = ratios.filter(r => !ratioIsOk(r)).length;
+  document.getElementById("sheet-combined-summary").textContent =
+    `avg ${avg.toFixed(2)}× · range ${min.toFixed(2)}–${max.toFixed(2)}×` + (outCount ? ` · ${outCount} outside band` : "");
 
   updateReadouts();
 }
@@ -398,10 +537,10 @@ function svgPointFromEvent(e){
   return { fx: p.x - STAGE_X, fy: BASELINE_Y - p.y };
 }
 
-function startDrag(e, mode){
+function startDrag(e, dragKind){
   e.preventDefault(); e.stopPropagation();
   const p = svgPointFromEvent(e);
-  dragMode = mode;
+  dragMode = dragKind;
   const c = localCenter(state.stackCp);
   const baseW = GLYPHS[state.baseCp].width;
   const centerFont = { x: baseW/2 + state.dxOffset, y: (DY_TOP_DEFAULT + state.dyOffset) - state.scale*(c.ymax-c.cy) };
@@ -445,47 +584,95 @@ const rDx = document.getElementById("r-dx"), vDx = document.getElementById("v-dx
 const rDy = document.getElementById("r-dy"), vDy = document.getElementById("v-dy");
 
 function syncControlsFromState(){
-  rBaseScale.value = Math.round(state.baseScale*100);
-  rScale.value = Math.round(state.scale*100);
-  rRot.value = Math.round(state.rotation);
-  rDx.value = Math.round(state.dxOffset);
-  rDy.value = Math.round(state.dyOffset);
-  vBaseScale.textContent = Math.round(state.baseScale*100) + "%";
-  vScale.textContent = Math.round(state.scale*100) + "%";
-  vRot.textContent = Math.round(state.rotation) + "°";
-  vDx.textContent = Math.round(state.dxOffset);
-  vDy.textContent = Math.round(state.dyOffset);
+  const p = activeParams();
+  rBaseScale.value = Math.round(p.baseScale*100);
+  rScale.value = Math.round(p.scale*100);
+  rRot.value = Math.round(p.rotation);
+  rDx.value = Math.round(p.dxOffset);
+  rDy.value = Math.round(p.dyOffset);
+  vBaseScale.textContent = Math.round(p.baseScale*100) + "%";
+  vScale.textContent = Math.round(p.scale*100) + "%";
+  vRot.textContent = Math.round(p.rotation) + "°";
+  vDx.textContent = Math.round(p.dxOffset);
+  vDy.textContent = Math.round(p.dyOffset);
 }
 function updateReadouts(){
-  document.getElementById("ro-base-scale").textContent = Math.round(state.baseScale*100) + "%";
-  document.getElementById("ro-scale").textContent = Math.round(state.scale*100) + "%";
-  document.getElementById("ro-rot").textContent = Math.round(state.rotation) + "°";
-  document.getElementById("ro-dx").textContent = Math.round(state.dxOffset);
-  document.getElementById("ro-dy").textContent = Math.round(state.dyOffset);
-  const roCombined = document.getElementById("ro-combined");
-  roCombined.textContent = combinedRatio.toFixed(2) + "×";
-  // a little taller than one letter: roughly 1.05-1.35x reads as "a little"; outside that, flag it
-  roCombined.style.color = (combinedRatio >= 1.02 && combinedRatio <= 1.4) ? "var(--ink)" : "var(--accent)";
+  const p = activeParams();
+  document.getElementById("ro-base-scale").textContent = Math.round(p.baseScale*100) + "%";
+  document.getElementById("ro-scale").textContent = Math.round(p.scale*100) + "%";
+  document.getElementById("ro-rot").textContent = Math.round(p.rotation) + "°";
+  document.getElementById("ro-dx").textContent = Math.round(p.dxOffset);
+  document.getElementById("ro-dy").textContent = Math.round(p.dyOffset);
+  if (mode === "single"){
+    const roCombined = document.getElementById("ro-combined");
+    roCombined.textContent = combinedRatio.toFixed(2) + "×";
+    roCombined.style.color = ratioIsOk(combinedRatio) ? "var(--ink)" : "var(--accent)";
+  }
 }
 [[rBaseScale,"baseScale",0.01],[rScale,"scale",0.01],[rRot,"rotation",1],[rDx,"dxOffset",1],[rDy,"dyOffset",1]].forEach(([el,key,mult])=>{
   el.addEventListener("input", ()=>{
-    state[key] = parseFloat(el.value)*mult;
+    activeParams()[key] = parseFloat(el.value)*mult;
     syncControlsFromState();
-    buildStage();
+    rebuild();
   });
 });
 
-selBase.addEventListener("change", ()=>{ loadPairIntoState(selBase.value, state.stackCp); syncControlsFromState(); buildStage(); renderOverridesList(); });
-selStack.addEventListener("change", ()=>{ loadPairIntoState(state.baseCp, selStack.value); syncControlsFromState(); buildStage(); renderOverridesList(); });
+selBase.addEventListener("change", ()=>{
+  if (mode === "single") loadPairIntoState(selBase.value, state.stackCp);
+  else { sheetHex = selBase.value; loadSheetIntoParams(); }
+  syncControlsFromState(); rebuild(); renderOverridesList(); renderSheetOverridesList();
+});
+selStack.addEventListener("change", ()=>{
+  if (mode === "single") loadPairIntoState(state.baseCp, selStack.value);
+  else { sheetHex = selStack.value; loadSheetIntoParams(); }
+  syncControlsFromState(); rebuild(); renderOverridesList(); renderSheetOverridesList();
+});
 
 document.getElementById("btn-reset-formula").addEventListener("click", ()=>{
-  state = { baseCp: state.baseCp, stackCp: state.stackCp, ...DEFAULTS };
-  syncControlsFromState(); buildStage();
+  if (mode === "single") state = { baseCp: state.baseCp, stackCp: state.stackCp, ...DEFAULTS };
+  else sheetParams = { ...DEFAULTS };
+  syncControlsFromState(); rebuild();
 });
 document.getElementById("btn-reset-global").addEventListener("click", ()=>{
-  state = { baseCp: state.baseCp, stackCp: state.stackCp, ...DEFAULTS, ...globalDefault };
-  syncControlsFromState(); buildStage();
+  if (mode === "single") state = { baseCp: state.baseCp, stackCp: state.stackCp, ...DEFAULTS, ...globalDefault };
+  else sheetParams = { ...DEFAULTS, ...globalDefault };
+  syncControlsFromState(); rebuild();
 });
+
+// ---------- mode switching ----------
+const modeButtons = document.querySelectorAll(".mode-btn");
+function setMode(newMode){
+  mode = newMode;
+  modeButtons.forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+  document.getElementById("single-panel").hidden = mode !== "single";
+  document.getElementById("sheet-panel").hidden = mode === "single";
+  document.getElementById("row-save-pair").hidden = mode !== "single";
+  document.getElementById("row-save-sheet").hidden = mode === "single";
+  document.getElementById("sheet-hint").hidden = mode === "single";
+  document.getElementById("field-sel-base").hidden = mode === "byStack";
+  document.getElementById("field-sel-stack").hidden = mode === "byBase";
+  const btnSaveSheet = document.getElementById("btn-save-sheet");
+  const labelBase = document.getElementById("label-sel-base");
+  const labelStack = document.getElementById("label-sel-stack");
+  if (mode === "single"){
+    labelBase.textContent = "Base consonant (fixed)";
+    labelStack.textContent = "Stacked consonant (movable)";
+    selBase.value = state.baseCp; selStack.value = state.stackCp;
+  } else if (mode === "byStack"){
+    labelStack.textContent = "Stacked consonant (fixed for the whole sheet)";
+    selStack.value = sheetHex;
+    btnSaveSheet.textContent = "Save for all 33 bases";
+    loadSheetIntoParams();
+  } else if (mode === "byBase"){
+    labelBase.textContent = "Base consonant (fixed for the whole sheet)";
+    selBase.value = sheetHex;
+    btnSaveSheet.textContent = "Save for all 33 stacked letters";
+    loadSheetIntoParams();
+  }
+  syncControlsFromState();
+  rebuild();
+}
+modeButtons.forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
 
 // ---------- db ----------
 let dbApi = null, downloadsApi = null;
@@ -505,13 +692,29 @@ function setDbStatus(ok, msg){
 
   dbApi.doc("config/global").onSnapshot(snap => {
     if (snap.exists) globalDefault = { ...DEFAULTS, ...snap.data() };
-    if (!pairOverrides[currentKey()]) { state = { ...state, ...globalDefault }; syncControlsFromState(); buildStage(); }
+    if (mode === "single" && !pairOverrides[currentKey()] && !stackDefaults[state.stackCp] && !baseDefaults[state.baseCp]) {
+      state = { ...state, ...globalDefault }; syncControlsFromState(); buildStage();
+    }
   }, ()=>{});
 
   dbApi.collection("pairs").onSnapshot(qsnap => {
     pairOverrides = {};
     qsnap.docs.forEach(d => pairOverrides[d.id] = d.data());
     renderOverridesList();
+  }, ()=>{});
+
+  dbApi.collection("stackDefaults").onSnapshot(qsnap => {
+    stackDefaults = {};
+    qsnap.docs.forEach(d => stackDefaults[d.id] = d.data());
+    renderSheetOverridesList();
+    if (mode === "byStack") { loadSheetIntoParams(); syncControlsFromState(); buildSheet(); }
+  }, ()=>{});
+
+  dbApi.collection("baseDefaults").onSnapshot(qsnap => {
+    baseDefaults = {};
+    qsnap.docs.forEach(d => baseDefaults[d.id] = d.data());
+    renderSheetOverridesList();
+    if (mode === "byBase") { loadSheetIntoParams(); syncControlsFromState(); buildSheet(); }
   }, ()=>{});
 })();
 
@@ -524,10 +727,20 @@ document.getElementById("btn-save-pair").addEventListener("click", async ()=>{
     updatedAt: new Date().toISOString(),
   });
 });
+document.getElementById("btn-save-sheet").addEventListener("click", async ()=>{
+  if (!dbApi) return;
+  const collection = mode === "byStack" ? "stackDefaults" : "baseDefaults";
+  await dbApi.collection(collection).doc(sheetHex).set({
+    baseScale: sheetParams.baseScale, scale: sheetParams.scale, rotation: sheetParams.rotation,
+    dxOffset: sheetParams.dxOffset, dyOffset: sheetParams.dyOffset,
+    updatedAt: new Date().toISOString(),
+  });
+});
 document.getElementById("btn-save-global").addEventListener("click", async ()=>{
   if (!dbApi) return;
+  const p = activeParams();
   await dbApi.doc("config/global").set({
-    baseScale: state.baseScale, scale: state.scale, rotation: state.rotation, dxOffset: state.dxOffset, dyOffset: state.dyOffset,
+    baseScale: p.baseScale, scale: p.scale, rotation: p.rotation, dxOffset: p.dxOffset, dyOffset: p.dyOffset,
     updatedAt: new Date().toISOString(),
   });
 });
@@ -544,8 +757,10 @@ function renderOverridesList(){
     row.innerHTML = `<span>${ch(b)}${ch(s)}&nbsp; <span class="mono" style="color:var(--ink-dim)">${shortName(b)}→${shortName(s)}</span></span><button class="del" title="delete">✕</button>`;
     row.addEventListener("click", (e)=>{
       if (e.target.classList.contains("del")) return;
+      setMode("single");
+      loadPairIntoState(b, s);
       selBase.value = b; selStack.value = s;
-      loadPairIntoState(b, s); syncControlsFromState(); buildStage();
+      syncControlsFromState(); buildStage();
     });
     row.querySelector(".del").addEventListener("click", async (e)=>{
       e.stopPropagation();
@@ -556,8 +771,36 @@ function renderOverridesList(){
   renderWords();
 }
 
+function renderSheetOverridesList(){
+  const list = document.getElementById("sheet-overrides-list");
+  const entries = [
+    ...Object.keys(stackDefaults).map(hex => ({ axis: "stack", hex })),
+    ...Object.keys(baseDefaults).map(hex => ({ axis: "base", hex })),
+  ];
+  if (!entries.length){ list.innerHTML = `<div class="empty-note">None yet.</div>`; return; }
+  list.innerHTML = "";
+  entries.forEach(({ axis, hex }) => {
+    const row = document.createElement("div");
+    row.className = "override-row";
+    const label = axis === "stack"
+      ? `all bases + ${ch(hex)} ${shortName(hex)} below`
+      : `${ch(hex)} ${shortName(hex)} + all 33 stacked`;
+    row.innerHTML = `<span>${label}</span><button class="del" title="delete">✕</button>`;
+    row.addEventListener("click", (e)=>{
+      if (e.target.classList.contains("del")) return;
+      sheetHex = hex;
+      setMode(axis === "stack" ? "byStack" : "byBase");
+    });
+    row.querySelector(".del").addEventListener("click", async (e)=>{
+      e.stopPropagation();
+      if (dbApi) await dbApi.collection(axis === "stack" ? "stackDefaults" : "baseDefaults").doc(hex).delete();
+    });
+    list.appendChild(row);
+  });
+}
+
 document.getElementById("btn-export").addEventListener("click", async ()=>{
-  const cfg = { global: globalDefault, pairs: pairOverrides };
+  const cfg = { global: globalDefault, pairs: pairOverrides, stackDefaults, baseDefaults };
   const text = JSON.stringify(cfg, null, 2);
   if (downloadsApi){
     try { await downloadsApi.save({ filename: "brahmi-placement-config.json", data: text }); return; } catch(e) {}
@@ -575,10 +818,6 @@ const WORDS = [
   { iast: "kram", cps: ["11013","11046","1102D","1102B","11046"] },
   { iast: "j~nA", cps: ["1101A","11046","1101C","11038"] },
 ];
-function paramsFor(baseCp, stackCp){
-  const key = pairKey(baseCp, stackCp);
-  return pairOverrides[key] || globalDefault;
-}
 function renderWords(){
   const grid = document.getElementById("words-grid");
   grid.innerHTML = "";
@@ -639,8 +878,7 @@ function renderWords(){
   });
 }
 
-syncControlsFromState();
-buildStage();
+setMode("single");
 renderWords();
 </script>
 """

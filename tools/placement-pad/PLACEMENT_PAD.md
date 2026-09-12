@@ -39,6 +39,21 @@ capabilities:
   matches Devanagari's position-for-position, so `CONS_ORDER`'s index maps
   directly onto a Devanagari consonant table), not typed by hand — so it
   can't drift out of sync with what's actually being rendered in Brahmi.
+- **Mode: Single pair / Sheet: fix stacked / Sheet: fix base** — calibrating
+  one of 33×33 possible pairs at a time doesn't scale, so the two sheet
+  modes fix one letter and show it against all 33 of the other kind at
+  once, all 33 sharing the SAME base-size/stacked-size/rotation/nudge
+  sliders: move one slider and all 33 cells update live together. Each
+  cell shows its own Devanagari reference and its own combined-ratio
+  number, with a red outline on any cell outside the "reads as a little
+  bigger" band, so an outlier is visible at a glance instead of requiring
+  a pair-by-pair walk. "Save for all 33 bases" (fix-stacked mode) or
+  "Save for all 33 stacked letters" (fix-base mode) writes one rule to
+  `stackDefaults/<hex>` or `baseDefaults/<hex>`. Precedence when resolving
+  a specific (base, stacked) pair's actual parameters is: an exact pair
+  override first, then a stacked-letter default, then a base-letter
+  default, then the plain global default — so a sheet-level rule is a
+  wide-but-overridable default, not a hard rule.
 
 ## Files
 
