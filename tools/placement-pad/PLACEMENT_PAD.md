@@ -31,6 +31,14 @@ capabilities:
 - **Export config JSON** downloads `{global, pairs}` in the shape
   `build_stacked.py` should read back in to replace its one-size formula
   with per-pair calibrated values, once enough pairs have been checked.
+- A **Devanagari reference** sits beside the stage, and above every dhaatu
+  card: the same consonants, real Devanagari shaping, for comparison —
+  since the stacking convention being calibrated here was borrowed from
+  Devanagari in the first place. It is derived from the exact same `cps`
+  arrays as the Brahmi rendering (Brahmi's classical consonant order
+  matches Devanagari's position-for-position, so `CONS_ORDER`'s index maps
+  directly onto a Devanagari consonant table), not typed by hand — so it
+  can't drift out of sync with what's actually being rendered in Brahmi.
 
 ## Files
 

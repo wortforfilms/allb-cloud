@@ -54,10 +54,19 @@ select{width:100%;}
 .btn-row .btn{flex:1; min-width:0;}
 hr.sep{border:none; border-top:1px solid var(--border); margin:2px 0;}
 .stage-wrap{display:flex; flex-direction:column; gap:16px;}
-#stage-svg{width:100%; height:600px; touch-action:none; background:
+.stage-row{display:flex; gap:16px; align-items:stretch; flex-wrap:wrap;}
+#stage-svg{flex:1 1 420px; min-width:280px; height:600px; touch-action:none; background:
   linear-gradient(var(--panel-2) 1px, transparent 1px) 0 0/100% 25%,
   var(--panel);
   border:1px solid var(--border); border-radius:10px; cursor:default;}
+.dev-ref{
+  flex:0 0 190px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px; background:var(--panel-2); border:1px solid var(--border); border-radius:10px; padding:16px;
+  text-align:center;
+}
+.dev-ref-label{font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-dim); line-height:1.3;}
+.dev-ref-text{font-family:"Noto Sans Devanagari",system-ui,sans-serif; font-size:3.4rem; line-height:1; color:var(--ink);}
+.dev-ref-note{font-size:0.72rem; color:var(--ink-dim); line-height:1.4;}
 .handle{cursor:grab;}
 .handle:active{cursor:grabbing;}
 .legend{display:flex; gap:18px; font-size:0.8rem; color:var(--ink-dim); flex-wrap:wrap;}
@@ -80,6 +89,7 @@ hr.sep{border:none; border-top:1px solid var(--border); margin:2px 0;}
 .words-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px;}
 .word-card{background:var(--panel-2); border:1px solid var(--border); border-radius:9px; padding:10px; text-align:center;}
 .word-card svg{width:100%; height:70px;}
+.word-card .dev{font-family:"Noto Sans Devanagari",system-ui,sans-serif; font-size:1.5rem; color:var(--ink-dim); margin-bottom:2px;}
 .word-card .cap{font-size:0.78rem; color:var(--ink-dim); margin-top:4px;}
 .status-dot{width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:5px;}
 .status-ok{background:#3E9B5C;} .status-off{background:var(--guide);}
@@ -87,7 +97,7 @@ footer{margin-top:26px; color:var(--ink-dim); font-size:0.8rem; line-height:1.6;
 footer a{color:var(--accent);}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
 
 <div class="wrap">
   <header>
@@ -172,7 +182,14 @@ footer a{color:var(--accent);}
 
     <div class="stage-wrap">
       <div class="panel">
-        <svg id="stage-svg" viewBox="-50 -80 1550 1650" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="stage-row">
+          <svg id="stage-svg" viewBox="-50 -80 1550 1650" xmlns="http://www.w3.org/2000/svg"></svg>
+          <div class="dev-ref">
+            <span class="dev-ref-label">Devanagari<br>reference</span>
+            <span class="dev-ref-text" id="dev-ref-text">स्थ</span>
+            <span class="dev-ref-note">same two letters, real Devanagari shaping — compare the silhouette</span>
+          </div>
+        </div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; flex-wrap:wrap; gap:10px;">
           <div class="legend">
             <span><span class="swatch" style="background:var(--base-color)"></span>base (fixed)</span>
@@ -215,6 +232,25 @@ const DY_TOP_DEFAULT = -40;
 // the "Combined vs 1 letter" readout is the number this rule is about.
 const DEFAULTS = { baseScale: 0.85, scale: 0.5, rotation: 0, dxOffset: 0, dyOffset: 60 };
 const STAGE_X = 560, BASELINE_Y = 820;
+
+// ---------- Devanagari reference ----------
+// Brahmi's own classical consonant order (KA..HA) is the same order as
+// Devanagari's, position-for-position -- both descend from the same
+// Brahmic sequence -- so CONS_ORDER's index into this array gives the
+// exact corresponding Devanagari letter. Mapping this way (not writing
+// each word's Devanagari spelling by hand) keeps the reference and the
+// Brahmi rendering provably in sync: change a cps array and both follow.
+const DEV_CONS = ["क","ख","ग","घ","ङ","च","छ","ज","झ","ञ","ट","ठ","ड","ढ","ण","त","थ","द","ध","न","प","फ","ब","भ","म","य","र","ल","व","श","ष","स","ह"];
+const DEV_VIRAMA = "्";           // ्
+const DEV_VOWEL = { "11038": "ा", "1103A": "ि", "1103C": "ु" }; // ा ि ु
+function devFor(hex){
+  const idx = CONS_ORDER.indexOf(hex);
+  if (idx >= 0) return DEV_CONS[idx];
+  if (hex === VIRAMA) return DEV_VIRAMA;
+  if (DEV_VOWEL[hex]) return DEV_VOWEL[hex];
+  return "";
+}
+function devanagariWord(cps){ return cps.map(devFor).join(""); }
 
 function shortName(hex){
   const n = GLYPHS[hex].name || "";
@@ -337,6 +373,8 @@ function buildStage(){
   const scaledBaseTop = state.baseScale * baseG.bounds[3];
   const stackBottom = Math.min(...corners.map(p => p[1]));
   combinedRatio = (scaledBaseTop - stackBottom) / singleHeight;
+
+  document.getElementById("dev-ref-text").textContent = devanagariWord([state.baseCp, VIRAMA, state.stackCp]);
 
   updateReadouts();
 }
@@ -537,6 +575,10 @@ function renderWords(){
   WORDS.forEach(w => {
     const card = document.createElement("div");
     card.className = "word-card";
+    const devLine = document.createElement("div");
+    devLine.className = "dev";
+    devLine.textContent = devanagariWord(w.cps);
+    card.appendChild(devLine);
     const svgW = document.createElementNS(NS, "svg");
     svgW.setAttribute("viewBox", "-40 -60 900 1000");
     const g = svgEl("g", { transform: `translate(60,820) scale(1,-1)` });
