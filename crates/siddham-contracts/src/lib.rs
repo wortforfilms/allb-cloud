@@ -1,6 +1,44 @@
 use serde::{Deserialize, Serialize};
 
-pub const SCHEMA_VERSION: &str = "1.0.0";
+pub const SCHEMA_VERSION: &str = "1.1.0";
+pub const SUPPORTED_SCHEMA_MAJOR: u64 = 1;
+pub const MINIMUM_SCHEMA_MINOR: u64 = 0;
+pub const MAXIMUM_SCHEMA_MINOR: u64 = 1;
+
+pub fn is_compatible_schema_version(version: &str) -> bool {
+    let parts: Vec<_> = version.split('.').collect();
+    if parts.len() != 3 {
+        return false;
+    }
+    let Ok(major) = parts[0].parse::<u64>() else {
+        return false;
+    };
+    let Ok(minor) = parts[1].parse::<u64>() else {
+        return false;
+    };
+    let Ok(_patch) = parts[2].parse::<u64>() else {
+        return false;
+    };
+    major == SUPPORTED_SCHEMA_MAJOR
+        && (MINIMUM_SCHEMA_MINOR..=MAXIMUM_SCHEMA_MINOR).contains(&minor)
+}
+
+pub fn is_valid_contract_id(value: &str) -> bool {
+    let bytes = value.as_bytes();
+    (3..=64).contains(&bytes.len())
+        && bytes[0].is_ascii_lowercase()
+        && bytes
+            .iter()
+            .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || *byte == b'-')
+}
+
+pub fn is_valid_sha256_digest(value: &str) -> bool {
+    value.len() == 71
+        && value.starts_with("sha256:")
+        && value[7..]
+            .bytes()
+            .all(|byte| byte.is_ascii_hexdigit() && !byte.is_ascii_uppercase())
+}
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 pub enum AssuranceLevel {
@@ -180,6 +218,153 @@ pub struct GovernedOperationResult {
     pub execution_evidence: Option<ExecutionEvidence>,
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+pub enum PrincipalKind {
+    Human,
+    Service,
+    Device,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+pub enum PrincipalStatus {
+    Active,
+    Suspended,
+    Revoked,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+pub enum WorkspaceStatus {
+    Active,
+    Suspended,
+    Archived,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+pub enum ResourceKind {
+    Dataset,
+    Model,
+    Agent,
+    Policy,
+    Hardware,
+    Evidence,
+    Release,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+pub enum ResourceStatus {
+    Active,
+    Quarantined,
+    Archived,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+pub enum ApprovalStatus {
+    Pending,
+    Approved,
+    Rejected,
+    Expired,
+    Cancelled,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+pub enum SyncStatus {
+    Queued,
+    Sent,
+    Acknowledged,
+    Rejected,
+    Failed,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ContractErrorCode {
+    InvalidContract,
+    UnsupportedVersion,
+    Unauthorized,
+    ApprovalRequired,
+    ResourceNotFound,
+    Conflict,
+    RateLimited,
+    DependencyUnavailable,
+    InternalError,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+pub enum ReleaseStatus {
+    Draft,
+    Candidate,
+    Approved,
+    Published,
+    Withdrawn,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Principal {
+    pub schema_version: String,
+    pub id: String,
+    pub kind: PrincipalKind,
+    pub display_name: String,
+    pub status: PrincipalStatus,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Workspace {
+    pub schema_version: String,
+    pub id: String,
+    pub organization_id: String,
+    pub display_name: String,
+    pub status: WorkspaceStatus,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Resource {
+    pub schema_version: String,
+    pub id: String,
+    pub workspace_id: String,
+    pub kind: ResourceKind,
+    pub display_name: String,
+    pub status: ResourceStatus,
+    pub digest: Option<String>,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Approval {
+    pub schema_version: String,
+    pub id: String,
+    pub request_id: String,
+    pub request_hash: String,
+    pub status: ApprovalStatus,
+    pub requested_by: String,
+    pub decided_by: Option<String>,
+    pub expires_at: String,
+    pub decided_at: Option<String>,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct SyncEnvelope {
+    pub schema_version: String,
+    pub id: String,
+    pub workspace_id: String,
+    pub sequence: u64,
+    pub payload_digest: String,
+    pub status: SyncStatus,
+    pub remote_receipt: Option<String>,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ContractError {
+    pub schema_version: String,
+    pub code: ContractErrorCode,
+    pub message: String,
+    pub request_id: Option<String>,
+    pub retryable: bool,
+    pub details: Option<serde_json::Value>,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ReleaseRecord {
+    pub schema_version: String,
+    pub id: String,
+    pub workspace_id: String,
+    pub artifact_digest: String,
+    pub status: ReleaseStatus,
+    pub approved_by: Option<String>,
+    pub created_at: String,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -197,5 +382,20 @@ mod tests {
     fn unknown_action_fails_closed() {
         let fixture = include_str!("../../../contracts/fixtures/invalid-unknown-action.json");
         assert!(serde_json::from_str::<OperationRequest>(fixture).is_err());
+    }
+    #[test]
+    fn schema_compatibility_accepts_supported_minors_and_rejects_unknown_major() {
+        assert!(is_compatible_schema_version("1.0.9"));
+        assert!(is_compatible_schema_version(SCHEMA_VERSION));
+        assert!(!is_compatible_schema_version("2.0.0"));
+        assert!(!is_compatible_schema_version("1.2.0"));
+        assert!(!is_compatible_schema_version("invalid"));
+        assert!(is_valid_contract_id("workspace-core"));
+        assert!(!is_valid_contract_id("Workspace Core"));
+        assert!(is_valid_sha256_digest(&format!(
+            "sha256:{}",
+            "a".repeat(64)
+        )));
+        assert!(!is_valid_sha256_digest("sha256:abc"));
     }
 }

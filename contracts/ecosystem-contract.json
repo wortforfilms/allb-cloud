@@ -1,9 +1,22 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
+  "compatibility": { "supportedMajor": 1, "minimumMinor": 0, "maximumMinor": 1, "unknownMajor": "reject", "unknownFields": "reject" },
+  "idPattern": "^[a-z][a-z0-9-]{2,63}$",
+  "digestPattern": "^sha256:[a-f0-9]{64}$",
+  "timestampPattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
   "assuranceLevels": ["AAL2", "AAL3", "mTLS", "Scoped capability"],
   "effects": ["Permit", "Deny", "RequireApproval", "RequireStepUpAuthentication"],
   "protectedActions": ["workspace:view", "runtime:execute", "dataset:read", "dataset:export", "model:promote", "agent:delegate", "policy:edit", "hardware:program", "release:approve", "evidence:export"],
   "runtimeOperations": ["tokenizeBrahmi", "evaluateSandhi", "lookupSutra"],
   "executionModes": ["SoftwareNative", "SoftwareWasm", "SiddhamNpu"],
-  "executionStatuses": ["Succeeded", "Failed", "NotExecuted"]
+  "executionStatuses": ["Succeeded", "Failed", "NotExecuted"],
+  "principalKinds": ["Human", "Service", "Device"],
+  "principalStatuses": ["Active", "Suspended", "Revoked"],
+  "workspaceStatuses": ["Active", "Suspended", "Archived"],
+  "resourceKinds": ["Dataset", "Model", "Agent", "Policy", "Hardware", "Evidence", "Release"],
+  "resourceStatuses": ["Active", "Quarantined", "Archived"],
+  "approvalStatuses": ["Pending", "Approved", "Rejected", "Expired", "Cancelled"],
+  "syncStatuses": ["Queued", "Sent", "Acknowledged", "Rejected", "Failed"],
+  "errorCodes": ["INVALID_CONTRACT", "UNSUPPORTED_VERSION", "UNAUTHORIZED", "APPROVAL_REQUIRED", "RESOURCE_NOT_FOUND", "CONFLICT", "RATE_LIMITED", "DEPENDENCY_UNAVAILABLE", "INTERNAL_ERROR"],
+  "releaseStatuses": ["Draft", "Candidate", "Approved", "Published", "Withdrawn"]
 }

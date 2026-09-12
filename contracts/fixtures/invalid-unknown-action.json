@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0.0",
-  "requestId": "REQ-contract-bad",
-  "principal": "Release Authority",
+  "requestId": "req-contract-bad",
+  "principal": "release-authority",
   "action": "runtime:invent",
-  "resource": "Unknown",
-  "workspace": "Siddham Core R&D",
+  "resource": "unknown-resource",
+  "workspace": "siddham-core-rd",
   "assurance": "AAL3"
 }

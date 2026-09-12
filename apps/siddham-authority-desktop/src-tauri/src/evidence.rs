@@ -320,22 +320,28 @@ mod tests {
     fn request() -> OperationRequest {
         OperationRequest {
             schema_version: SCHEMA_VERSION.into(),
-            request_id: "REQ-test".into(),
-            principal: "Release Authority".into(),
+            request_id: "req-test".into(),
+            principal: "release-authority".into(),
             action: ProtectedAction::RuntimeExecute,
-            resource: "Tokenizer".into(),
-            workspace: "Core".into(),
+            resource: "tokenizer".into(),
+            workspace: "workspace-core".into(),
             assurance: AssuranceLevel::AAL3,
             operation: Some(RuntimeOperation::TokenizeBrahmi {
                 text: "𑀅".into()
             }),
         }
     }
+    fn database() -> Connection {
+        let mut db = storage::memory().unwrap();
+        crate::identity::ensure_local_bootstrap(&mut db).unwrap();
+        crate::policy::ensure_default(&db).unwrap();
+        db
+    }
     #[test]
     fn linked_authorization_and_execution_verify() {
-        let mut db = storage::memory().unwrap();
+        let mut db = database();
         let request = request();
-        let decision = PolicyEngine::default().evaluate(&request);
+        let decision = PolicyEngine.evaluate(&db, &request, "release-authority");
         let auth = append_authorization(&mut db, &request, &decision).unwrap();
         let result = maataa_runtime::execute_contract_operation(
             &request.request_id,
@@ -349,9 +355,9 @@ mod tests {
     }
     #[test]
     fn execution_outbox_failure_rolls_back_execution() {
-        let mut db = storage::memory().unwrap();
+        let mut db = database();
         let request = request();
-        let decision = PolicyEngine::default().evaluate(&request);
+        let decision = PolicyEngine.evaluate(&db, &request, "release-authority");
         let auth = append_authorization(&mut db, &request, &decision).unwrap();
         db.execute_batch("create trigger reject_execution_outbox before insert on execution_outbox begin select raise(abort,'forced'); end;").unwrap();
         let result = maataa_runtime::execute_contract_operation(
@@ -369,9 +375,9 @@ mod tests {
 
     #[test]
     fn tampered_execution_breaks_verification() {
-        let mut db = storage::memory().unwrap();
+        let mut db = database();
         let request = request();
-        let decision = PolicyEngine::default().evaluate(&request);
+        let decision = PolicyEngine.evaluate(&db, &request, "release-authority");
         let auth = append_authorization(&mut db, &request, &decision).unwrap();
         let result = maataa_runtime::execute_contract_operation(
             &request.request_id,

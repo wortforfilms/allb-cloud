@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Optional
 
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
 
 class AssuranceLevel(str, Enum):
     VALUE_0 = "AAL2"
@@ -33,6 +33,83 @@ class ExecutionStatus(str, Enum):
     FAILED = "Failed"
     NOTEXECUTED = "NotExecuted"
 
+class PrincipalKind(str, Enum):
+    HUMAN = "Human"
+    SERVICE = "Service"
+    DEVICE = "Device"
+
+class PrincipalStatus(str, Enum):
+    ACTIVE = "Active"
+    SUSPENDED = "Suspended"
+    REVOKED = "Revoked"
+
+class WorkspaceStatus(str, Enum):
+    ACTIVE = "Active"
+    SUSPENDED = "Suspended"
+    ARCHIVED = "Archived"
+
+class ResourceKind(str, Enum):
+    DATASET = "Dataset"
+    MODEL = "Model"
+    AGENT = "Agent"
+    POLICY = "Policy"
+    HARDWARE = "Hardware"
+    EVIDENCE = "Evidence"
+    RELEASE = "Release"
+
+class ResourceStatus(str, Enum):
+    ACTIVE = "Active"
+    QUARANTINED = "Quarantined"
+    ARCHIVED = "Archived"
+
+class ApprovalStatus(str, Enum):
+    PENDING = "Pending"
+    APPROVED = "Approved"
+    REJECTED = "Rejected"
+    EXPIRED = "Expired"
+    CANCELLED = "Cancelled"
+
+class SyncStatus(str, Enum):
+    QUEUED = "Queued"
+    SENT = "Sent"
+    ACKNOWLEDGED = "Acknowledged"
+    REJECTED = "Rejected"
+    FAILED = "Failed"
+
+class ContractErrorCode(str, Enum):
+    VALUE_0 = "INVALID_CONTRACT"
+    VALUE_1 = "UNSUPPORTED_VERSION"
+    VALUE_2 = "UNAUTHORIZED"
+    VALUE_3 = "APPROVAL_REQUIRED"
+    VALUE_4 = "RESOURCE_NOT_FOUND"
+    VALUE_5 = "CONFLICT"
+    VALUE_6 = "RATE_LIMITED"
+    VALUE_7 = "DEPENDENCY_UNAVAILABLE"
+    VALUE_8 = "INTERNAL_ERROR"
+
+class ReleaseStatus(str, Enum):
+    DRAFT = "Draft"
+    CANDIDATE = "Candidate"
+    APPROVED = "Approved"
+    PUBLISHED = "Published"
+    WITHDRAWN = "Withdrawn"
+
+SUPPORTED_MAJOR = 1
+MINIMUM_MINOR = 0
+MAXIMUM_MINOR = 1
+
+def is_compatible_schema_version(version: str) -> bool:
+    parts = version.split(".")
+    return len(parts) == 3 and all(part.isdigit() for part in parts) and int(parts[0]) == SUPPORTED_MAJOR and MINIMUM_MINOR <= int(parts[1]) <= MAXIMUM_MINOR
+
+def is_valid_contract_id(value: str) -> bool:
+    import re
+    return re.fullmatch("^[a-z][a-z0-9-]{2,63}$", value) is not None
+
+def is_valid_sha256_digest(value: str) -> bool:
+    import re
+    return re.fullmatch("^sha256:[a-f0-9]{64}$", value) is not None
+
 @dataclass(frozen=True)
 class RuntimeOperation:
     kind: str
@@ -48,3 +125,70 @@ class OperationRequest:
     workspace: str
     assurance: AssuranceLevel
     operation: Optional[RuntimeOperation] = None
+
+@dataclass(frozen=True)
+class Principal:
+    schema_version: str
+    id: str
+    kind: PrincipalKind
+    display_name: str
+    status: PrincipalStatus
+
+@dataclass(frozen=True)
+class Workspace:
+    schema_version: str
+    id: str
+    organization_id: str
+    display_name: str
+    status: WorkspaceStatus
+
+@dataclass(frozen=True)
+class Resource:
+    schema_version: str
+    id: str
+    workspace_id: str
+    kind: ResourceKind
+    display_name: str
+    status: ResourceStatus
+    digest: Optional[str] = None
+
+@dataclass(frozen=True)
+class Approval:
+    schema_version: str
+    id: str
+    request_id: str
+    request_hash: str
+    status: ApprovalStatus
+    requested_by: str
+    expires_at: str
+    decided_by: Optional[str] = None
+    decided_at: Optional[str] = None
+
+@dataclass(frozen=True)
+class SyncEnvelope:
+    schema_version: str
+    id: str
+    workspace_id: str
+    sequence: int
+    payload_digest: str
+    status: SyncStatus
+    remote_receipt: Optional[str] = None
+
+@dataclass(frozen=True)
+class ContractError:
+    schema_version: str
+    code: ContractErrorCode
+    message: str
+    retryable: bool
+    request_id: Optional[str] = None
+    details: Optional[dict[str, Any]] = None
+
+@dataclass(frozen=True)
+class ReleaseRecord:
+    schema_version: str
+    id: str
+    workspace_id: str
+    artifact_digest: str
+    status: ReleaseStatus
+    created_at: str
+    approved_by: Optional[str] = None

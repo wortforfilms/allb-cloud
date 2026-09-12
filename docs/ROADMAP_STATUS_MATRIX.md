@@ -34,31 +34,31 @@ imply precision not supported by the repository evidence.
 | 1 | RTL verification gates | Complete hosted | DMA and integrated top simulations plus compile gate passed on hosted Linux | Preserve regressions and expand hardware qualification in Phase 11 | Closed for Phase 1 |
 | 1 | Supply-chain output | Complete hosted | Hosted lockfile audits, licence scan, CycloneDX SBOM, verified checksums, release manifest and retained artifact | Define longer-term retention/signing in later release phases | Closed for Phase 1 |
 | 1 | Resource preflight | Complete local | 6 GiB preflight plus positive and forced-low-disk tests | Tune threshold only with measured evidence | Closed locally |
-| 2 | Operation/runtime contract | Complete local | Canonical Rust types and schema 1.0.0 | Compatibility/deprecation policy | P1 |
-| 2 | Generated language projections | Complete local | TypeScript, Worker, desktop, Python and JSON Schema | Runtime validators beyond static models | P1 |
-| 2 | Contract fixtures | Partial | Valid request and unknown-action invalid fixture | Invalid fixture for every rule and golden/property tests | P1 |
-| 2 | Identity/workspace/resource domains | Planned | Basic request strings only | Full authoritative models and validators | Depends on Phase 1 |
-| 2 | Approval/sync/error/release domains | Planned | Some evidence/sync types exist outside unified platform | Canonical models, migration and compatibility reports | Depends on Phase 1 |
-| 2 | Version behavior | Partial | Exact schema version required | SemVer policy, compatible minors and unknown-major rejection tests | P1 |
-| 3 | Principal and device identity | Planned | UI-selected principal labels only | Enrollment, credentials, device keys, recovery and revocation | P0 after Phase 2 |
-| 3 | Sessions and assurance | Planned | Assurance enum exists | Server/backend-derived AAL mechanisms, expiry and step-up | P0 |
-| 3 | Organization/workspace tenancy | Planned | Workspace label exists | Membership, isolation, scoped keys, export and deletion | P0 |
-| 3 | Enterprise federation | Planned | None evidenced | OIDC/SAML and lifecycle integration | After local identity |
-| 4 | Policy decision foundation | Partial | Trusted Rust evaluation, default deny and policy digest | Formal condition model and deny-overrides | P1 |
-| 4 | Runtime enforcement | Complete local | Permit precedes three local runtime handlers | Expiry, replay and one-operation-ID guarantee | P0 |
-| 4 | Policy lifecycle | Planned | Static policy version | Create, simulate, activate, retire, provenance and retention | Depends on Phase 3 |
-| 4 | Protected-action coverage | Partial | Catalog is typed; unavailable actions fail closed | Real handlers and positive/negative integration tests | P0–P2 by risk |
-| 4 | Separation of duties | Planned | No approval engine | Independent policy/release authorization | Depends on Phase 5 |
-| 5 | Approval lifecycle | Planned | Decision effects name approval/step-up | Durable pending, approved, rejected, expired and cancelled states | P0 |
-| 5 | Approval integrity | Planned | No reusable approval artifact | Exact request binding, expiry, revocation and anti-reuse | P0 |
-| 5 | Maker-checker/quorum | Planned | None evidenced | Eligible approvers, sequencing and quorum | After identity |
-| 5 | Delegation/emergency access | Planned | Action names only | Scoped delegation, expiry, revocation and review | After identity |
-| 5 | Approval UX | Planned | None operational | Inbox, history, comments, evidence and notifications | After backend |
+| 2 | Operation/runtime contract | Complete local | Canonical Rust types, JSON Schema and additive contract 1.1.0 | Preserve compatibility during later expansion | Closed locally |
+| 2 | Generated language projections | Complete local | Deterministic TypeScript, Worker, desktop, Python and JSON Schema outputs with CI drift checks | Publish packages only in Phase 10 | Closed locally |
+| 2 | Contract fixtures | Complete local | Eight fixtures cover the valid operation and every current structural/version rule across Rust, Python, TypeScript and AJV | Extend with every future rule | Closed locally |
+| 2 | Identity/workspace/resource domains | Complete local | Canonical records, enums and primitive validators | Operational identity/tenancy remains Phase 3 | Closed as contract scope |
+| 2 | Approval/sync/error/release domains | Complete local | Canonical lifecycle records and enums generated across consumers | Runtime engines remain Phases 5, 7 and 14 | Closed as contract scope |
+| 2 | Version behavior | Complete local | Compatible 1.0.x/1.1.x acceptance with malformed, unsupported-minor and unknown-major rejection | Define migration before 2.0.0 | Closed locally |
+| 3 | Principal and device identity | Complete local | Authoritative SQLite principals/devices, fresh startup session and device/session revocation | Production credential enrollment, hardware-backed keys and authorized recovery ceremony | Closed for local prototype |
+| 3 | Sessions and assurance | Complete local | Backend derives principal, device and AAL from an expiring session; request fields cannot elevate them | Phishing-resistant production authentication and step-up ceremony | Closed for local prototype |
+| 3 | Organization/workspace tenancy | Complete local | Organization, workspace and membership authority with direct cross-workspace substitution regression | Tenant-scoped encryption, export/deletion and recovery drills | Closed for local prototype |
+| 3 | Enterprise federation | Complete local configuration boundary | OIDC/SAML provider lifecycle schema and truthful empty-provider result | Real provider metadata, login and deprovisioning evidence | External activation remains blocked |
+| 4 | Policy decision foundation | Complete local | Stored typed policy model, authoritative membership role, structural conditions, default deny and deny-overrides | External policy administration and formal verification | Closed for local prototype |
+| 4 | Runtime enforcement | Complete local | Verified session and unique request claim precede Authority; replay is rejected and each execution has one operation ID | Deadlines, cancellation and resource limits remain Phase 6 | Closed for local prototype |
+| 4 | Policy lifecycle | Complete local | Validated create/simulate/activate/retire lifecycle with unique versions, atomic activation and retained provenance | Governed administration UX and external review | Closed for local prototype |
+| 4 | Protected-action coverage | Complete local authority classification | Every typed action has permit, approval, step-up or explicit-deny coverage; only real runtime handlers execute | Phase 5 approvals and Phase 6 additional handlers | Closed as Authority scope |
+| 4 | Separation of duties | Complete local | Approval votes require an eligible principal distinct from the maker; quorum counts unique reviewers | Organization-scale role administration and production credentials | Closed for local prototype |
+| 5 | Approval lifecycle | Complete local | Durable pending, approved, rejected, expired, cancelled and consumed states with retained events | Hosted reproduction and operational administration | Closed for local prototype |
+| 5 | Approval integrity | Complete local | Exact request ID/hash binding, expiry, immutable vote/consumption records and one-time use | Cryptographic signatures and independent export remain Phase 7/12 | Closed for local prototype |
+| 5 | Maker-checker/quorum | Complete local | Eligible reviewer roles, self-approval rejection, one vote per principal and configurable distinct quorum | Enterprise approver provisioning | Closed for local prototype |
+| 5 | Delegation/emergency access | Complete local | Workspace/action-scoped delegation plus expiry/revocation; justified independent emergency review and revocation | External incident workflow and notification delivery | Closed for local prototype |
+| 5 | Approval UX | Partial local | Desktop inbox API, authenticated decision/cancellation commands, pending count, retained comments/history/evidence | Full reviewer workflow, accessible states and notifications remain Phase 8 | Phase 8 |
 | 6 | Three local language operations | Complete local | Tokenize Brahmi, evaluate Sandhi and lookup Sutra | Production corpus and semantic coverage programme | P1 |
 | 6 | Capability/result reporting | Complete local | Software-native mode, digests and unavailable NPU | WASM/NPU selection and health diagnostics | P1 |
-| 6 | Handler registry | Planned | Direct match-based dispatch | Registry, metadata and typed validation | P0 |
-| 6 | Execution controls | Planned | Synchronous local invocation | Deadlines, cancellation, limits, idempotency and concurrency | P0 |
-| 6 | Additional handlers | Planned | Non-runtime actions cannot execute | Dataset/evidence export, models, agents and releases | P0/P1 |
+| 6 | Handler registry | Complete local | Every protected action has typed metadata for availability, approval, target, limits and deadline | Generalized agent/policy payload contracts | Closed for local safe scope |
+| 6 | Execution controls | Complete local | Authority-first preparation, input limits, two-second deadline accounting, durable pre-dispatch cancellation, unique claims and serialized concurrency | Hard external-process interruption and configurable worker pools | Closed for bounded local scope |
+| 6 | Additional handlers | Complete local safe coverage | Real workspace, dataset metadata/manifest, model, release and evidence handlers; agent/policy entries explicitly unavailable pending payload contracts | Add typed agent/policy payloads without weakening validation | Closed without false availability |
 | 6 | Hardware programming | Blocked by dependency | Explicitly denied | Phase 11 qualification plus Authority/approval gates | Do last |
 | 7 | Authorization/execution ledger | Complete local | Immutable linked records and verification | Start/target/sync/policy/release event coverage | P1 |
 | 7 | Transaction and tamper behavior | Complete local | Rollback and forged execution tests | Property testing, checkpoints and retention | P1 |
@@ -107,9 +107,9 @@ imply precision not supported by the repository evidence.
 | --- | --- | --- | --- |
 | M0 — authoritative baseline | Local engineering baseline | Achieved locally | `baseline-2026-08-29`; hosted clean-clone evidence moves to M1 |
 | M1 — reproducible CI | Controlled development | Achieved | Hosted run `33237684396` passed the Linux stack and Ubuntu/macOS/Windows desktop matrix and retained release evidence |
-| M2 — shared contracts | Integration foundation | Partial | Operation/runtime slice exists; full domain platform remains open |
-| M3 — identity and Authority | Security prototype | Not achieved | Verified identity, tenancy, policy lifecycle and approvals absent |
-| M4 — governed execution | Controlled product alpha | Partial precursor | Three local operations work; generalized safe execution absent |
+| M2 — shared contracts | Integration foundation | Achieved locally | Contract 1.1.0, Phase 2 domains, generated projections, validators, fixtures and drift gates are complete; hosted reproduction pending |
+| M3 — identity and Authority | Security prototype | Achieved locally | Phase 3 identity, Phase 4 Authority and Phase 5 maker-checker approval pass locally; production credentials and hosted security review remain open gates |
+| M4 — governed execution | Controlled product alpha | Achieved locally | Typed registry, Authority/approval binding, safe local handlers, limits, cancellation and exactly-once dispatch pass locally; hosted and expanded-target evidence pending |
 | M5 — evidence synchronization | Verifiable alpha | Not achieved | Local ledger exists; independent signatures/acknowledgement absent |
 | M6 — operational UI | Enterprise beta | Not achieved | Full operational modules/accessibility absent |
 | M7 — Edge and SDK platform | Design-partner release | Not achieved | Multi-tenant operability and signed SDK distribution absent |

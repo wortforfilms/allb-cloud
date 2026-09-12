@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import YAML from "yaml";
@@ -11,14 +11,17 @@ const jsonFiles = [
   "wrangler.jsonc",
   "contracts/ecosystem-contract.json",
   "contracts/generated/operation-request.schema.json",
-  "contracts/fixtures/valid-runtime-execute.json",
-  "contracts/fixtures/invalid-unknown-action.json",
   "apps/siddham-authority-desktop/package.json",
   "apps/siddham-authority-desktop/package-lock.json",
   "apps/siddham-authority-desktop/tsconfig.json",
   "apps/siddham-authority-desktop/src-tauri/tauri.conf.json",
   "apps/siddham-authority-desktop/src-tauri/capabilities/default.json",
 ];
+const fixtureFiles = readdirSync(resolve(root, "contracts/fixtures"))
+  .filter((name) => name.endsWith(".json"))
+  .map((name) => `contracts/fixtures/${name}`)
+  .sort();
+jsonFiles.push(...fixtureFiles);
 
 function parseJsonc(text) {
   return JSON.parse(text.replace(/^\s*\/\/.*$/gm, ""));
@@ -36,16 +39,14 @@ const schema = JSON.parse(
 const validFixture = JSON.parse(
   readFileSync(resolve(root, "contracts/fixtures/valid-runtime-execute.json"), "utf8"),
 );
-const invalidFixture = JSON.parse(
-  readFileSync(resolve(root, "contracts/fixtures/invalid-unknown-action.json"), "utf8"),
-);
 const validate = new Ajv2020({ allErrors: true, strict: true }).compile(schema);
 if (!validate(validFixture)) {
   throw new Error(`Valid contract fixture rejected: ${JSON.stringify(validate.errors)}`);
 }
-if (validate(invalidFixture)) {
-  throw new Error("Invalid unknown-action fixture was accepted");
+for (const path of fixtureFiles.filter((path) => path.includes("/invalid-"))) {
+  const fixture = JSON.parse(readFileSync(resolve(root, path), "utf8"));
+  if (validate(fixture)) throw new Error(`Invalid contract fixture was accepted: ${path}`);
 }
 
 console.log(`Structured validation: ${jsonFiles.length} JSON/JSONC files and CI YAML parsed`);
-console.log("Operation-request schema fixtures: PASS");
+console.log(`Operation-request schema fixtures: PASS (${fixtureFiles.length} total)`);

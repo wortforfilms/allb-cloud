@@ -45,10 +45,10 @@ in [`ROADMAP_STATUS_MATRIX.md`](ROADMAP_STATUS_MATRIX.md).
 | 0 | Authoritative baseline | Complete locally | Canonical ADR, inventory, policies, scans, coherent commits and `baseline-2026-08-29` tag |
 | 1 | Reproducible build and CI | Partial | Clean-clone matrix, pinned toolchains, disk guard, audits, SBOM, checksummed artifacts and release manifest |
 | 2 | Canonical contracts | Partial foundation complete | Expand from operation/runtime types to all domains, validators, invalid-rule fixtures, compatibility and migration policy |
-| 3 | Identity, workspace and tenancy | Not started | Verified principals, devices, sessions, assurance and tenant isolation |
-| 4 | Production Authority | Partial foundation complete | Handler registry, policy lifecycle, bypass/replay protection and every protected-action integration test |
-| 5 | Approvals and delegation | Not started | Durable approval lifecycle, eligible approvers, separation of duties and delegation controls |
-| 6 | Governed execution | Partial local slice complete | Deadlines, cancellation, limits, idempotency, target selection and additional real handlers |
+| 3 | Identity, workspace and tenancy | Complete local security prototype | Production credentials, authorized recovery, tenant key lifecycle and activated OIDC/SAML |
+| 4 | Production Authority | Complete local security prototype | Phase 5 separation of duties, Phase 6 generalized handlers and external administration/security review |
+| 5 | Approvals and delegation | Complete local security prototype | Expanded Phase 8 UX, production credentials, signatures, external notifications and enterprise administration |
+| 6 | Governed execution | Complete bounded local alpha | Hard external interruption, configurable worker pools, WASM/NPU desktop targets and typed agent/policy payloads |
 | 7 | Evidence and Z0-VESP sync | Partial local ledger | Signatures, key rotation, acknowledgement, retry, export packages and offline verifier |
 | 8 | Complete product UX | Prototype/local surface | Operational modules, truthful states, accessibility and complete E2E journeys |
 | 9 | Edge and enterprise administration | Prototype Worker only | Tenant-aware API, operational environments, recovery, quotas, SSO/SCIM and administration |
@@ -70,6 +70,14 @@ in [`ROADMAP_STATUS_MATRIX.md`](ROADMAP_STATUS_MATRIX.md).
 - Linked authorization and execution evidence with rollback and tamper tests.
 - Typed fail-closed coverage for protected actions without real handlers.
 - Root and desktop CI layout aligned with the consolidated repository.
+- Backend-derived local principal, device, session assurance and workspace
+  membership with expiry, revocation and cross-workspace isolation tests.
+- Stored policy lifecycle with deny-overrides, replay-resistant request claims,
+  one-operation-ID enforcement and complete protected-action classification.
+- Exact request-bound maker-checker approvals with quorum, expiry, terminal
+  states, one-time consumption, scoped delegation and emergency review.
+- Typed execution registry with native target selection, limits, deadline and
+  cancellation controls, exactly-once dispatch and safe local data/model/release/evidence handlers.
 
 This foundation is an integration milestone, not completion of Phases 0–7.
 

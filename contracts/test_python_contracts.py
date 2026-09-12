@@ -20,5 +20,16 @@ class ContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             MODULE.ProtectedAction(fixture["action"])
 
+    def test_version_compatibility_is_fail_closed(self):
+        self.assertTrue(MODULE.is_compatible_schema_version("1.0.9"))
+        self.assertTrue(MODULE.is_compatible_schema_version(MODULE.SCHEMA_VERSION))
+        self.assertFalse(MODULE.is_compatible_schema_version("1.2.0"))
+        self.assertFalse(MODULE.is_compatible_schema_version("2.0.0"))
+
+    def test_phase_two_domains_are_generated(self):
+        self.assertEqual(MODULE.ApprovalStatus("Pending").value, "Pending")
+        self.assertEqual(MODULE.SyncStatus("Acknowledged").value, "Acknowledged")
+        self.assertEqual(MODULE.ResourceKind("Release").value, "Release")
+
 if __name__ == "__main__":
     unittest.main()

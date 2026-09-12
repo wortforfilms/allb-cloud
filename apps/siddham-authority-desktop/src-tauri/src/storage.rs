@@ -5,6 +5,10 @@ const MIGRATION_001: &str = include_str!("../migrations/001_initial.sql");
 const MIGRATION_002: &str = include_str!("../migrations/002_outbox.sql");
 const MIGRATION_003: &str = include_str!("../migrations/003_evidence_v2.sql");
 const MIGRATION_004: &str = include_str!("../migrations/004_execution_evidence.sql");
+const MIGRATION_005: &str = include_str!("../migrations/005_identity_tenancy.sql");
+const MIGRATION_006: &str = include_str!("../migrations/006_authority_policy.sql");
+const MIGRATION_007: &str = include_str!("../migrations/007_approvals.sql");
+const MIGRATION_008: &str = include_str!("../migrations/008_execution_registry.sql");
 
 pub fn open(path: PathBuf) -> rusqlite::Result<Connection> {
     let mut db = Connection::open(path)?;
@@ -32,6 +36,10 @@ fn migrate(db: &mut Connection) -> rusqlite::Result<()> {
         (2, MIGRATION_002),
         (3, MIGRATION_003),
         (4, MIGRATION_004),
+        (5, MIGRATION_005),
+        (6, MIGRATION_006),
+        (7, MIGRATION_007),
+        (8, MIGRATION_008),
     ] {
         let applied: bool = db.query_row(
             "select exists(select 1 from schema_migration where version=?)",
