@@ -1,0 +1,534 @@
+<title>Conjunct Placement Pad</title>
+<style>
+:root{
+  --bg:#EDEFF3; --panel:#FFFFFF; --panel-2:#F5F6F9; --border:#D6D9E1;
+  --ink:#14161C; --ink-dim:#5B6070; --accent:#B8452F; --accent-ink:#FFFFFF;
+  --base-color:#2E3A6B; --stack-color:#B8452F; --guide:#AEB3C2;
+  --focus:#B8452F;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14161C; --panel:#1B1E27; --panel-2:#20232D; --border:#33384A;
+    --ink:#EDEEF3; --ink-dim:#9AA0B4; --accent:#E2694A; --accent-ink:#1B1E27;
+    --base-color:#7C8FE0; --stack-color:#E2694A; --guide:#454B60;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14161C; --panel:#1B1E27; --panel-2:#20232D; --border:#33384A;
+  --ink:#EDEEF3; --ink-dim:#9AA0B4; --accent:#E2694A; --accent-ink:#1B1E27;
+  --base-color:#7C8FE0; --stack-color:#E2694A; --guide:#454B60;
+}
+*{box-sizing:border-box;}
+body{
+  background:var(--bg); color:var(--ink); margin:0; padding-block:28px;
+  padding-inline:20px; font-family:"IBM Plex Sans",system-ui,sans-serif;
+}
+h1,h2,h3{font-family:"Fraunces",Georgia,serif; font-weight:600; margin:0; text-wrap:balance;}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;}
+.wrap{max-width:1320px; margin:0 auto;}
+header{margin-bottom:22px;}
+header h1{font-size:1.7rem; letter-spacing:-0.01em;}
+header p{color:var(--ink-dim); margin:6px 0 0; max-width:62ch; font-size:0.93rem; line-height:1.5;}
+.layout{display:grid; grid-template-columns: 300px 1fr; gap:20px;}
+@media (max-width:860px){ .layout{grid-template-columns:1fr;} }
+.panel{
+  background:var(--panel); border:1px solid var(--border); border-radius:10px;
+  padding:18px;
+}
+.sidebar{display:flex; flex-direction:column; gap:16px;}
+.field{display:flex; flex-direction:column; gap:6px;}
+.field label{font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-dim);}
+select, button, input[type=text]{
+  font-family:inherit; font-size:0.9rem; border-radius:7px; border:1px solid var(--border);
+  background:var(--panel-2); color:var(--ink); padding:8px 10px;
+}
+select{width:100%;}
+.glyph-option-char{font-size:1.1rem;}
+.slider-row{display:flex; align-items:center; gap:10px;}
+.slider-row input[type=range]{flex:1; accent-color:var(--accent);}
+.slider-row .val{width:52px; text-align:right; font-size:0.82rem; color:var(--ink-dim); flex-shrink:0;}
+.btn{cursor:pointer; transition:transform .08s ease;}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:600;}
+.btn-row{display:flex; gap:8px; flex-wrap:wrap;}
+.btn-row .btn{flex:1; min-width:0;}
+hr.sep{border:none; border-top:1px solid var(--border); margin:2px 0;}
+.stage-wrap{display:flex; flex-direction:column; gap:16px;}
+#stage-svg{width:100%; height:600px; touch-action:none; background:
+  linear-gradient(var(--panel-2) 1px, transparent 1px) 0 0/100% 25%,
+  var(--panel);
+  border:1px solid var(--border); border-radius:10px; cursor:default;}
+.handle{cursor:grab;}
+.handle:active{cursor:grabbing;}
+.legend{display:flex; gap:18px; font-size:0.8rem; color:var(--ink-dim); flex-wrap:wrap;}
+.legend span{display:inline-flex; align-items:center; gap:6px;}
+.swatch{width:10px; height:10px; border-radius:2px; display:inline-block;}
+.readout{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+.readout div{background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:8px 10px;}
+.readout div span.k{display:block; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-dim);}
+.readout div span.v{font-size:1rem;}
+.overrides-list{display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto;}
+.override-row{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  background:var(--panel-2); border:1px solid var(--border); border-radius:7px;
+  padding:6px 10px; font-size:0.82rem; cursor:pointer;
+}
+.override-row:hover{border-color:var(--accent);}
+.override-row .del{color:var(--ink-dim); background:none; border:none; cursor:pointer; padding:2px 6px; font-size:0.9rem;}
+.override-row .del:hover{color:var(--accent);}
+.empty-note{color:var(--ink-dim); font-size:0.82rem; font-style:italic;}
+.words-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px;}
+.word-card{background:var(--panel-2); border:1px solid var(--border); border-radius:9px; padding:10px; text-align:center;}
+.word-card svg{width:100%; height:70px;}
+.word-card .cap{font-size:0.78rem; color:var(--ink-dim); margin-top:4px;}
+.status-dot{width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:5px;}
+.status-ok{background:#3E9B5C;} .status-off{background:var(--guide);}
+footer{margin-top:26px; color:var(--ink-dim); font-size:0.8rem; line-height:1.6;}
+footer a{color:var(--accent);}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<div class="wrap">
+  <header>
+    <h1>Conjunct Placement Pad</h1>
+    <p>Calibrate exactly where a below-base consonant sits under its base in <span class="mono">MAATAA Brahmi Stacked</span> — drag, resize and rotate the real Noto Sans Brahmi letterforms, then save the rule so <span class="mono">build_stacked.py</span> can pick it up. <span id="db-status"><span class="status-dot status-off"></span>connecting…</span></p>
+  </header>
+
+  <div class="layout">
+    <div class="panel sidebar">
+      <div class="field">
+        <label for="sel-base">Base consonant (fixed)</label>
+        <select id="sel-base"></select>
+      </div>
+      <div class="field">
+        <label for="sel-stack">Stacked consonant (movable)</label>
+        <select id="sel-stack"></select>
+      </div>
+
+      <hr class="sep">
+
+      <div class="field">
+        <label>Scale</label>
+        <div class="slider-row">
+          <input type="range" id="r-scale" min="20" max="95" step="1">
+          <span class="val mono" id="v-scale">55%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Rotation</label>
+        <div class="slider-row">
+          <input type="range" id="r-rot" min="-45" max="45" step="1">
+          <span class="val mono" id="v-rot">0°</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Horizontal nudge</label>
+        <div class="slider-row">
+          <input type="range" id="r-dx" min="-250" max="250" step="2">
+          <span class="val mono" id="v-dx">0</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Vertical nudge</label>
+        <div class="slider-row">
+          <input type="range" id="r-dy" min="-140" max="200" step="2">
+          <span class="val mono" id="v-dy">0</span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" id="btn-reset-formula">Reset to formula</button>
+        <button class="btn" id="btn-reset-global">Reset to global</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-save-pair">Save this pair</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="btn-save-global">Save as global default</button>
+      </div>
+
+      <hr class="sep">
+
+      <div class="field">
+        <label>Saved pair overrides</label>
+        <div class="overrides-list" id="overrides-list">
+          <div class="empty-note">None yet — every pair uses the global default.</div>
+        </div>
+      </div>
+
+      <button class="btn" id="btn-export">Export config JSON</button>
+    </div>
+
+    <div class="stage-wrap">
+      <div class="panel">
+        <svg id="stage-svg" viewBox="-50 -80 1550 1650" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; flex-wrap:wrap; gap:10px;">
+          <div class="legend">
+            <span><span class="swatch" style="background:var(--base-color)"></span>base (fixed)</span>
+            <span><span class="swatch" style="background:var(--stack-color)"></span>stacked (drag body to move, corner to resize, top handle to rotate)</span>
+          </div>
+        </div>
+        <div class="readout" style="margin-top:12px;">
+          <div><span class="k">Scale</span><span class="v mono" id="ro-scale">55%</span></div>
+          <div><span class="k">Rotation</span><span class="v mono" id="ro-rot">0°</span></div>
+          <div><span class="k">X offset</span><span class="v mono" id="ro-dx">0</span></div>
+          <div><span class="k">Y offset</span><span class="v mono" id="ro-dy">0</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 style="font-size:1.05rem; margin-bottom:12px;">Real dhaatu, composed with the current saved rules</h3>
+        <div class="words-grid" id="words-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Letterforms: real Noto Sans Brahmi outlines (SIL OFL 1.1) — nothing drawn here is invented.
+    Values are font units at 1000 UPM, matching <span class="mono">build_stacked.py</span>'s coordinate space exactly, so an exported config drops straight into the font build.
+  </footer>
+</div>
+
+<script>
+const GLYPHS = {"11013":{"path":"M332 0V333H78V412H332V714H422V412H676V333H422V0Z","width":754,"bounds":[78,0,676,714],"name":"BRAHMI LETTER KA"},"11014":{"path":"M59 461V464Q59 517 65.0 559.0Q71 601 87 632Q112 680 158.0 703.0Q204 726 278 726Q362 726 408.5 696.0Q455 666 473.5 607.0Q492 548 492 462V0H402V465Q402 526 393.0 565.0Q384 604 357.5 623.0Q331 642 278 642Q223 642 195.0 621.5Q167 601 157.5 561.5Q148 522 148 464V461Z","width":589,"bounds":[59,0,492,726],"name":"BRAHMI LETTER KHA"},"11015":{"path":"M284 714H375L610 0H510L329 599L148 0H49Z","width":659,"bounds":[49,0,610,714],"name":"BRAHMI LETTER GA"},"11016":{"path":"M360 -12Q224 -12 161.0 47.0Q98 106 98 244V714H187V249Q187 186 199.5 149.0Q212 112 240.5 95.0Q269 78 316 74V274H406V75Q456 82 484.0 98.5Q512 115 523.0 150.5Q534 186 534 250V277H624V250Q624 147 595 92Q541 -12 360 -12Z","width":702,"bounds":[98,-12,624,714],"name":"BRAHMI LETTER GHA"},"11017":{"path":"M98 0V714H451V634H187V80H451V0Z","width":529,"bounds":[98,0,451,714],"name":"BRAHMI LETTER NGA"},"11018":{"path":"M315 0Q203 0 140.5 43.5Q78 87 78 165Q78 257 143.5 301.0Q209 345 346 345H354V714H444V0ZM354 80V265Q296 265 260.5 259.5Q225 254 205 242Q186 230 179.5 207.0Q173 184 173 168Q173 122 218.5 101.0Q264 80 354 80Z","width":542,"bounds":[78,0,444,714],"name":"BRAHMI LETTER CA"},"11019":{"path":"M305 -12Q238 -12 183.0 19.5Q128 51 95.5 104.0Q63 157 63 222Q63 279 88.5 328.0Q114 377 158.5 409.5Q203 442 260 451V714H350V451Q406 442 450.0 409.5Q494 377 520.0 328.5Q546 280 546 222Q546 157 513.5 104.0Q481 51 426.5 19.5Q372 -12 305 -12ZM260 75V369Q212 354 182.5 313.5Q153 273 153 224Q153 174 183.0 132.0Q213 90 260 75ZM350 74Q397 90 426.5 131.5Q456 173 456 224Q456 274 426.0 314.0Q396 354 350 369Z","width":609,"bounds":[63,-12,546,714],"name":"BRAHMI LETTER CHA"},"1101A":{"path":"M320 0Q207 0 142.5 52.0Q78 104 78 187Q78 246 104.5 290.5Q131 335 179 360Q131 385 104.5 427.5Q78 470 78 526Q78 581 109.0 623.0Q140 665 197.0 689.5Q254 714 330 714H440V634H322Q254 634 213.5 605.0Q173 576 173 526Q173 459 218.0 429.5Q263 400 358 400H422V320H358Q266 320 219.5 288.0Q173 256 173 188Q173 137 211.5 108.5Q250 80 317 80H440V0Z","width":514,"bounds":[78,0,440,714],"name":"BRAHMI LETTER JA"},"1101B":{"path":"M98 0V714H187V432Q208 414 239.0 402.0Q270 390 306 390Q372 390 399.0 420.5Q426 451 426 519V714H516V502Q516 399 465.0 352.5Q414 306 316 306Q280 306 245.5 315.0Q211 324 187 340V0Z","width":594,"bounds":[98,0,516,714],"name":"BRAHMI LETTER JHA"},"1101C":{"path":"M205 0V634H49V714H294V494Q313 499 332.0 502.0Q351 505 370 505Q467 505 518.0 458.5Q569 412 569 310V170H479V292Q479 360 451.5 391.0Q424 422 359 422Q323 422 294 413V0Z","width":647,"bounds":[49,0,569,714],"name":"BRAHMI LETTER NYA"},"1101D":{"path":"M447 0H386Q298 0 228.0 41.5Q158 83 118.0 163.0Q78 243 78 358Q78 469 117.0 549.0Q156 629 225.5 671.5Q295 714 386 714H447V634H386Q325 634 276.5 601.0Q228 568 200.5 506.0Q173 444 173 357Q173 269 201.0 207.0Q229 145 277.0 112.5Q325 80 386 80H447Z","width":515,"bounds":[78,0,447,714],"name":"BRAHMI LETTER TTA"},"1101E":{"path":"M409 27Q336 27 275.5 52.5Q215 78 170.5 123.0Q126 168 102.0 228.5Q78 289 78 358Q78 429 102.5 489.0Q127 549 171.5 594.0Q216 639 276.5 664.0Q337 689 409 689Q481 689 541.5 663.5Q602 638 646.5 593.0Q691 548 715.5 487.5Q740 427 740 358Q740 289 716.0 229.0Q692 169 647.5 123.5Q603 78 542.5 52.5Q482 27 409 27ZM409 111Q473 111 526.5 144.0Q580 177 612.5 233.5Q645 290 645 359Q645 426 614.0 482.0Q583 538 530.0 571.5Q477 605 409 605Q342 605 288.5 571.5Q235 538 204.0 482.0Q173 426 173 359Q173 290 205.0 233.5Q237 177 290.5 144.0Q344 111 409 111Z","width":818,"bounds":[78,27,740,689],"name":"BRAHMI LETTER TTHA"},"1101F":{"path":"M168 332V0H78V412H317V714H407V332Z","width":485,"bounds":[78,0,407,714],"name":"BRAHMI LETTER DDA"},"11020":{"path":"M300 -12Q232 -12 178.5 17.0Q125 46 94.0 96.5Q63 147 63 209Q63 266 89.0 314.5Q115 363 161.0 395.5Q207 428 265 437V714H355V362H310Q268 362 233.5 342.0Q199 322 179.0 287.5Q159 253 159 211Q159 146 199.0 109.0Q239 72 310 72Q374 72 410.5 95.0Q447 118 447 162Q447 191 433.5 205.5Q420 220 399 220Q348 220 327 155L243 194Q260 241 297.0 270.0Q334 299 393 299Q458 299 497.5 261.5Q537 224 537 162Q537 79 474.5 33.5Q412 -12 300 -12Z","width":600,"bounds":[63,-12,537,714],"name":"BRAHMI LETTER DDHA"},"11021":{"path":"M489 714V634H314V80H489V0H49V80H224V634H49V714Z","width":538,"bounds":[49,0,489,714],"name":"BRAHMI LETTER NNA"},"11022":{"path":"M127 0H29L267 441V714H357V437L595 0H499L312 351Z","width":625,"bounds":[29,0,595,714],"name":"BRAHMI LETTER TA"},"11023":{"path":"M409 27Q336 27 275.5 52.5Q215 78 170.5 123.0Q126 168 102.0 228.5Q78 289 78 358Q78 429 102.5 489.0Q127 549 171.5 594.0Q216 639 276.5 664.0Q337 689 409 689Q481 689 541.5 663.5Q602 638 646.5 593.0Q691 548 715.5 487.5Q740 427 740 358Q740 289 716.0 229.0Q692 169 647.5 123.5Q603 78 542.5 52.5Q482 27 409 27ZM409 111Q473 111 526.5 144.0Q580 177 612.5 233.5Q645 290 645 359Q645 426 614.0 482.0Q583 538 530.0 571.5Q477 605 409 605Q342 605 288.5 571.5Q235 538 204.0 482.0Q173 426 173 359Q173 290 205.0 233.5Q237 177 290.5 144.0Q344 111 409 111ZM408 294Q380 294 363.5 312.0Q347 330 347 362Q347 394 362.5 412.0Q378 430 408 430Q439 430 455.0 412.0Q471 394 471 362Q471 331 454.5 312.5Q438 294 408 294Z","width":818,"bounds":[78,27,740,689],"name":"BRAHMI LETTER THA"},"11024":{"path":"M98 0V189H129Q175 189 212.0 208.0Q249 227 271.5 261.5Q294 296 294 341Q294 408 248.0 450.5Q202 493 129 493H98V714H187V563Q272 556 329 493Q384 432 384 339Q384 281 359.5 233.5Q335 186 291.0 156.0Q247 126 187 119V0Z","width":462,"bounds":[98,0,384,714],"name":"BRAHMI LETTER DA"},"11025":{"path":"M98 0V714H187Q296 714 372.5 671.0Q449 628 489.5 548.0Q530 468 530 358Q530 185 446.0 92.5Q362 0 202 0ZM187 80H189Q309 80 372.5 152.0Q436 224 436 357Q436 488 370.5 561.0Q305 634 187 634Z","width":608,"bounds":[98,0,530,714],"name":"BRAHMI LETTER DHA"},"11026":{"path":"M314 714V80H489V0H49V80H224V714Z","width":538,"bounds":[49,0,489,714],"name":"BRAHMI LETTER NA"},"11027":{"path":"M311 -12Q228 -12 181.5 18.0Q135 48 116.5 107.0Q98 166 98 252V714H187V248Q187 188 196.0 149.0Q205 110 231.5 91.0Q258 72 312 72Q368 72 395.5 93.5Q423 115 432.0 155.0Q441 195 441 250V252H531V250Q531 162 511.0 103.5Q491 45 443.0 16.5Q395 -12 311 -12Z","width":609,"bounds":[98,-12,531,714],"name":"BRAHMI LETTER PA"},"11028":{"path":"M300 -12Q196 -12 147.0 44.5Q98 101 98 215V714H187V208Q187 153 201.5 123.5Q216 94 242.0 83.0Q268 72 302 72Q418 72 418 204Q418 253 391.0 284.5Q364 316 321 316Q307 316 293.0 314.0Q279 312 265 308L228 383Q270 400 312 400Q372 400 417.5 376.0Q463 352 488.0 308.0Q513 264 513 205Q513 144 487.0 94.5Q461 45 413.0 16.5Q365 -12 300 -12Z","width":576,"bounds":[98,-12,513,714],"name":"BRAHMI LETTER PHA"},"11029":{"path":"M98 70V652H675V70ZM187 150H585V572H187Z","width":773,"bounds":[98,70,675,652],"name":"BRAHMI LETTER BA"},"1102A":{"path":"M566 0V420H187V0H98V500H740V714H830V420H656V0Z","width":898,"bounds":[98,0,830,714],"name":"BRAHMI LETTER BHA"},"1102B":{"path":"M347 -12Q246 -12 191.0 37.0Q136 86 136 174Q136 241 169.0 294.5Q202 348 272 394Q208 432 165.0 470.5Q122 509 100.0 557.5Q78 606 78 674V714H168V674Q168 612 194.0 570.5Q220 529 261.5 499.5Q303 470 349 442Q396 470 437.0 500.0Q478 530 504.0 571.0Q530 612 530 674V714H620V674Q620 606 598.0 558.0Q576 510 533.0 472.0Q490 434 427 395Q499 348 530.5 294.0Q562 240 562 174Q562 85 506.5 36.5Q451 -12 347 -12ZM347 72Q404 72 435.5 98.0Q467 124 467 178Q467 229 439.0 270.5Q411 312 351 350Q290 312 260.5 270.5Q231 229 231 178Q231 125 262.0 98.5Q293 72 347 72Z","width":698,"bounds":[78,-12,620,714],"name":"BRAHMI LETTER MA"},"1102C":{"path":"M259 -12Q158 -12 110.5 41.0Q63 94 63 218V251H153V218Q153 137 175.0 104.5Q197 72 254 72Q312 72 335.0 104.0Q358 136 358 208V714H448V208Q448 134 471.0 103.0Q494 72 553 72Q609 72 631.0 104.5Q653 137 653 218V251H743V218Q743 95 696.0 41.5Q649 -12 547 -12Q447 -12 403 42Q360 -12 259 -12Z","width":807,"bounds":[63,-12,743,714],"name":"BRAHMI LETTER YA"},"1102D":{"path":"M117 0V714H207V0Z","width":324,"bounds":[117,0,207,714],"name":"BRAHMI LETTER RA"},"1102E":{"path":"M421 -12Q320 -12 268.0 32.5Q216 77 205 175H49V255H291V251Q291 192 300.5 152.5Q310 113 338.0 93.0Q366 73 421 73Q475 73 501.5 93.0Q528 113 536.5 153.0Q545 193 545 251V714H635V254Q635 166 616.0 107.0Q597 48 550.5 18.0Q504 -12 421 -12Z","width":732,"bounds":[49,-12,635,714],"name":"BRAHMI LETTER LA"},"1102F":{"path":"M254 -12Q202 -12 158.5 13.0Q115 38 89.0 80.0Q63 122 63 171Q63 235 103.5 284.5Q144 334 209 350V714H299V350Q365 335 405.0 285.0Q445 235 445 171Q445 119 418.5 78.0Q392 37 349.0 12.5Q306 -12 254 -12ZM254 67Q297 67 326.0 97.5Q355 128 355 171Q355 215 326.5 245.5Q298 276 254 276Q211 276 182.0 245.5Q153 215 153 171Q153 129 182.0 98.0Q211 67 254 67Z","width":509,"bounds":[63,-12,445,714],"name":"BRAHMI LETTER VA"},"11030":{"path":"M289 0V537L269 451L124 0H29L287 714H372L629 0H534L391 445L367 547V0Z","width":659,"bounds":[29,0,629,714],"name":"BRAHMI LETTER SHA"},"11031":{"path":"M311 -12Q228 -12 181.5 18.0Q135 48 116.5 107.0Q98 166 98 252V714H187V448L441 531L466 456L187 365V248Q187 189 195.5 149.5Q204 110 231.0 91.0Q258 72 312 72Q368 72 395.5 93.5Q423 115 432.0 155.0Q441 195 441 250V252H531V250Q531 162 511.0 103.5Q491 45 443.0 16.5Q395 -12 311 -12Z","width":609,"bounds":[98,-12,531,714],"name":"BRAHMI LETTER SSA"},"11032":{"path":"M577 -12Q462 -12 407.0 51.0Q352 114 352 252V267Q339 271 323.0 273.0Q307 275 288 275Q222 275 195.0 244.5Q168 214 168 146V0H78V163Q78 266 129.0 312.5Q180 359 277 359Q313 359 352 348V714H442V249Q442 150 474.0 111.0Q506 72 581 72Q655 72 690.0 113.0Q725 154 725 250V252H814V250Q814 108 755.0 48.0Q696 -12 577 -12Z","width":878,"bounds":[78,-12,814,714],"name":"BRAHMI LETTER SA"},"11033":{"path":"M311 -12Q228 -12 181.5 18.0Q135 48 116.5 107.0Q98 166 98 252V714H187V249Q187 189 195.5 149.5Q204 110 230.5 91.0Q257 72 312 72Q367 72 394.5 93.0Q422 114 431.5 155.0Q441 196 441 255H684V175H527Q517 77 464.5 32.5Q412 -12 311 -12Z","width":732,"bounds":[98,-12,684,714],"name":"BRAHMI LETTER HA"},"11046":{"path":"M0 881H290V801H0Z","width":0,"bounds":[0,801,290,881],"name":"BRAHMI VIRAMA"},"11038":{"path":"M0 714H278V634H0Z","width":0,"bounds":[0,634,278,714],"name":"BRAHMI VOWEL SIGN AA"},"1103A":{"path":"M0 714H201V839H286V634H0Z","width":0,"bounds":[0,634,286,839],"name":"BRAHMI VOWEL SIGN I"},"1103C":{"path":"M0 80H269V0H0Z","width":0,"bounds":[0,0,269,80],"name":"BRAHMI VOWEL SIGN U"}};
+const CONS_ORDER = ["11013", "11014", "11015", "11016", "11017", "11018", "11019", "1101A", "1101B", "1101C", "1101D", "1101E", "1101F", "11020", "11021", "11022", "11023", "11024", "11025", "11026", "11027", "11028", "11029", "1102A", "1102B", "1102C", "1102D", "1102E", "1102F", "11030", "11031", "11032", "11033"];
+const VIRAMA = "11046";
+const DY_TOP_DEFAULT = -40;
+const DEFAULTS = { scale: 0.55, rotation: 0, dxOffset: 0, dyOffset: 0 };
+const STAGE_X = 560, BASELINE_Y = 820;
+
+function shortName(hex){
+  const n = GLYPHS[hex].name || "";
+  return n.replace("BRAHMI LETTER ", "").replace("BRAHMI SIGN ", "").replace("BRAHMI VOWEL SIGN ", "V:");
+}
+function ch(hex){ return String.fromCodePoint(parseInt(hex,16)); }
+
+// ---------- state ----------
+let globalDefault = { ...DEFAULTS };
+let pairOverrides = {};   // key -> {scale,rotation,dxOffset,dyOffset}
+let state = { baseCp: "11032", stackCp: "11023", ...DEFAULTS }; // SA + THA (sthA) as the opening example
+
+function pairKey(b, s){ return b + "-" + s; }
+function currentKey(){ return pairKey(state.baseCp, state.stackCp); }
+
+function loadPairIntoState(baseCp, stackCp){
+  const key = pairKey(baseCp, stackCp);
+  const src = pairOverrides[key] || globalDefault;
+  state = { baseCp, stackCp, ...DEFAULTS, ...src };
+}
+
+// ---------- populate selects ----------
+const selBase = document.getElementById("sel-base");
+const selStack = document.getElementById("sel-stack");
+CONS_ORDER.forEach(hex => {
+  const label = ch(hex) + "  " + shortName(hex);
+  selBase.insertAdjacentHTML("beforeend", `<option value="${hex}">${label}</option>`);
+  selStack.insertAdjacentHTML("beforeend", `<option value="${hex}">${label}</option>`);
+});
+selBase.value = state.baseCp;
+selStack.value = state.stackCp;
+
+// ---------- SVG stage ----------
+const svg = document.getElementById("stage-svg");
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs){
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function localCenter(hex){
+  const b = GLYPHS[hex].bounds;
+  return { cx: (b[0]+b[2])/2, cy: (b[1]+b[3])/2, ymax: b[3] };
+}
+
+let dragMode = null; // 'move' | 'rotate' | 'resize'
+let dragStart = null;
+
+function buildStage(){
+  svg.innerHTML = "";
+  const world = svgEl("g", { transform: `translate(${STAGE_X},${BASELINE_Y}) scale(1,-1)` });
+  svg.appendChild(world);
+
+  // baseline guide
+  world.appendChild(svgEl("line", { x1:-500, x2:900, y1:0, y2:0, stroke:"var(--guide)", "stroke-width":2, "vector-effect":"non-scaling-stroke" }));
+
+  const baseG = GLYPHS[state.baseCp];
+  const baseW = baseG.width;
+  world.appendChild(svgEl("path", { d: baseG.path, fill: "var(--base-color)" }));
+
+  // ---- stacked glyph, self-centered then scaled/rotated/translated ----
+  const c = localCenter(state.stackCp);
+  const targetCx = baseW/2 + state.dxOffset;
+  const targetCy = (DY_TOP_DEFAULT + state.dyOffset) - state.scale * (c.ymax - c.cy);
+
+  const posG = svgEl("g", { transform: `translate(${targetCx},${targetCy}) rotate(${-state.rotation}) scale(${state.scale}) translate(${-c.cx},${-c.cy})`, id:"stacked-glyph" });
+  posG.appendChild(svgEl("path", { d: GLYPHS[state.stackCp].path, fill: "var(--stack-color)" }));
+  world.appendChild(posG);
+
+  // ---- handles (drawn in world space at the glyph's screen-space bbox) ----
+  const b = GLYPHS[state.stackCp].bounds;
+  const corners = [[b[0],b[1]],[b[2],b[1]],[b[2],b[3]],[b[0],b[3]]].map(([x,y])=>{
+    // apply same local transform chain manually to get world-space corner
+    const lx = x - c.cx, ly = y - c.cy;
+    const rad = -state.rotation * Math.PI/180;
+    const rx = lx*Math.cos(rad) - ly*Math.sin(rad);
+    const ry = lx*Math.sin(rad) + ly*Math.cos(rad);
+    return [targetCx + rx*state.scale, targetCy + ry*state.scale];
+  });
+  const centerWorld = [targetCx, targetCy];
+
+  // bounding outline (visual affordance)
+  const outline = svgEl("polygon", { points: corners.map(p=>p.join(",")).join(" "), fill:"none", stroke:"var(--stack-color)", "stroke-dasharray":"6 6", "stroke-width":2, "vector-effect":"non-scaling-stroke", opacity:"0.6" });
+  world.appendChild(outline);
+
+  // move handle = the glyph body itself
+  posG.style.cursor = "grab";
+  posG.addEventListener("pointerdown", e => startDrag(e, "move"));
+
+  // resize handle at corner[2] (top-right-ish after rotation)
+  const resizeHandle = svgEl("circle", { cx:corners[2][0], cy:corners[2][1], r:16, fill:"var(--panel)", stroke:"var(--stack-color)", "stroke-width":3, class:"handle" });
+  resizeHandle.addEventListener("pointerdown", e => startDrag(e, "resize"));
+  world.appendChild(resizeHandle);
+
+  // rotate handle above the top edge midpoint (corners[2]=top-right, corners[3]=top-left
+  // in font space, since b[3]=ymax is the visual top when y is up)
+  const topMid = [(corners[2][0]+corners[3][0])/2, (corners[2][1]+corners[3][1])/2];
+  const dirX = topMid[0]-centerWorld[0], dirY = topMid[1]-centerWorld[1];
+  const dirLen = Math.hypot(dirX,dirY) || 1;
+  const handlePos = [topMid[0] + dirX/dirLen*60, topMid[1] + dirY/dirLen*60];
+  world.appendChild(svgEl("line", { x1:topMid[0], y1:topMid[1], x2:handlePos[0], y2:handlePos[1], stroke:"var(--stack-color)", "stroke-width":2, "vector-effect":"non-scaling-stroke" }));
+  const rotateHandle = svgEl("circle", { cx:handlePos[0], cy:handlePos[1], r:16, fill:"var(--stack-color)", stroke:"var(--panel)", "stroke-width":3, class:"handle" });
+  rotateHandle.addEventListener("pointerdown", e => startDrag(e, "rotate"));
+  world.appendChild(rotateHandle);
+
+  updateReadouts();
+}
+
+function svgPointFromEvent(e){
+  const pt = svg.createSVGPoint();
+  pt.x = e.clientX; pt.y = e.clientY;
+  const ctm = svg.getScreenCTM().inverse();
+  const p = pt.matrixTransform(ctm);
+  // undo the world transform: translate(STAGE_X,BASELINE_Y) scale(1,-1)
+  return { fx: p.x - STAGE_X, fy: BASELINE_Y - p.y };
+}
+
+function startDrag(e, mode){
+  e.preventDefault(); e.stopPropagation();
+  const p = svgPointFromEvent(e);
+  dragMode = mode;
+  const c = localCenter(state.stackCp);
+  const baseW = GLYPHS[state.baseCp].width;
+  const centerFont = { x: baseW/2 + state.dxOffset, y: (DY_TOP_DEFAULT + state.dyOffset) - state.scale*(c.ymax-c.cy) };
+  dragStart = {
+    p, state: { ...state },
+    centerFont,
+    startDist: Math.hypot(p.fx-centerFont.x, p.fy-centerFont.y),
+    startAngle: Math.atan2(p.fy-centerFont.y, p.fx-centerFont.x) * 180/Math.PI,
+  };
+  window.addEventListener("pointermove", onDrag);
+  window.addEventListener("pointerup", endDrag);
+}
+function onDrag(e){
+  if (!dragMode) return;
+  const p = svgPointFromEvent(e);
+  if (dragMode === "move"){
+    state.dxOffset = Math.max(-250, Math.min(250, dragStart.state.dxOffset + (p.fx - dragStart.p.fx)));
+    state.dyOffset = Math.max(-140, Math.min(200, dragStart.state.dyOffset + (p.fy - dragStart.p.fy)));
+  } else if (dragMode === "resize"){
+    const dist = Math.hypot(p.fx-dragStart.centerFont.x, p.fy-dragStart.centerFont.y);
+    const ratio = dist / (dragStart.startDist || 1);
+    state.scale = Math.max(0.2, Math.min(0.95, dragStart.state.scale * ratio));
+  } else if (dragMode === "rotate"){
+    const angle = Math.atan2(p.fy-dragStart.centerFont.y, p.fx-dragStart.centerFont.x) * 180/Math.PI;
+    state.rotation = Math.max(-45, Math.min(45, dragStart.state.rotation - (angle - dragStart.startAngle)));
+  }
+  syncControlsFromState();
+  buildStage();
+}
+function endDrag(){
+  dragMode = null;
+  window.removeEventListener("pointermove", onDrag);
+  window.removeEventListener("pointerup", endDrag);
+}
+
+// ---------- sliders <-> state ----------
+const rScale = document.getElementById("r-scale"), vScale = document.getElementById("v-scale");
+const rRot = document.getElementById("r-rot"), vRot = document.getElementById("v-rot");
+const rDx = document.getElementById("r-dx"), vDx = document.getElementById("v-dx");
+const rDy = document.getElementById("r-dy"), vDy = document.getElementById("v-dy");
+
+function syncControlsFromState(){
+  rScale.value = Math.round(state.scale*100);
+  rRot.value = Math.round(state.rotation);
+  rDx.value = Math.round(state.dxOffset);
+  rDy.value = Math.round(state.dyOffset);
+  vScale.textContent = Math.round(state.scale*100) + "%";
+  vRot.textContent = Math.round(state.rotation) + "°";
+  vDx.textContent = Math.round(state.dxOffset);
+  vDy.textContent = Math.round(state.dyOffset);
+}
+function updateReadouts(){
+  document.getElementById("ro-scale").textContent = Math.round(state.scale*100) + "%";
+  document.getElementById("ro-rot").textContent = Math.round(state.rotation) + "°";
+  document.getElementById("ro-dx").textContent = Math.round(state.dxOffset);
+  document.getElementById("ro-dy").textContent = Math.round(state.dyOffset);
+}
+[[rScale,"scale",0.01],[rRot,"rotation",1],[rDx,"dxOffset",1],[rDy,"dyOffset",1]].forEach(([el,key,mult])=>{
+  el.addEventListener("input", ()=>{
+    state[key] = parseFloat(el.value)*mult;
+    syncControlsFromState();
+    buildStage();
+  });
+});
+
+selBase.addEventListener("change", ()=>{ loadPairIntoState(selBase.value, state.stackCp); syncControlsFromState(); buildStage(); renderOverridesList(); });
+selStack.addEventListener("change", ()=>{ loadPairIntoState(state.baseCp, selStack.value); syncControlsFromState(); buildStage(); renderOverridesList(); });
+
+document.getElementById("btn-reset-formula").addEventListener("click", ()=>{
+  state = { baseCp: state.baseCp, stackCp: state.stackCp, ...DEFAULTS };
+  syncControlsFromState(); buildStage();
+});
+document.getElementById("btn-reset-global").addEventListener("click", ()=>{
+  state = { baseCp: state.baseCp, stackCp: state.stackCp, ...DEFAULTS, ...globalDefault };
+  syncControlsFromState(); buildStage();
+});
+
+// ---------- db ----------
+let dbApi = null, downloadsApi = null;
+const dbStatus = document.getElementById("db-status");
+function setDbStatus(ok, msg){
+  dbStatus.innerHTML = `<span class="status-dot ${ok?'status-ok':'status-off'}"></span>${msg}`;
+}
+
+(async () => {
+  if (!window.claude || !window.claude.use){ setDbStatus(false, "no save support in this preview"); return; }
+  try {
+    dbApi = await window.claude.use("db");
+    downloadsApi = await window.claude.use("downloads");
+  } catch(e) { dbApi = null; }
+  if (!dbApi){ setDbStatus(false, "saving unavailable in this view"); return; }
+  setDbStatus(true, "saved placements sync live");
+
+  dbApi.doc("config/global").onSnapshot(snap => {
+    if (snap.exists) globalDefault = { ...DEFAULTS, ...snap.data() };
+    if (!pairOverrides[currentKey()]) { state = { ...state, ...globalDefault }; syncControlsFromState(); buildStage(); }
+  }, ()=>{});
+
+  dbApi.collection("pairs").onSnapshot(qsnap => {
+    pairOverrides = {};
+    qsnap.docs.forEach(d => pairOverrides[d.id] = d.data());
+    renderOverridesList();
+  }, ()=>{});
+})();
+
+document.getElementById("btn-save-pair").addEventListener("click", async ()=>{
+  if (!dbApi) return;
+  const key = currentKey();
+  await dbApi.collection("pairs").doc(key).set({
+    baseCp: state.baseCp, stackCp: state.stackCp,
+    scale: state.scale, rotation: state.rotation, dxOffset: state.dxOffset, dyOffset: state.dyOffset,
+    updatedAt: new Date().toISOString(),
+  });
+});
+document.getElementById("btn-save-global").addEventListener("click", async ()=>{
+  if (!dbApi) return;
+  await dbApi.doc("config/global").set({
+    scale: state.scale, rotation: state.rotation, dxOffset: state.dxOffset, dyOffset: state.dyOffset,
+    updatedAt: new Date().toISOString(),
+  });
+});
+
+function renderOverridesList(){
+  const list = document.getElementById("overrides-list");
+  const keys = Object.keys(pairOverrides);
+  if (!keys.length){ list.innerHTML = `<div class="empty-note">None yet — every pair uses the global default.</div>`; renderWords(); return; }
+  list.innerHTML = "";
+  keys.sort().forEach(key => {
+    const [b,s] = key.split("-");
+    const row = document.createElement("div");
+    row.className = "override-row";
+    row.innerHTML = `<span>${ch(b)}${ch(s)}&nbsp; <span class="mono" style="color:var(--ink-dim)">${shortName(b)}→${shortName(s)}</span></span><button class="del" title="delete">✕</button>`;
+    row.addEventListener("click", (e)=>{
+      if (e.target.classList.contains("del")) return;
+      selBase.value = b; selStack.value = s;
+      loadPairIntoState(b, s); syncControlsFromState(); buildStage();
+    });
+    row.querySelector(".del").addEventListener("click", async (e)=>{
+      e.stopPropagation();
+      if (dbApi) await dbApi.collection("pairs").doc(key).delete();
+    });
+    list.appendChild(row);
+  });
+  renderWords();
+}
+
+document.getElementById("btn-export").addEventListener("click", async ()=>{
+  const cfg = { global: globalDefault, pairs: pairOverrides };
+  const text = JSON.stringify(cfg, null, 2);
+  if (downloadsApi){
+    try { await downloadsApi.save({ filename: "brahmi-placement-config.json", data: text }); return; } catch(e) {}
+  }
+  const w = window.open("", "_blank");
+  if (w) { w.document.write("<pre>"+text.replace(/</g,"&lt;")+"</pre>"); }
+});
+
+// ---------- preview words, composed with current saved rules ----------
+const WORDS = [
+  { iast: "gam",  cps: ["11015","1102B","11046"] },
+  { iast: "paTh", cps: ["11027","1101E","11046"] },
+  { iast: "likh", cps: ["1102E","1103A","11014","11046"] },
+  { iast: "sthA", cps: ["11032","11046","11023","11038"] },
+  { iast: "kram", cps: ["11013","11046","1102D","1102B","11046"] },
+  { iast: "j~nA", cps: ["1101A","11046","1101C","11038"] },
+];
+function paramsFor(baseCp, stackCp){
+  const key = pairKey(baseCp, stackCp);
+  return pairOverrides[key] || globalDefault;
+}
+function renderWords(){
+  const grid = document.getElementById("words-grid");
+  grid.innerHTML = "";
+  WORDS.forEach(w => {
+    const card = document.createElement("div");
+    card.className = "word-card";
+    const svgW = document.createElementNS(NS, "svg");
+    svgW.setAttribute("viewBox", "-40 -60 900 1000");
+    const g = svgEl("g", { transform: `translate(60,820) scale(1,-1)` });
+    svgW.appendChild(g);
+    g.appendChild(svgEl("line", { x1:-40, x2:800, y1:0, y2:0, stroke:"var(--guide)", "stroke-width":2, "vector-effect":"non-scaling-stroke" }));
+    let cursor = 0;
+    const cps = w.cps;
+    for (let i=0;i<cps.length;i++){
+      const cp = cps[i];
+      if (cp === VIRAMA && i+1 < cps.length && CONS_ORDER.includes(cps[i+1])){
+        const baseCp = cps[i-1], stackCp = cps[i+1];
+        const params = { ...DEFAULTS, ...paramsFor(baseCp, stackCp) };
+        const c = localCenter(stackCp);
+        const cx = cursor + params.dxOffset;
+        const cy = (DY_TOP_DEFAULT + params.dyOffset) - params.scale*(c.ymax-c.cy);
+        const pg = svgEl("g", { transform: `translate(${cx},${cy}) rotate(${-params.rotation}) scale(${params.scale}) translate(${-c.cx},${-c.cy})` });
+        pg.appendChild(svgEl("path", { d: GLYPHS[stackCp].path, fill: "var(--stack-color)" }));
+        g.appendChild(pg);
+        i++; // consumed the stacked consonant too
+        continue;
+      }
+      const gl = GLYPHS[cp];
+      g.appendChild(svgEl("path", { d: gl.path, fill: "var(--base-color)", transform: `translate(${cursor},0)` }));
+      cursor += gl.width;
+    }
+    card.appendChild(svgW);
+    const cap = document.createElement("div");
+    cap.className = "cap";
+    cap.textContent = "root " + w.iast;
+    card.appendChild(cap);
+    grid.appendChild(card);
+  });
+}
+
+syncControlsFromState();
+buildStage();
+renderWords();
+</script>
