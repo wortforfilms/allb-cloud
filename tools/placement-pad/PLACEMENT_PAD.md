@@ -13,10 +13,17 @@ capabilities:
   resize it, and the handle above it to rotate it — all three write back
   into `scale` / `rotation` / `dxOffset` / `dyOffset`, exactly the
   parameters `build_stacked.py` already computes per base consonant.
-- **Save this pair** stores a per-(base, stacked) override in the
-  artifact's shared database (`pairs/<baseHex>-<stackHex>`); **Save as
-  global default** stores a fallback used by any pair without its own
-  override (`config/global`).
+- **Base size** additionally shrinks the base (blue) consonant itself in
+  place, per the stated design rule: both letters a little smaller than
+  their normal full size, but the pair together only a little taller than
+  one letter alone — not the ~1.6x span you get from a full-size base plus
+  a merely-scaled-down stacked form. The "Combined vs 1 letter" readout is
+  the number that rule is about (defaults land around 1.25-1.3x); it turns
+  red outside a "still reads as a little bigger" range.
+- **Save this pair** stores a per-(base, stacked) override, including
+  `baseScale`, in the artifact's shared database
+  (`pairs/<baseHex>-<stackHex>`); **Save as global default** stores a
+  fallback used by any pair without its own override (`config/global`).
 - The saved rules live-recompose six real dhaatu roots (gam, paTh, likh,
   sthA, kram, jña) at the bottom of the page, using the same
   virama-then-consonant detection `build_stacked.py`'s font logic uses,
