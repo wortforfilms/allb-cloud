@@ -1,0 +1,1 @@
+`define HAL_REF_CASES 11844

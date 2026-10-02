@@ -18,7 +18,7 @@ This is a small piece of hardware that applies Panini's vowel-sandhi rules exact
 A pratyāhāra is a range in a fixed order. Membership therefore needs two 6-bit comparisons per slot, not a CAM. Two known quirks are handled exactly:
 
 - **ह appears twice**, in हयवरट् (slot 9) and in हल् (slot 42). ह is a member if either slot is in range, so शल् is श ष स ह, and हश् starts at the first ह.
-- **ण् closes two sutras**, अइउण् and लण्. The marker is given as a sutra number, so aṇ(1) = अ इ उ (used by 1.1.51 उरण् रपरः) and aṇ(6) = अ … ल are different inputs.
+- **ण् closes two sutras**, अइउण् and लण्. The marker is given as a sutra number, so aṇ(1) = अ इ उ and aṇ(6) = अ … ल are different inputs. By the traditional rule, every aṇ in the grammar means aṇ(1), for example 1.1.51 उरण् रपरः and 6.3.111. The one exception is 1.1.69 अणुदित् सवर्णस्य, which means aṇ(6). Every iṇ uses the later ण्.
 
 When `savarna_expand` is on, 1.1.69 adds the long vowels, so ac includes आ ई ऊ ॠ ॡ.
 
@@ -71,11 +71,87 @@ PANINI DATAPATH: PASS
 
 Yosys `synth_ice40`, whole datapath: 208 LUT4s, 94 flip-flops and 14 carry cells. That is about 4% of an iCE40 UP5K. The generic ROM on its own, with variable inputs, is 169 LUT4s. Inside the engine its inputs are constants, so it reduces to fixed masks.
 
+## Consonant and visarga sandhi (hal sandhi)
+
+`hal_sandhi_pipeline.v` (with `hal_sandhi_stages.v` and `hal_classes.vh`) handles the word boundary. The juncture is held in fixed slots:
+
+| Slot | What it holds |
+| --- | --- |
+| V | the last vowel of the first word |
+| C1 | its final consonant: क ट त प न म स र, or none |
+| C2 | a sound that rules insert |
+| R | the next word's first sound, or a pause |
+| R2 | the sound after R, for the two rules that look ahead |
+
+### Three registered stages, in Panini's order
+
+| Stage | Rules |
+| --- | --- |
+| A | 6.1.73 छे च and 6.1.76 पदान्ताद्वा (tuk before छ), then 8.2.39 झलां जशोऽन्ते and 8.2.66 ससजुषो रुः |
+| B (8.3) | 8.3.4, 8.3.7 नश्छव्यप्रशान्, 8.3.14 रो रि, 8.3.15, 8.3.17 भोभगोअघोअपूर्वस्य योऽशि, 8.3.19, 8.3.22, 8.3.23 मोऽनुस्वारः, 8.3.30 नश्च, 8.3.31 शि तुक्, 8.3.32 ङमो ह्रस्वादचि ङमुण्नित्यम्, 8.3.34 विसर्जनीयस्य सः, 8.3.36 वा शरि, 8.3.37 कुप्वोः ≍क≍पौ च |
+| C (8.4) | 8.4.40 स्तोः श्चुना श्चुः, 8.4.41 ष्टुना ष्टुः (with 8.4.42), 8.4.45, 8.4.55 खरि च, 8.4.56 वावसाने, 8.4.59 वा पदान्तस्य, 8.4.60 तोर्लि, 8.4.62 झयो होऽन्यतरस्याम्, 8.4.63 शश्छोऽटि |
+
+One juncture enters per clock, and its forms come out three clocks later. Every form carries a 32-bit trace with one bit per sutra applied.
+
+### Where the strict two-phase model breaks
+
+Three Saptādhyāyī rules have to act on a result of the Tripādī:
+
+- 6.1.113 अतो रोरप्लुतादप्लुते and 6.1.114 हशि च act on *ru*, which only 8.2.66 creates. That is how रामः + अपि gives रामोऽपि and रामः + गच्छति gives रामो गच्छति.
+- 6.3.111 ढ्रलोपे पूर्वस्य दीर्घोऽणः lengthens the vowel before an r lost by 8.3.14. That is how पुनर् + रमते gives पुना रमते.
+
+By 8.2.1 पूर्वत्रासिद्धम् the Tripādī is invisible to earlier rules. The tradition resolves the conflict this way: a rule that names a Tripādī result must be able to see it. The hardware has an explicit bypass for exactly these three rules. Everything else in the Tripādī stays feed-forward.
+
+### Optional rules as lanes
+
+Many rules here are optional (वा, विभाषा, अन्यतरस्याम्, or a named teacher). Each one forks a candidate into the next free lane, so the output is the set of correct forms. Lane 0 never takes an optional rule. Three forms is the most any juncture produces: न् + श gives ञ्श, ञ्च्श or ञ्च्छ, by 8.3.31 and 8.4.63. The reference model checks, on every juncture, that each stage applies at most one optional rule. The hardware therefore needs only one fork slot per stage.
+
+### Verification
+
+`hardware/scripts/hal_ref.py` is the reference model, written from the sutras.
+
+**Against the hardware** (`tb_hal_sandhi.v`, streaming one juncture per clock):
+
+- 11,844 junctures agree: 14 left vowels (or none) × 9 endings × 47 next sounds (or a pause) × 2 look-ahead contexts.
+- That covers 13,940 forms.
+- For each form the testbench checks every slot, the avagraha, the form count and the full sutra trace.
+- Injected bugs are caught: removing 6.3.111 gives 10 mismatches, and dropping the look-ahead from 8.4.63 gives 70.
+
+**Against Vidyut** (all 1,468 entries of `generate_rules()`, saved in `hardware/tb/vectors/vidyut_sandhi_all.tsv`):
+
+- 1,305 of the 1,314 consonant and visarga entries agree.
+- The other 9 are listed with reasons in `hardware/tb/vectors/hal_vidyut_report.md`.
+- The script fails if a new, unexplained difference appears.
+- The 9 differences fall into three groups:
+  - **ऋ before a lost r (2):** 6.3.111 lengthens only aṇ = अ इ उ, but Vidyut also lengthens ऋ.
+  - **त् or न् before ञ or ण (4):** Vidyut skips 8.4.40 and 8.4.41 here. No Sanskrit word begins with ञ or ण.
+  - **Entries Vidyut itself marks as fallbacks, or copied from its त् rules (3):** न् + ह → द्ध, न् + श → च्छ, and न् + ल → ंल.
+
+### Size
+
+Yosys `synth_ice40` with 3 lanes: 1,550 LUT4s, 358 flip-flops and 175 carry cells. An earlier version that packed lanes by computed index took more than 23,000 LUTs. Placing the one fork after the mains brought it down to this.
+
 ## Not modelled yet
 
 - The vārttika that makes ऋ and ऌ savarṇa.
-- Pluta and nasal vowels.
-- Consonant and visarga sandhi.
-- The state-dependent precedence principles *nitya* and *antaraṅga*. These need speculative evaluation (try both orders and compare), which is the next step for the arbiter.
+- Pluta vowels.
+- Optional anunāsika vowels (8.3.2): only the anusvāra forms are produced.
+- Nasal य and व by 8.4.59.
+- Sandhi inside a word, such as ṇatva (8.4.1) and ṣatva (8.3.59).
+- Chains of more than one juncture.
+
+### State-dependent precedence (nitya, antaraṅga)
+
+Neither junction engine ever needs these principles. In the vowel engine, the exceptions always leave exactly one rule. In the consonant and visarga pipeline, each stage applies at most one optional rule, and both properties are checked on every case.
+
+Nitya and antaraṅga decide between rules during a derivation (prakriyā), where a stem, affixes and marker letters change over many steps. Building them means building a small prakriyā core:
+
+- a buffer of terms;
+- a rule ROM;
+- when two rules match, both applied speculatively in shadow buffers one step ahead;
+- tests for *nitya* (does the other rule still apply afterwards?) and *antaraṅga* (which one acts on the inner part?);
+- then commit.
+
+Vidyut's step-by-step derivations, which Maataa AAI already shows, are the reference: every step names its sutra. They can be compared with the hardware step by step.
 
 Licences: the sutra text and the Vidyut golden vectors are MIT (ambuda.org); see `data/sources/vidyut/LICENSE-vidyut.md`.

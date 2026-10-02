@@ -57,6 +57,13 @@
 `define PH_SH   6'd44  // श
 `define PH_SS   6'd45  // ष
 `define PH_S    6'd46  // स
+// --- signs and internal symbols used by consonant and visarga sandhi -------------
+`define PH_ANUS  6'd47 // ं anusvāra
+`define PH_VIS   6'd48 // ः visarga
+`define PH_JIHVA 6'd49 // ᳵ jihvāmūlīya (before क ख)
+`define PH_UPADH 6'd50 // ᳶ upadhmānīya (before प फ)
+`define PH_LNAS  6'd51 // ल्ँ nasal l (8.4.60 after न्)
+`define PH_RU    6'd52 // रु, the substitute of pada-final स् (8.2.66); never in an output
 `define PH_NONE 6'd63  // empty slot
 
 // --- rule ids reported by the sandhi engine -----------------------------------
@@ -67,5 +74,49 @@
 `define RULE_6_1_88    3'd4  // वृद्धिरेचि            a/ā + ec -> vṛddhi (ekādeśa)
 `define RULE_6_1_101   3'd5  // अकः सवर्णे दीर्घः      ak + savarṇa -> dīrgha (ekādeśa)
 `define RULE_6_1_109   3'd6  // एङः पदान्तादति         eṅ at pada end + a -> pūrvarūpa
+
+// --- hal sandhi: trace bits (one per sutra) ------------------------------------
+`define T_6_1_73   0
+`define T_6_1_76   1
+`define T_8_2_39   2
+`define T_8_2_66   3
+`define T_6_1_113  4
+`define T_6_1_114  5
+`define T_6_1_87   6
+`define T_6_1_109  7
+`define T_8_3_7    8
+`define T_8_3_4    9
+`define T_8_3_14  10
+`define T_6_3_111 11
+`define T_8_3_15  12
+`define T_8_3_17  13
+`define T_8_3_19  14
+`define T_8_3_22  15
+`define T_8_3_23  16
+`define T_8_3_30  17
+`define T_8_3_31  18
+`define T_8_3_32  19
+`define T_8_3_34  20
+`define T_8_3_36  21
+`define T_8_3_37  22
+`define T_8_4_40  23
+`define T_8_4_41  24
+`define T_8_4_45  25
+`define T_8_4_55  26
+`define T_8_4_56  27
+`define T_8_4_59  28
+`define T_8_4_60  29
+`define T_8_4_62  30
+`define T_8_4_63  31
+
+// candidate word for the hal pipeline: {valid, avagraha, trace[31:0], V, C1, C2, R}
+`define CW        58
+`define C_VALID   57
+`define C_AVG     56
+`define C_TRACE   55:24
+`define C_V       23:18
+`define C_C1      17:12
+`define C_C2      11:6
+`define C_R       5:0
 
 `endif

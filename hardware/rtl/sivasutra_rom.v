@@ -12,8 +12,11 @@
 //      with ह starts at the first one; ह is a member if EITHER slot is in range
 //      (so शल् = श ष स ह includes ह, through slot 42).
 //   ण् closes sutra 1 (अइउण्) and sutra 6 (लण्). The marker is given as the
-//      sutra number, so aṇ(1) = अ इ उ (used by 1.1.51 उरण् रपरः) and
-//      aṇ(6) = अ … ल (used elsewhere, e.g. 1.1.69) are different inputs.
+//      sutra number, so aṇ(1) = अ इ उ and aṇ(6) = अ … ल are different inputs.
+//      By the traditional rule (परेणैवेण्ग्रहाः सर्वे पूर्वेणैवाण्ग्रहा मताः ।
+//      ऋतेऽणुदित्सवर्णस्य …) every aṇ means aṇ(1) — e.g. 1.1.51 उरण् रपरः,
+//      6.3.111 — except 1.1.69 अणुदित् सवर्णस्य, which means aṇ(6); every iṇ
+//      uses the later ण्.
 //
 // savarna_expand: by 1.1.69 अणुदित् सवर्णस्य चाप्रत्ययः a short vowel letter
 // also names its long form, so ac covers आ ई ऊ ॠ ॡ as well.
