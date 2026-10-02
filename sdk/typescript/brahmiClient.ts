@@ -10,9 +10,13 @@ export interface SandhiResult {
 
 export interface SutraRecord {
   id: string;
+  /** Devanagari text from the licensed source (see data/ashtadhyayi.json `source`). */
   sutra: string;
-  category: string;
+  /** null until the sutra is classified in data/ashtadhyayi-curated.json. */
+  category: string | null;
   hardware_gate: string;
+  /** Attribution for the sutra text. */
+  source: string;
 }
 
 export interface HealthResult {

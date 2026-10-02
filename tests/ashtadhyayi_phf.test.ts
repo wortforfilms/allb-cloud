@@ -24,12 +24,12 @@ describe("Ashtadhyayi PHF Static Map WASM Lookups", () => {
     expect(sutra.hardware_gate).toBe("SAMJNA_BINDING_GATE");
   });
 
-  it("2. Should resolve Sutra 1.1.2 (अदेङ्गुणः) correctly", () => {
+  it("2. Should resolve Sutra 1.1.2 (अदेङ् गुणः) correctly", () => {
     const sutra: any = lookup_ashtadhyayi_sutra("1.1.2");
 
     expect(sutra).toBeDefined();
     expect(sutra.id).toBe("1.1.2");
-    expect(sutra.sutra).toBe("अदेङ्गुणः");
+    expect(sutra.sutra).toBe("अदेङ् गुणः");
     expect(sutra.category).toBe("संज्ञा (Saṁjñā)");
   });
 
@@ -37,5 +37,17 @@ describe("Ashtadhyayi PHF Static Map WASM Lookups", () => {
     expect(() => lookup_ashtadhyayi_sutra("9.9.999")).toThrow(
       "Sutra ID not found in Ashtadhyayi static hash map"
     );
+    // The first pada has 75 sutras; the old placeholder dataset answered this one.
+    expect(() => lookup_ashtadhyayi_sutra("1.1.101")).toThrow(
+      "Sutra ID not found in Ashtadhyayi static hash map"
+    );
+  });
+
+  it("4. Should return the last sutra, unclassified sutras as null, and the attribution", () => {
+    const sutra: any = lookup_ashtadhyayi_sutra("8.4.68");
+    expect(sutra.sutra).toBe("अ अ");
+    expect(sutra.category).toBeNull();
+    expect(sutra.hardware_gate).toBe("DEFAULT_GATE");
+    expect(sutra.source).toContain("MIT");
   });
 });

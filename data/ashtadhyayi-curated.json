@@ -1,0 +1,71 @@
+{
+  "_about": "Hand-curated additions merged into data/ashtadhyayi.json by scripts/build_ashtadhyayi.py. The sutra text itself always comes from data/sources/vidyut/sutrapatha.tsv and is never taken from here. category: only sutras whose traditional class is certain; gates match the ones src/panini_engine/sandhi_matrix.rs raises. pada_patha and arth_*: carried over from allb v2 (not yet reviewed by a scholar; marked so in the output).",
+  "sutras": {
+    "1.1.1": {
+      "category": "संज्ञा (Saṁjñā)",
+      "hardware_gate": "SAMJNA_BINDING_GATE",
+      "pada_patha": "वृद्धिः आत् ऐच्",
+      "arth_hindi": "आ, ऐ और औ वर्णों की 'वृद्धि' संज्ञा होती है।",
+      "arth_sanskrit": "आत् ऐच् च वृद्धि-संज्ञः स्यात्।",
+      "arth_status": "unreviewed (allb v2)"
+    },
+    "1.1.2": {
+      "category": "संज्ञा (Saṁjñā)",
+      "hardware_gate": "SAMJNA_BINDING_GATE",
+      "pada_patha": "अत् एङ् गुणः",
+      "arth_hindi": "ह्रस्व 'अ' तथा 'ए, ओ' (एङ्) वर्णों की 'गुण' संज्ञा होती है।",
+      "arth_sanskrit": "अत् एङ् च गुणसंज्ञः स्यात्।",
+      "arth_status": "unreviewed (allb v2)"
+    },
+    "1.1.9": {
+      "category": "संज्ञा (Saṁjñā)",
+      "hardware_gate": "SAMJNA_BINDING_GATE",
+      "pada_patha": "तुल्य-आस्य-प्रयत्नम् सवर्णम्",
+      "arth_hindi": "जिन वर्णों के उच्चारण स्थान और आभ्यंतर प्रयत्न समान हों, वे आपस में 'सवर्ण' कहलाते हैं।",
+      "arth_sanskrit": "ताल्वादिस्थानम् आभ्यन्तरप्रयत्नश्च एतद् द्वयं यस्य येन तुल्यं तन्मिथः सवर्णसंज्ञं स्यात्।",
+      "arth_status": "unreviewed (allb v2)"
+    },
+    "1.1.68": {
+      "pada_patha": "स्वम् रूपम् शब्दस्य अशब्दसंज्ञा",
+      "arth_hindi": "व्याकरण शास्त्र में शब्द का अपना स्वरूप ही उसका ग्राहक होता है, जब तक कि वह कोई संज्ञा न हो।",
+      "arth_sanskrit": "शब्दस्य स्वं रूपं संज्ञि, न तु बाह्योऽर्थः।",
+      "arth_status": "unreviewed (allb v2; was filed under 1.1.71, which is आदिरन्त्येन सहेता)"
+    },
+    "1.4.54": {
+      "category": "संज्ञा (Saṁjñā)",
+      "hardware_gate": "SAMJNA_BINDING_GATE",
+      "pada_patha": "स्वतन्त्रः कर्ता",
+      "arth_hindi": "क्रिया के निष्पादन में जो मुख्य या स्वतंत्र नियंता होता है, उसकी 'कर्ता' कारक संज्ञा होती है।",
+      "arth_sanskrit": "क्रियायां स्वातन्त्र्येण विवक्षितोऽर्थः कर्ता स्यात्।",
+      "arth_status": "unreviewed (allb v2)"
+    },
+    "3.1.1": {
+      "category": "अधिकार (Adhikāra)",
+      "hardware_gate": null,
+      "pada_patha": "प्रत्ययः",
+      "arth_hindi": "यहाँ से आगे 5वें अध्याय के अंत तक जितने विहित तत्व हैं, उनकी 'प्रत्यय' संज्ञा होती है।",
+      "arth_sanskrit": "अधिकारोऽयं पञ्चमाध्यायपरिसमाप्तेः।",
+      "arth_status": "unreviewed (allb v2)"
+    },
+    "6.1.77": {
+      "category": "विधि (Vidhi)",
+      "hardware_gate": "SANDHI_GATE_TYPE_1_YAN",
+      "pada_patha": "इकः यण् अचि",
+      "arth_hindi": "अच् (स्वर) परे होने पर इक् (इ, उ, ऋ, लृ) के स्थान पर यण् (य, व, र, ल) आदेश होता है।",
+      "arth_sanskrit": "इको स्थाने यण् स्यादचि संहितायां विषये।",
+      "arth_status": "unreviewed (allb v2)"
+    },
+    "6.1.87": {
+      "category": "विधि (Vidhi)",
+      "hardware_gate": "SANDHI_GATE_TYPE_2_GUNA"
+    },
+    "6.1.101": {
+      "category": "विधि (Vidhi)",
+      "hardware_gate": "SANDHI_GATE_TYPE_5_DIRGHA"
+    },
+    "8.4.40": {
+      "category": "विधि (Vidhi)",
+      "hardware_gate": "SANDHI_GATE_TYPE_6_SCUTVA"
+    }
+  }
+}

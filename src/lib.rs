@@ -231,12 +231,26 @@ impl PaniniSutraEngine {
 // Single Compile-Time PHF Inclusion from build.rs
 include!(concat!(env!("OUT_DIR"), "/phf_sutras.rs"));
 
+/// Attribution for the sutra text (see data/ashtadhyayi.json `source`).
+pub const SUTRA_SOURCE: &str =
+    "Ashtadhyayi text: Vidyut (ambuda.org), MIT licence; data shared by ashtadhyayi.com";
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SutraRecord {
     pub id: String,
     pub sutra: String,
-    pub category: String,
+    #[serde(default)]
+    pub slp1: Option<String>,
+    #[serde(default)]
+    pub iast: Option<String>,
+    /// None until the sutra is classified in data/ashtadhyayi-curated.json.
+    #[serde(default)]
+    pub category: Option<String>,
     pub hardware_gate: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub arth_hindi: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub arth_status: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -279,8 +293,10 @@ pub fn get_sutra_by_id(id: &str) -> Result<JsValue, JsValue> {
 pub struct SutraInfo {
     pub id: String,
     pub sutra: String,
-    pub category: String,
+    /// None (null in JSON) when the sutra is not yet classified.
+    pub category: Option<String>,
     pub hardware_gate: String,
+    pub source: &'static str,
 }
 
 #[wasm_bindgen]
@@ -289,8 +305,9 @@ pub fn lookup_ashtadhyayi_sutra(sutra_id: &str) -> Result<JsValue, JsValue> {
         let info = SutraInfo {
             id: sutra_id.to_string(),
             sutra: sutra.to_string(),
-            category: category.to_string(),
+            category: (!category.is_empty()).then(|| category.to_string()),
             hardware_gate: hardware_gate.to_string(),
+            source: SUTRA_SOURCE,
         };
         serde_wasm_bindgen::to_value(&info).map_err(|e| JsValue::from_str(&e.to_string()))
     } else {
@@ -300,7 +317,8 @@ pub fn lookup_ashtadhyayi_sutra(sutra_id: &str) -> Result<JsValue, JsValue> {
     }
 }
 
-/// O(1) Static Sutra Lookup (Rust Internal API)
+/// O(1) Static Sutra Lookup (Rust Internal API): (sutra, category, hardware_gate).
+/// An empty category means the sutra is not yet classified.
 pub fn lookup_sutra(id: &str) -> Option<(&'static str, &'static str, &'static str)> {
     ASHTADHYAYI_MAP.get(id).copied()
 }

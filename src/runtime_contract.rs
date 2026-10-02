@@ -55,7 +55,13 @@ pub fn execute_contract_operation(
         RuntimeOperation::LookupSutra { sutra_id } => {
             let (sutra, category, hardware_gate) =
                 lookup_sutra(sutra_id).ok_or_else(|| format!("Sutra {sutra_id} not found"))?;
-            json!({ "id": sutra_id, "sutra": sutra, "category": category, "hardwareGate": hardware_gate })
+            json!({
+                "id": sutra_id,
+                "sutra": sutra,
+                "category": (!category.is_empty()).then_some(category),
+                "hardwareGate": hardware_gate,
+                "source": crate::SUTRA_SOURCE,
+            })
         }
     };
     let output_bytes = serde_json::to_vec(&output).map_err(|error| error.to_string())?;
@@ -103,5 +109,47 @@ mod tests {
         assert_eq!(result.status, ExecutionStatus::Succeeded);
         assert_eq!(result.output["tokens"].as_array().unwrap().len(), 2);
         assert_ne!(result.input_digest, result.output_digest);
+    }
+    #[test]
+    fn looks_up_real_sutras_with_attribution() {
+        let result = execute_contract_operation(
+            "REQ-2",
+            "OP-2",
+            &RuntimeOperation::LookupSutra {
+                sutra_id: "6.1.77".into(),
+            },
+        )
+        .unwrap();
+        assert_eq!(result.output["sutra"], "इको यणचि");
+        assert_eq!(result.output["category"], "विधि (Vidhi)");
+        assert!(result.output["source"].as_str().unwrap().contains("MIT"));
+        let unclassified = execute_contract_operation(
+            "REQ-3",
+            "OP-3",
+            &RuntimeOperation::LookupSutra {
+                sutra_id: "8.4.68".into(),
+            },
+        )
+        .unwrap();
+        assert_eq!(unclassified.output["sutra"], "अ अ");
+        assert!(unclassified.output["category"].is_null());
+        // The first pada has 75 sutras; the old placeholder data answered 1.1.101.
+        assert!(execute_contract_operation(
+            "REQ-4",
+            "OP-4",
+            &RuntimeOperation::LookupSutra {
+                sutra_id: "1.1.101".into(),
+            },
+        )
+        .is_err());
+    }
+    #[test]
+    fn every_sutra_the_sandhi_engine_cites_exists() {
+        for id in ["1.1.1", "6.1.77", "6.1.87", "6.1.101", "8.4.40"] {
+            assert!(lookup_sutra(id).is_some(), "{id}");
+        }
+        assert_eq!(lookup_sutra("6.1.87").unwrap().0, "आद्गुणः");
+        assert_eq!(lookup_sutra("6.1.101").unwrap().0, "अकः सवर्णे दीर्घः");
+        assert_eq!(lookup_sutra("8.4.40").unwrap().0, "स्तोः श्चुना श्चुः");
     }
 }
