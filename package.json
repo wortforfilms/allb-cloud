@@ -37,7 +37,7 @@
     "licenses:check": "node scripts/dependency-license-scan.mjs",
     "security:npm": "npm audit --package-lock-only --audit-level=high && npm --prefix apps/siddham-authority-desktop audit --package-lock-only --audit-level=high",
     "security:cargo": "cargo audit",
-    "test:rtl": "make sim sim-top rtl-check",
+    "test:rtl": "make sim sim-top sim-panini rtl-check",
     "test:all": "cargo test --workspace --locked && npm test && npx tsc --noEmit && npm run contracts:python-check && npm run desktop:check && npm run test:rtl",
     "sbom:generate": "node scripts/generate-sbom.mjs",
     "artifacts:package": "node scripts/package-release.mjs",

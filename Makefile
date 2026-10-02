@@ -1,4 +1,4 @@
-.PHONY: all sim sim-top rtl-check test build-wasm verify package deploy-staging clean
+.PHONY: all sim sim-top sim-panini rtl-check test build-wasm verify package deploy-staging clean
 
 # 1. सम्पूर्ण सिस्टम बिल्ड और टेस्ट
 all: build-wasm test
@@ -14,9 +14,14 @@ sim-top:
 	@echo "==> Executing the integrated DMA + NPU core regression..."
 	hardware/scripts/run_top_sim.sh
 
+sim-panini:
+	@echo "==> Paninian datapath regression (Shiva Sutra ROM + sandhi engine vs reference and Vidyut)..."
+	hardware/scripts/run_panini_sim.sh
+
 rtl-check:
 	@echo "==> Compile-checking the integrated NPU top-level..."
 	iverilog -g2012 -s siddham_npu_top -o /tmp/siddham-npu-top-check.vvp hardware/rtl/siddham_npu_top.v hardware/rtl/npu_compute_core.v hardware/rtl/npu_dma_engine.v
+	iverilog -g2012 -I hardware/rtl -s panini_datapath -o /tmp/panini-datapath-check.vvp hardware/rtl/sivasutra_rom.v hardware/rtl/sandhi_engine.v hardware/rtl/panini_datapath.v
 
 # 3. L1/L2: Native Rust Kernel & Vitest E2E Suite
 test: build-wasm

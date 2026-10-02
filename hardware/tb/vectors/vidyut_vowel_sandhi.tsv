@@ -1,0 +1,156 @@
+# Vidyut vowel-sandhi rules (word boundary): first<TAB>second<TAB>result, SLP1. From vidyut-sandhi generate_rules(),
+# https://github.com/ambuda-org/vidyut commit 8da2f90bee3ce1c07505fa432fc3729e3f7e02ea, MIT licence (see data/sources/vidyut/LICENSE-vidyut.md).
+a	a	A
+a	A	A
+a	i	e
+a	I	e
+a	u	o
+a	U	o
+a	f	ar
+a	F	ar
+a	x	al
+a	X	al
+a	e	E
+a	E	E
+a	o	O
+a	O	O
+A	a	A
+A	A	A
+A	i	e
+A	I	e
+A	u	o
+A	U	o
+A	f	ar
+A	F	ar
+A	x	al
+A	X	al
+A	e	E
+A	E	E
+A	o	O
+A	O	O
+i	a	y a
+i	A	y A
+i	i	I
+i	I	I
+i	u	y u
+i	U	y U
+i	f	y f
+i	F	y F
+i	x	y x
+i	X	y X
+i	e	y e
+i	E	y E
+i	o	y o
+i	O	y O
+I	a	y a
+I	A	y A
+I	i	I
+I	I	I
+I	u	y u
+I	U	y U
+I	f	y f
+I	F	y F
+I	x	y x
+I	X	y X
+I	e	y e
+I	E	y E
+I	o	y o
+I	O	y O
+u	a	v a
+u	A	v A
+u	i	v i
+u	I	v I
+u	u	U
+u	U	U
+u	f	v f
+u	F	v F
+u	x	v x
+u	X	v X
+u	e	v e
+u	E	v E
+u	o	v o
+u	O	v O
+U	a	v a
+U	A	v A
+U	i	v i
+U	I	v I
+U	u	U
+U	U	U
+U	f	v f
+U	F	v F
+U	x	v x
+U	X	v X
+U	e	v e
+U	E	v E
+U	o	v o
+U	O	v O
+f	a	r a
+f	A	r A
+f	i	r i
+f	I	r I
+f	u	r u
+f	U	r U
+f	f	F
+f	F	F
+f	x	r x
+f	X	r X
+f	e	r e
+f	E	r E
+f	o	r o
+f	O	r O
+F	a	r a
+F	A	r A
+F	i	r i
+F	I	r I
+F	u	r u
+F	U	r U
+F	f	F
+F	F	F
+F	x	r x
+F	X	r X
+F	e	r e
+F	E	r E
+F	o	r o
+F	O	r O
+e	a	e '
+e	A	a A
+e	i	a i
+e	I	a I
+e	u	a u
+e	U	a U
+e	f	a f
+e	F	a F
+e	x	a x
+e	X	a X
+e	e	a e
+e	E	a E
+e	o	a o
+e	O	a O
+E	a	A a
+E	A	A A
+E	i	A i
+E	I	A I
+E	u	A u
+E	U	A U
+E	f	A f
+E	F	A F
+E	x	A x
+E	X	A X
+E	e	A e
+E	E	A E
+E	o	A o
+E	O	A O
+O	a	Av a
+O	A	Av A
+O	i	Av i
+O	I	Av I
+O	u	Av u
+O	U	Av U
+O	f	Av f
+O	F	Av F
+O	x	Av x
+O	X	Av X
+O	e	Av e
+O	E	Av E
+O	o	Av o
+O	O	Av O
