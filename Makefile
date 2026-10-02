@@ -15,7 +15,7 @@ sim-top:
 	hardware/scripts/run_top_sim.sh
 
 sim-panini:
-	@echo "==> Paninian datapath regression (vowel + consonant/visarga sandhi vs references and Vidyut)..."
+	@echo "==> Paninian regression (sandhi engines + prakriya core vs references and Vidyut)..."
 	hardware/scripts/run_panini_sim.sh
 
 rtl-check:
@@ -23,6 +23,7 @@ rtl-check:
 	iverilog -g2012 -s siddham_npu_top -o /tmp/siddham-npu-top-check.vvp hardware/rtl/siddham_npu_top.v hardware/rtl/npu_compute_core.v hardware/rtl/npu_dma_engine.v
 	iverilog -g2012 -I hardware/rtl -s panini_datapath -o /tmp/panini-datapath-check.vvp hardware/rtl/sivasutra_rom.v hardware/rtl/sandhi_engine.v hardware/rtl/panini_datapath.v
 	iverilog -g2012 -I hardware/rtl -s hal_sandhi_pipeline -o /tmp/hal-sandhi-check.vvp hardware/rtl/hal_sandhi_stages.v hardware/rtl/hal_sandhi_pipeline.v
+	iverilog -g2012 -I hardware/rtl -s prakriya_core -o /tmp/prakriya-core-check.vvp hardware/rtl/prakriya_core.v
 
 # 3. L1/L2: Native Rust Kernel & Vitest E2E Suite
 test: build-wasm

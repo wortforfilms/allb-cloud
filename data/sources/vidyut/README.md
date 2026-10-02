@@ -15,3 +15,5 @@ The same files are used by Guru in the brahmini repository, under `guru/data/pan
 Keep this attribution:
 
 > Ashtadhyayi text from Vidyut (https://github.com/ambuda-org/vidyut), © ambuda.org, MIT licence; data originally shared by ashtadhyayi.com.
+
+`dhatupatha.tsv` (same commit, MIT; SHA-256 `bb2013ea…ba380`) is the Dhātupāṭha. `hardware/scripts/prakriya_ref.py` uses it to pick the roots for the prakriyā core and to compare them with Vidyut's derivations.

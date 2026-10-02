@@ -140,18 +140,66 @@ Yosys `synth_ice40` with 3 lanes: 1,550 LUT4s, 358 flip-flops and 175 carry cell
 - Sandhi inside a word, such as ṇatva (8.4.1) and ṣatva (8.3.59).
 - Chains of more than one juncture.
 
-### State-dependent precedence (nitya, antaraṅga)
+## Prakriyā core: derivation with speculative precedence
 
-Neither junction engine ever needs these principles. In the vowel engine, the exceptions always leave exactly one rule. In the consonant and visarga pipeline, each stage applies at most one optional rule, and both properties are checked on every case.
+`prakriya_core.v` (with `prakriya_ops.vh`) derives a whole word from a root. The current slice is:
 
-Nitya and antaraṅga decide between rules during a derivation (prakriyā), where a stem, affixes and marker letters change over many steps. Building them means building a small prakriyā core:
+- present tense (laṭ), active voice (kartari), 3rd person singular;
+- roots of the first class (bhvādi);
+- input: the root as taught (upadeśa), letter by letter with its nasal and accent marks;
+- output: one step per clock, each with the sutra applied, how it was chosen, and the full state after it (root text, vikaraṇa, ending).
 
-- a buffer of terms;
-- a rule ROM;
-- when two rules match, both applied speculatively in shadow buffers one step ahead;
-- tests for *nitya* (does the other rule still apply afterwards?) and *antaraṅga* (which one acts on the inner part?);
-- then commit.
+| Kind | Rules | How they run |
+| --- | --- | --- |
+| Labels | 1.3.1, 1.3.2, 1.3.3, 1.3.5, 1.3.8, 1.3.9, 1.3.12, 1.3.72, 1.3.78, 3.4.113, 1.2.4, 1.4.13, the gaṇasūtra 01.0933 | emitted right after the step that creates their condition |
+| The root as taught | 6.1.64 धात्वादेः षः सः, 6.1.65 णो नः | applied when its markers are removed |
+| Operations | 7.1.58, 3.2.123, 3.4.78, 3.1.68, 3.4.79, 7.3.84, 7.3.86, 6.1.78 | compete each step |
+| Tripādī | 8.3.24, 8.4.58, 8.4.68 | once each, in order, at the end |
 
-Vidyut's step-by-step derivations, which Maataa AAI already shows, are the reference: every step names its sutra. They can be compared with the hardware step by step.
+### Choosing between operations
+
+When more than one operation applies, the core decides by परनित्यान्तरङ्गापवादानामुत्तरोत्तरं बलीयः (each later principle is stronger than the ones before it):
+
+- **antaraṅga:** the operation whose condition spans fewer terms goes first.
+- **nitya:** decided by speculative evaluation.
+  - The core applies each candidate, with its labels, to a shadow copy of the state, one candidate per clock.
+  - It then re-evaluates every operation block on that shadow.
+  - An operation that still applies after the other one, with the same trigger, is nitya and goes first. "Same trigger" means the same *nimitta*, the affix that sets it off.
+  - Example, भू + तिप्: after śap (3.1.68), guṇa would be triggered by śap instead of तिप्. That is a different trigger, so guṇa is not nitya, and 3.1.68 goes first. This is how भवति is derived.
+- **para (1.4.2):** if neither of the above decides, the later sutra goes first.
+- **apavāda:** no exception pair occurs in this slice.
+
+One shared action unit and one extra operation-block unit serve every candidate. A fully parallel version, with eight shadow copies, took 9,734 LUT4s.
+
+### Verification
+
+`hardware/scripts/prakriya_ref.py` is the reference engine. Its rules are separate functions, and it uses the same arbitration as the hardware.
+
+**Against Vidyut's own derivations:**
+
+- The slice covers 981 of the 1,156 first-class roots, which give 1,042 forms. The other 175 roots use rules the core does not have yet.
+- All 1,042 forms are identical, and every form applies the same multiset of rules.
+- Vidyut's own order replays step by step through this engine's rules, with an identical state after every step.
+- The order of operations is the same in 651 forms. In the other 391, the engine applies 3.4.79 (त → ते) before 3.1.68 (śap), because 3.4.79 is antaraṅga; Vidyut applies śap first. The two steps commute, so the result is the same either way. The engine's order matches the Siddhānta-kaumudī derivation of एधते.
+- The script fails on any other difference.
+
+**Against the hardware** (`tb_prakriya_core.v`):
+
+- All 1,042 forms agree, step by step: 21,707 steps.
+- Each step checks the sutra, the deciding principle and the complete state.
+- 573 steps are decided by antaraṅga and 127 by nitya. Para never decides in this slice.
+- Disabling the speculative nitya test breaks 127 forms: guṇa would come before śap, triggered by तिप्. The words come out the same, but the derivation is wrong.
+- Disabling antaraṅga breaks 501 forms. Para happens to give the same order there, but the reason recorded for each step is then wrong.
+
+### Size
+
+Yosys `synth_ice40`: 6,176 LUT4s, 492 flip-flops and 1,078 carry cells. That fits an iCE40 HX8K (7,680 LUTs) or an ECP5, but not an iCE40 UP5K.
+
+### Next for the prakriyā core
+
+- All nine person and number forms. These need 7.1.3, 6.1.97, 7.3.101, 3.4.80, 7.2.81 and visarga at the end.
+- The 175 first-class roots outside the slice (6.1.97, 7.3.78, 8.3.59, 8.4.2 …), then the other classes.
+- Apavāda pairs in the arbiter.
+- Feeding the finished word into the sandhi engines.
 
 Licences: the sutra text and the Vidyut golden vectors are MIT (ambuda.org); see `data/sources/vidyut/LICENSE-vidyut.md`.
