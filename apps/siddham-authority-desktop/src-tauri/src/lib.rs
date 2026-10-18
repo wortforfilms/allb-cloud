@@ -28,7 +28,7 @@ pub fn run() {
             executor::ensure_defaults(&db)?;
             app.manage(Runtime {
                 db: Mutex::new(db),
-                policy: policy::PolicyEngine::default(),
+                policy: policy::PolicyEngine,
                 local_session_id,
             });
             Ok(())

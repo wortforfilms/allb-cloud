@@ -195,7 +195,7 @@ mod tests {
     fn permitted_operation_executes_and_links_evidence() {
         let (mut db, session_id) = database();
         let result = execute_governed_local(
-            &PolicyEngine::default(),
+            &PolicyEngine,
             &mut db,
             &session_id,
             request(ProtectedAction::RuntimeExecute),
@@ -214,7 +214,7 @@ mod tests {
     fn unavailable_action_is_recorded_but_never_executed() {
         let (mut db, session_id) = database();
         let result = execute_governed_local(
-            &PolicyEngine::default(),
+            &PolicyEngine,
             &mut db,
             &session_id,
             request(ProtectedAction::HardwareProgram),
@@ -238,7 +238,7 @@ mod tests {
         forged.principal = "release-authority".into();
         forged.assurance = AssuranceLevel::AAL3;
         let result =
-            execute_governed_local(&PolicyEngine::default(), &mut db, &session_id, forged).unwrap();
+            execute_governed_local(&PolicyEngine, &mut db, &session_id, forged).unwrap();
         assert_eq!(
             result.authorization.decision,
             Effect::RequireStepUpAuthentication
@@ -251,7 +251,7 @@ mod tests {
         let mut forged = request(ProtectedAction::RuntimeExecute);
         forged.workspace = "prototype-lab".into();
         assert!(
-            execute_governed_local(&PolicyEngine::default(), &mut db, &session_id, forged).is_err()
+            execute_governed_local(&PolicyEngine, &mut db, &session_id, forged).is_err()
         );
         assert!(evidence::list(&db, 10).unwrap().is_empty());
     }
