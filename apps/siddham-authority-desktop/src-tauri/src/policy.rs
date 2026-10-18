@@ -1,3 +1,13 @@
+//! Policy record and lifecycle.
+//!
+//! STATUS: INTENTIONAL-HOLD — not exposed through Tauri commands.
+//!
+//! SECURITY CONSTRAINT: Lifecycle operations must derive the actor from an
+//! authenticated session. Audit events must be attributed server-side, not
+//! from caller-supplied strings.
+//!
+//! Tracked: `docs/PRODUCT_ROADMAP.md`, Phase 8 (Complete product UX).
+
 use crate::domain::{
     AssuranceLevel, AuthorizationDecision, Effect, OperationRequest, ProtectedAction,
 };
@@ -150,6 +160,7 @@ impl PolicyEngine {
     }
 }
 
+#[allow(dead_code)] // INTENTIONAL-HOLD — see module doc
 pub fn create_draft(
     db: &Connection,
     version: &str,
@@ -169,6 +180,7 @@ pub fn create_draft(
     get(db, &id).map_err(|_| "Policy could not be loaded".to_string())
 }
 
+#[allow(dead_code)] // INTENTIONAL-HOLD — see module doc
 pub fn simulate(
     db: &Connection,
     policy_id: &str,
@@ -204,6 +216,7 @@ pub fn simulate(
     ))
 }
 
+#[allow(dead_code)] // INTENTIONAL-HOLD — see module doc
 pub fn activate(db: &mut Connection, policy_id: &str, actor: &str) -> Result<(), String> {
     let tx = db
         .transaction()
@@ -220,6 +233,7 @@ pub fn activate(db: &mut Connection, policy_id: &str, actor: &str) -> Result<(),
         .map_err(|_| "Policy activation could not be committed".to_string())
 }
 
+#[allow(dead_code)] // INTENTIONAL-HOLD — see module doc
 pub fn retire(db: &mut Connection, policy_id: &str, actor: &str) -> Result<(), String> {
     let tx = db
         .transaction()

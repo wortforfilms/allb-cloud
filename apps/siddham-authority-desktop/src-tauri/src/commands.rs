@@ -1,8 +1,8 @@
 use crate::{
     approval::{self, ApprovalView},
     domain::{
-        Effect, EvidenceEvent, GovernedOperationResult, OperationRequest, ProtectedAction,
-        RuntimeCapability, SystemStatus,
+        Effect, EvidenceEvent, GovernedOperationResult, OperationRequest, RuntimeCapability,
+        SystemStatus,
     },
     evidence,
     executor::{self, HandlerMetadata},
@@ -34,6 +34,7 @@ pub fn execute_governed(
     )
 }
 
+#[cfg(test)]
 fn execute_governed_local(
     policy: &PolicyEngine,
     db: &mut Connection,
@@ -106,7 +107,7 @@ fn execute_governed_with_approval_local(
     }
     let operation_id = format!(
         "OP-{}",
-        &Uuid::new_v4().simple().to_string()[..8].to_uppercase()
+        Uuid::new_v4().simple().to_string()[..8].to_uppercase()
     );
     assign_operation_id(db, &request.request_id, &operation_id)?;
     let execution = executor::execute(
@@ -163,7 +164,7 @@ fn assign_operation_id(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::AssuranceLevel;
+    use crate::domain::{AssuranceLevel, ProtectedAction};
     use siddham_contracts::{RuntimeOperation, SCHEMA_VERSION};
 
     fn request(action: ProtectedAction) -> OperationRequest {
@@ -237,8 +238,7 @@ mod tests {
         let mut forged = request(ProtectedAction::ReleaseApprove);
         forged.principal = "release-authority".into();
         forged.assurance = AssuranceLevel::AAL3;
-        let result =
-            execute_governed_local(&PolicyEngine, &mut db, &session_id, forged).unwrap();
+        let result = execute_governed_local(&PolicyEngine, &mut db, &session_id, forged).unwrap();
         assert_eq!(
             result.authorization.decision,
             Effect::RequireStepUpAuthentication
@@ -250,9 +250,7 @@ mod tests {
         let (mut db, session_id) = database();
         let mut forged = request(ProtectedAction::RuntimeExecute);
         forged.workspace = "prototype-lab".into();
-        assert!(
-            execute_governed_local(&PolicyEngine, &mut db, &session_id, forged).is_err()
-        );
+        assert!(execute_governed_local(&PolicyEngine, &mut db, &session_id, forged).is_err());
         assert!(evidence::list(&db, 10).unwrap().is_empty());
     }
 

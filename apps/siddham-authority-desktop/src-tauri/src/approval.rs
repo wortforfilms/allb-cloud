@@ -1,3 +1,17 @@
+//! Delegation and emergency access.
+//!
+//! STATUS: INTENTIONAL-HOLD — not exposed through Tauri commands.
+//!
+//! SECURITY CONSTRAINT: These functions accept caller-supplied principal and
+//! reviewer strings. Wiring them without deriving the actor from an
+//! authenticated session would allow impersonation of a grantor or reviewer.
+//! Any future command MUST:
+//! 1. Derive the actor from the authenticated session, not a parameter.
+//! 2. Enforce membership, role, and scope in the command layer.
+//! 3. Add tests proving scope, expiry, and revocation enforcement.
+//!
+//! Tracked: `docs/PRODUCT_ROADMAP.md`, Phase 8 (Complete product UX).
+
 use crate::{domain::OperationRequest, identity};
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::Serialize;
@@ -163,6 +177,7 @@ pub fn list(db: &Connection, workspace: &str) -> Result<Vec<ApprovalView>, Strin
     ids.into_iter().map(|id| get(db, &id)).collect()
 }
 
+#[allow(dead_code)] // INTENTIONAL-HOLD — see module doc
 pub fn grant_delegation(
     db: &Connection,
     grantor: &str,
@@ -192,6 +207,7 @@ pub fn grant_delegation(
     Ok(id)
 }
 
+#[allow(dead_code)] // INTENTIONAL-HOLD — see module doc
 pub fn delegation_valid(
     db: &Connection,
     id: &str,
@@ -201,6 +217,7 @@ pub fn delegation_valid(
 ) -> Result<bool, String> {
     db.query_row("select exists(select 1 from authority_delegation where id=?1 and delegate=?2 and workspace_id=?3 and action=?4 and status='active' and datetime(expires_at)>datetime('now'))",params![id,delegate,workspace,action],|r|r.get(0)).map_err(|_|"Delegation validation unavailable".to_string())
 }
+#[allow(dead_code)] // INTENTIONAL-HOLD — see module doc
 pub fn revoke_delegation(db: &Connection, id: &str, grantor: &str) -> Result<(), String> {
     if db.execute("update authority_delegation set status='revoked',revoked_at=datetime('now') where id=?1 and grantor=?2 and status='active'",params![id,grantor]).map_err(|_|"Delegation could not be revoked".to_string())?!=1{return Err("Active delegation not found".into());}
     event(
@@ -214,6 +231,7 @@ pub fn revoke_delegation(db: &Connection, id: &str, grantor: &str) -> Result<(),
     .map_err(|_| "Delegation provenance could not be recorded".to_string())
 }
 
+#[allow(dead_code)] // INTENTIONAL-HOLD — see module doc
 pub fn request_emergency(
     db: &Connection,
     principal: &str,
@@ -230,6 +248,7 @@ pub fn request_emergency(
         .map_err(|_| "Emergency provenance could not be recorded".to_string())?;
     Ok(id)
 }
+#[allow(dead_code)] // INTENTIONAL-HOLD — see module doc
 pub fn review_emergency(
     db: &Connection,
     id: &str,
@@ -258,6 +277,7 @@ pub fn review_emergency(
     )
     .map_err(|_| "Emergency provenance could not be recorded".to_string())
 }
+#[allow(dead_code)] // INTENTIONAL-HOLD — see module doc
 pub fn emergency_valid(
     db: &Connection,
     id: &str,
@@ -267,6 +287,7 @@ pub fn emergency_valid(
 ) -> Result<bool, String> {
     db.query_row("select exists(select 1 from emergency_access where id=?1 and principal_id=?2 and workspace_id=?3 and action=?4 and status='approved' and datetime(expires_at)>datetime('now'))",params![id,principal,workspace,action],|r|r.get(0)).map_err(|_|"Emergency access validation unavailable".to_string())
 }
+#[allow(dead_code)] // INTENTIONAL-HOLD — see module doc
 pub fn revoke_emergency(db: &Connection, id: &str, reviewer: &str) -> Result<(), String> {
     if db.execute("update emergency_access set status='revoked',revoked_at=datetime('now') where id=?1 and reviewed_by=?2 and status='approved'",params![id,reviewer]).map_err(|_|"Emergency access could not be revoked".to_string())?!=1{return Err("Approved emergency access not found".into());}
     event(

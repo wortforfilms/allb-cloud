@@ -270,7 +270,7 @@ fn enum_string<T: Serialize>(value: &T) -> String {
 fn event_id(prefix: &str) -> String {
     format!(
         "{prefix}-{}",
-        &Uuid::new_v4().simple().to_string()[..8].to_uppercase()
+        Uuid::new_v4().simple().to_string()[..8].to_uppercase()
     )
 }
 fn authorization_hash(
