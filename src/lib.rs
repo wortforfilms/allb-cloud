@@ -309,7 +309,20 @@ pub fn lookup_ashtadhyayi_sutra(sutra_id: &str) -> Result<JsValue, JsValue> {
             hardware_gate: hardware_gate.to_string(),
             source: SUTRA_SOURCE,
         };
-        serde_wasm_bindgen::to_value(&info).map_err(|e| JsValue::from_str(&e.to_string()))
+        let value = serde_wasm_bindgen::to_value(&info)
+            .map_err(|e| JsValue::from_str(&e.to_string()))?;
+        let category_value = info
+            .category
+            .as_deref()
+            .map(JsValue::from_str)
+            .unwrap_or(JsValue::NULL);
+        js_sys::Reflect::set(
+            &value,
+            &JsValue::from_str("category"),
+            &category_value,
+        )
+        .map_err(|e| JsValue::from_str(&format!("Failed to set sutra category: {e:?}")))?;
+        Ok(value)
     } else {
         Err(JsValue::from_str(
             "Sutra ID not found in Ashtadhyayi static hash map",
