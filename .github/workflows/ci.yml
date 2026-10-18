@@ -53,7 +53,7 @@ jobs:
           npm run preflight:disk
           npm run hygiene:check
       - name: Install locked dependencies
-        run: npm run install:all
+        run: npm ci && npm ci --prefix apps/siddham-authority-desktop
       - name: Validate structured files and contracts
         run: |
           npm run validate:structured

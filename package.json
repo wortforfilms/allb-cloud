@@ -1,6 +1,7 @@
 {
   "name": "allb.xyz",
   "version": "1.0.0",
+  "packageManager": "npm@11.12.1",
   "description": "MAATAA sovereign runtime and Siddham semiconductor ecosystem",
   "license": "MIT OR Apache-2.0",
   "repository": {
