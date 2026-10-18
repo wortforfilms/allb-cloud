@@ -2,6 +2,11 @@
 
 Evidence date: 2026-08-29
 
+Phase 0 closeout reverified locally on 2026-10-18. Its immutable annotated tag
+`baseline-2026-08-29` targets `623ff64cf66ec8d85e4dbfae6162dd3811b36e58`.
+The external Siddham source path was absent at baseline and remains absent;
+the documented in-repository classification is the preservation disposition.
+
 ## Status vocabulary
 
 | State | Meaning |
@@ -23,10 +28,10 @@ imply precision not supported by the repository evidence.
 | --- | --- | --- | --- | --- | --- |
 | 0 | Canonical repository | Complete local | ADR 0001 establishes `allb.xyz` and its authority map | Revisit only through a superseding ADR | Closed |
 | 0 | Source classification | Complete local | Inventory classifies source, generated, demo, reference, vendor and disposable content | Maintain inventory as layout changes | Closed |
-| 0 | Coherent baseline history | Complete local | Intended changes split into coherent commits with branch policy and annotated tag | Hosted review/push remains external | Closed |
+| 0 | Coherent baseline history | Complete local | Coherent commits, branch policy and immutable annotated `baseline-2026-08-29` tag at `623ff64` | Hosted review/push remains external | Closed |
 | 0 | Toolchain record | Complete local | Rust/Node pins and observed Python/WASM/FPGA tools recorded | Pin auxiliary tools during Phase 1 | Closed |
 | 0 | Repository assurance | Complete local | Hygiene, secret-pattern, licence metadata, vulnerability and large-file scans recorded | Automate deeper supply-chain reports in Phase 1 | Closed |
-| 0 | Operational baseline | Complete local | ADR, validation report, risk register and staging record preserved; absent external path documented | Review risks at every milestone | Closed |
+| 0 | Operational baseline | Complete local | ADR, validation report, risk register, staging record and toolchain inventory preserved; unavailable external source path verified and documented | Review risks at every milestone | Closed |
 | 1 | Root build commands | Complete local | Canonical install/clean/build/test/verify/package scripts and Make aliases | Preserve compatibility as modules are added | Closed locally |
 | 1 | Deterministic generation | Complete local | Contract generator and drift check | Expand to all Phase 2 domains | P1 |
 | 1 | Native/WASM/TypeScript/Python tests | Complete local | Canonical sequence rebuilds WASM before 20 TypeScript/Worker tests plus Rust and Python suites | Preserve clean-checkout evidence | Closed locally |
@@ -105,7 +110,7 @@ imply precision not supported by the repository evidence.
 
 | Milestone | Target state | Current state | Gate status |
 | --- | --- | --- | --- |
-| M0 — authoritative baseline | Local engineering baseline | Achieved locally | `baseline-2026-08-29`; hosted clean-clone evidence moves to M1 |
+| M0 — authoritative baseline | Local engineering baseline | Achieved locally | Immutable `baseline-2026-08-29` at `623ff64`; source-absence disposition documented; hosted clean-clone evidence is tracked in M1 |
 | M1 — reproducible CI | Controlled development | Achieved | Hosted run `33237684396` passed the Linux stack and Ubuntu/macOS/Windows desktop matrix and retained release evidence |
 | M2 — shared contracts | Integration foundation | Achieved locally | Contract 1.1.0, Phase 2 domains, generated projections, validators, fixtures and drift gates are complete; hosted reproduction pending |
 | M3 — identity and Authority | Security prototype | Achieved locally | Phase 3 identity, Phase 4 Authority and Phase 5 maker-checker approval pass locally; production credentials and hosted security review remain open gates |

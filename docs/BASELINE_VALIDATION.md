@@ -1,7 +1,8 @@
 # Phase 0 baseline validation
 
 Validation date: 2026-08-29
-Planned tag: `baseline-2026-08-29`
+Created annotated tag: `baseline-2026-08-29`
+Tag target: `623ff64cf66ec8d85e4dbfae6162dd3811b36e58`
 
 ## Result
 
@@ -62,3 +63,22 @@ The former `/Users/vesahe/Documents/GitHub/siddhamsemiconductor` directory was
 absent at validation time. No external directory was deleted or moved. The
 consolidated Siddham content is classified within this repository, and the ADR
 records that state.
+
+## Phase 0 closeout verification
+
+Verified 2026-10-18 against the local repository:
+
+- The annotated `baseline-2026-08-29` tag exists and still targets
+  `623ff64cf66ec8d85e4dbfae6162dd3811b36e58`; the tag was not moved.
+- The checkout was clean before this documentation update. Later development
+  commits remain descendants of the baseline and do not redefine its tag.
+- The former external Siddham path remains absent. The in-repository
+  `references/siddham/` material and canonical `apps/` and `demos/` trees are
+  the preserved source available for this baseline. No external archive is
+  claimed.
+
+Phase 0 is closed as a **local engineering baseline**. For the source
+preservation gate, a verified missing source path plus documented in-repository
+classification is the recorded disposition; it does not imply an external
+archive or hosted clean-clone certification. Hosted reproducibility remains a
+Phase 1 evidence gate.

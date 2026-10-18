@@ -42,7 +42,7 @@ in [`ROADMAP_STATUS_MATRIX.md`](ROADMAP_STATUS_MATRIX.md).
 
 | Phase | Scope | Current evidence status | Next gate |
 | --- | --- | --- | --- |
-| 0 | Authoritative baseline | Complete locally | Canonical ADR, inventory, policies, scans, coherent commits and `baseline-2026-08-29` tag |
+| 0 | Authoritative baseline | Complete locally | ADR 0001, source inventory, branch/release policy, toolchain/risk/staging records, baseline validation and annotated tag `baseline-2026-08-29` (`623ff64`) | Reopen only through a superseding ADR; hosted clean-clone evidence is tracked in Phase 1 |
 | 1 | Reproducible build and CI | Partial | Clean-clone matrix, pinned toolchains, disk guard, audits, SBOM, checksummed artifacts and release manifest |
 | 2 | Canonical contracts | Partial foundation complete | Expand from operation/runtime types to all domains, validators, invalid-rule fixtures, compatibility and migration policy |
 | 3 | Identity, workspace and tenancy | Complete local security prototype | Production credentials, authorized recovery, tenant key lifecycle and activated OIDC/SAML |
@@ -86,9 +86,13 @@ This foundation is an integration milestone, not completion of Phases 0–7.
 ### Phase 0 — authoritative baseline
 
 A clean, committed worktree; coherent history; canonical repository decision;
-reproducible baseline tag; toolchain inventory; secret, licence and large-file
-scans; architecture decision; staging record; risk register; and archived
-external Siddham source.
+immutable annotated baseline tag; toolchain inventory; secret, licence and
+large-file scans; architecture decision; staging record; and risk register.
+Preserve an available external Siddham source archive; if the source path is
+absent, verify and document that absence and classify the Siddham material
+already present in the canonical repository. This disposition does not claim
+an external archive exists. Phase 0 closes as a local engineering baseline;
+hosted clean-clone evidence remains a Phase 1 gate.
 
 ### Phase 1 — reproducible build and CI
 
