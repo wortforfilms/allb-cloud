@@ -127,11 +127,12 @@ jobs:
         run: npm run contracts:check
       - name: Type-check and build desktop UI
         run: npm run check
-      - name: Check, lint, and test Rust authority
-        run: |
-          cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
-          cargo clippy --locked --all-targets --manifest-path src-tauri/Cargo.toml -- -D warnings
-          cargo test --locked --manifest-path src-tauri/Cargo.toml
+      - name: Format Rust authority
+        run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+      - name: Lint Rust authority
+        run: cargo clippy --locked --all-targets --manifest-path src-tauri/Cargo.toml -- -D warnings
+      - name: Test Rust authority
+        run: cargo test --locked --manifest-path src-tauri/Cargo.toml
       - name: Build desktop application without bundle
         run: npm run desktop:build -- --no-bundle
 
