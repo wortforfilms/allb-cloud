@@ -47,9 +47,10 @@ full run across the block: 128 chars -> 128 glyphs, .notdef count = 0
 
 No OpenType GSUB/GPOS rules are defined (no mark-to-base attachment, no
 reordering) — each code point is an independent advance-width glyph. That's
-a real simplification versus production Indic text layout, but it matches
-what `brahmi_tokenizer.rs` itself does: it also treats each code point as
-an independent token, not a shaped cluster.
+a real simplification versus production Indic text layout. It matches the
+WASM exports in `lib.rs` (`tokenize_brahmi_script`), which treat each code
+point as an independent token. The canonical `brahmi_tokenizer.rs` groups
+aksharas, but the font does not shape them.
 
 ## Files
 

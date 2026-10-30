@@ -1,6 +1,10 @@
 """
 Brahmi Script Tokenizer Engine for Maataa Sovereign AI Runtime
 Unicode Range: U+11000 - U+1107F
+
+Python mirror of the canonical Rust tokenizer in src/brahmi_tokenizer.rs
+(ADR 0002). Segmentation must match tests/fixtures/brahmi_aksharas.json;
+change the Rust module and the fixture first, then this file.
 """
 
 import re
@@ -12,6 +16,8 @@ class BrahmiScriptTokenizer:
     CONSONANTS = set(range(0x11013, 0x11038))
     VOWEL_SIGNS = set(range(0x11038, 0x11047))
     VIRAMA = 0x11046
+    # Candrabindu, anusvara and visarga attach to the preceding akshara.
+    VARIOUS_SIGNS = set(range(0x11000, 0x11003))
     NUMERALS = set(range(0x11066, 0x11070))
 
     def __init__(self):
@@ -47,7 +53,7 @@ class BrahmiScriptTokenizer:
                     if current_cluster:
                         tokens.append(current_cluster)
                     current_cluster = char
-                elif cp in self.VOWEL_SIGNS or cp == self.VIRAMA:
+                elif cp in self.VOWEL_SIGNS or cp == self.VIRAMA or cp in self.VARIOUS_SIGNS:
                     current_cluster += char
                 else:
                     if current_cluster:
@@ -67,8 +73,15 @@ class BrahmiScriptTokenizer:
 
     def encode(self, text: str) -> List[int]:
         """Converts Brahmi text string into token IDs."""
-        tokens = self.tokenize(text)
-        return [self.vocab.get(t, self.vocab["[UNK]"]) for t in tokens]
+        # The vocabulary holds single code points; a multi-code-point akshara
+        # is encoded as its code points so that decode() round-trips.
+        ids: List[int] = []
+        for token in self.tokenize(text):
+            if token in self.vocab:
+                ids.append(self.vocab[token])
+            else:
+                ids.extend(self.vocab.get(ch, self.vocab["[UNK]"]) for ch in token)
+        return ids
 
     def decode(self, token_ids: List[int]) -> str:
         """Converts token IDs back to text string."""

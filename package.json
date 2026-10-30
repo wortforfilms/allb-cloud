@@ -33,6 +33,7 @@
     "contracts:generate": "node scripts/generate-contracts.mjs",
     "contracts:check": "node scripts/generate-contracts.mjs --check",
     "contracts:python-check": "python3 -m unittest contracts/test_python_contracts.py",
+    "sdk:python-check": "python3 -m unittest sdk/python/test_brahmi_tokenizer.py",
     "preflight:disk": "node scripts/check-disk-space.mjs 6",
     "hygiene:check": "node scripts/repository-hygiene.mjs",
     "licenses:check": "node scripts/dependency-license-scan.mjs",

@@ -59,6 +59,7 @@ jobs:
           npm run validate:structured
           npm run contracts:check
           npm run contracts:python-check
+          npm run sdk:python-check
       - name: Validate licenses and dependency security
         run: |
           npm run licenses:check

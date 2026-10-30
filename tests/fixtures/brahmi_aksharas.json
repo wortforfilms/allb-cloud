@@ -1,0 +1,81 @@
+{
+  "description": "Shared Brahmi akshara segmentation contract (ADR 0002). Rust src/brahmi_tokenizer.rs and sdk/python/brahmi_tokenizer.py must both produce these tokens.",
+  "unicode_block": "U+11000..U+1107F",
+  "cases": [
+    {
+      "name": "lipi",
+      "input": "𑀮𑀺𑀧𑀺",
+      "aksharas": [
+        "𑀮𑀺",
+        "𑀧𑀺"
+      ],
+      "note": "LA+I, PA+I"
+    },
+    {
+      "name": "vowel_sign_aa_joins_consonant",
+      "input": "𑀓𑀸",
+      "aksharas": [
+        "𑀓𑀸"
+      ],
+      "note": "U+11038 is a dependent sign, not a consonant"
+    },
+    {
+      "name": "anusvara_joins",
+      "input": "𑀅𑀁",
+      "aksharas": [
+        "𑀅𑀁"
+      ],
+      "note": "independent vowel + anusvara"
+    },
+    {
+      "name": "visarga_joins",
+      "input": "𑀓𑀂",
+      "aksharas": [
+        "𑀓𑀂"
+      ],
+      "note": "consonant + visarga"
+    },
+    {
+      "name": "virama_then_new_consonant",
+      "input": "𑀓𑁆𑀱",
+      "aksharas": [
+        "𑀓𑁆",
+        "𑀱"
+      ],
+      "note": "virama stays with KA; conjuncts are not merged"
+    },
+    {
+      "name": "mixed_script_passthrough",
+      "input": "𑀅 a",
+      "aksharas": [
+        "𑀅",
+        " ",
+        "a"
+      ],
+      "note": "non-Brahmi characters are single tokens"
+    },
+    {
+      "name": "digit_standalone",
+      "input": "𑀓𑁧",
+      "aksharas": [
+        "𑀓",
+        "𑁧"
+      ],
+      "note": "digits break the cluster"
+    },
+    {
+      "name": "leading_sign",
+      "input": "𑀁",
+      "aksharas": [
+        "𑀁"
+      ],
+      "note": "a sign with no base is its own token"
+    },
+    {
+      "name": "empty",
+      "input": "",
+      "aksharas": [],
+      "note": "no tokens"
+    }
+  ]
+}
