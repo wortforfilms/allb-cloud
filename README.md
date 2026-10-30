@@ -94,7 +94,7 @@ curl -X POST "$EDGE_BASE_URL/api/z0/tokenize-brahmi" \
 ```
 
 Native outbound binaries are fail-closed. Set `MAATAA_EDGE_URL` and a secret
-32-byte `MAATAA_SIGNING_KEY_HEX` explicitly before running `maataa_kernel` or
+32-byte `MAATAA_SIGNING_KEY_HEX` explicitly before running `maataa_runtime_node` or
 `replay_test`. Never pass the signing key as a command argument or commit it.
 
 ## Deployment boundary

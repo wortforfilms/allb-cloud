@@ -8,7 +8,7 @@ use maataa_runtime::z0_vesp_protocol::{VespPayload, Z0VespProtocolEngine};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=================================================");
-    println!("  MAATAA SOVEREIGN AI RUNTIME KERNEL (STAGE 4)  ");
+    println!("   MAATAA SOVEREIGN AI RUNTIME NODE (STAGE 4)   ");
     println!("=================================================");
 
     // 1. Pipeline Setup
