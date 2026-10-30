@@ -1,6 +1,6 @@
 # MAATAA Sovereign Runtime
 
-[![CI Pipeline](https://github.com/vesahe/allb.xyz/actions/workflows/ci.yml/badge.svg)](https://github.com/vesahe/allb.xyz/actions/workflows/ci.yml)
+[![CI Pipeline](https://github.com/thelinep/allb/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/thelinep/allb/actions/workflows/ci.yml)
 
 MAATAA is a Rust and WebAssembly runtime for Brahmi tokenization, bounded
 Paninian Sandhi evaluation, and compile-time Ashtadhyayi Sutra lookup. The
