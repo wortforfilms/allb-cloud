@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["Shri Hemant Kumar Dixit <phkd@allb.xyz>"]
 description = "Native Sovereign AI Runtime Kernel with Siddham NPU HAL & Brahmi Script Tokenizer"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/thelinep/allb"
+repository = "https://github.com/wortforfilms/allb-cloud"
 
 [workspace]
 members = ["crates/siddham-contracts", "apps/siddham-authority-desktop/src-tauri"]

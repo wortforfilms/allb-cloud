@@ -5,7 +5,7 @@ description = "Standalone Siddham identity, workspace authority and evidence des
 authors = ["Siddham Semiconductor"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/thelinep/allb"
+repository = "https://github.com/wortforfilms/allb-cloud"
 
 [lib]
 name = "siddham_authority_desktop_lib"

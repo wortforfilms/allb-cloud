@@ -6,7 +6,7 @@
   "license": "MIT OR Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thelinep/allb.git"
+    "url": "git+https://github.com/wortforfilms/allb-cloud.git"
   },
   "engines": {
     "node": ">=24 <25"
