@@ -253,7 +253,7 @@ pub fn execute(
             duration_micros: started.elapsed().as_micros().try_into().unwrap_or(u64::MAX),
         }
     };
-    if started.elapsed().as_secs() > DEADLINE_SECONDS.into() {
+    if started.elapsed().as_secs() > u64::from(DEADLINE_SECONDS) {
         db.execute("update handler_execution set status='timed_out',completed_at=datetime('now'),error='deadline exceeded' where operation_id=?1",[operation_id]).ok();
         return Err("Handler deadline exceeded".into());
     }
