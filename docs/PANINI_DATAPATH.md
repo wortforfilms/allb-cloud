@@ -193,7 +193,7 @@ One shared action unit and one extra operation-block unit serve every candidate.
 
 ### Size
 
-Yosys `synth_ice40`: 6,176 LUT4s, 492 flip-flops and 1,078 carry cells. That fits an iCE40 HX8K (7,680 LUTs) or an ECP5, but not an iCE40 UP5K.
+Yosys `synth_ice40` (0.33): 6,176 LUT4s, 246 flip-flops and 1,078 carry cells. That fits an iCE40 HX8K (7,680 LUTs) or an ECP5, but not an iCE40 UP5K.
 
 ### Next for the prakriyā core
 
