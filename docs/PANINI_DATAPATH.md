@@ -195,6 +195,47 @@ One shared action unit and one extra operation-block unit serve every candidate.
 
 Yosys `synth_ice40` (0.33): 6,176 LUT4s, 246 flip-flops and 1,078 carry cells. That fits an iCE40 HX8K (7,680 LUTs) or an ECP5, but not an iCE40 UP5K.
 
+### SPI interface (`fpga_top.v`, `spi_slave.v`)
+
+`fpga_top` puts the prakriyā core behind an SPI mode 0 slave for a
+microcontroller master: maataa-os on a NUCLEO-F411RE, SPI2 (PB13 SCK, PB14
+MISO, PB15 MOSI), PB12 as a GPIO chip select and PC7 as a BUSY input. PB12 is
+also SPI2's hardware NSS pin (PA4 is SPI1's and SPI3's, not SPI2's); it is
+driven as a GPIO because the STM32's hardware NSS in master mode only drops
+while SPI is enabled, not per frame.
+
+- Each frame is one CS-low period. A START frame is `0x01, ntok, flags`, then
+  two bytes per upadeśa token (letter; nasal and accent). It is checked when
+  CS rises: a well-formed START while the core is idle starts a derivation,
+  anything else sets the error bit. Any other first byte (`0x02` by
+  convention) only reads.
+- While the master clocks a frame out, the slave sends the 49-byte result
+  block from byte 0: status (busy, done, more than 32 steps, error, protocol
+  version 1), the number of steps, up to 32 steps (sutra id and deciding
+  principle), then the root text, vikaraṇa and ending after the last step.
+- BUSY is high from an accepted START until the core is done.
+- The SPI pins are sampled through two flip-flops, so `clk` must be at least
+  8× SCLK (27 MHz: SCLK up to 3 MHz). `siddham_spi_bridge.v` is not used: its
+  MISO side reloads its shift register every second clk while its source
+  keeps `s_axis_tvalid` high.
+
+**Verification** (`tb_fpga_top.v`, in `run_panini_sim.sh`): every form of
+the slice goes through SPI at clk/8 (the slowest clk allowed): START, wait
+for BUSY, READ. All 1,042 forms come back with the reference's 21,707
+steps (sutra and principle) and final state. Malformed and cut-short STARTs
+are refused, and the next good START clears the error bit. A START while the
+core works cannot be timed from the testbench (a derivation takes fewer clks
+than the shortest START frame); `fpga_top` refuses it the same way.
+
+**Size** (Yosys 0.33 `synth_ice40`, `fpga_top`): 7,048 LUT4s, 538
+flip-flops, 1,284 carry cells and one RAM40 block (the step list), 92% of an
+iCE40 HX8K's LUTs, so placement there may be tight. The SPI side adds 872
+LUT4s and 292 flip-flops to the core. For the Tang Nano 9K (GW1NR-9, 8,640
+LUT4s) the count must come from Gowin's own tools: Yosys 0.33
+`synth_gowin` maps the core alone to about 16,500 LUTs, mostly LUT1s, and is
+not a reliable estimate. No pin constraints file yet: the FPGA board's
+header pins for SPI are still to be chosen.
+
 ### Next for the prakriyā core
 
 - All nine person and number forms. These need 7.1.3, 6.1.97, 7.3.101, 3.4.80, 7.2.81 and visarga at the end.

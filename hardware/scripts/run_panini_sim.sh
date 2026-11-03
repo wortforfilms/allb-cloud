@@ -15,3 +15,6 @@ vvp -n /tmp/hal_sandhi_sim.vvp
 iverilog -g2012 -Wall -I ../rtl -I . -s tb_prakriya_core -o /tmp/prakriya_core_sim.vvp \
     ../rtl/prakriya_core.v tb_prakriya_core.v
 vvp -n /tmp/prakriya_core_sim.vvp
+iverilog -g2012 -Wall -I ../rtl -I . -s tb_fpga_top -o /tmp/fpga_top_sim.vvp \
+    ../rtl/prakriya_core.v ../rtl/spi_slave.v ../rtl/fpga_top.v tb_fpga_top.v
+vvp -n /tmp/fpga_top_sim.vvp
